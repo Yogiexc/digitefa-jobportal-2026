@@ -1,0 +1,7 @@
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+pandas==2.2.2
+requests==2.32.3
+sentence-transformers==2.6.1
+torch==2.3.0
+typing-extensions==4.12.1

@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9f9f9 !important;
+  font-family: "Poppins", sans-serif !important;
+}
+
+body { 
+  background-color: #f9f9f9 !important;
+  font-family: "Poppins", sans-serif !important;
+}
+
+.ant-spin-dot-item {
+  background-color: #06A73B !important;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #06A73B #fff; 
+}
+
+.jobportal-section.ant-card-bordered {
+  border: 1px solid #9A9A9A;
+  border-radius: 12px;
+}
+
+:where(.css-dev-only-do-not-override-12og838).ant-card .ant-card-body {
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+/* :where(.css-dev-only-do-not-override-rpkac2).ant-upload-wrapper .ant-upload-list .ant-upload-list-item .ant-upload-list-item-actions .ant-upload-list-item-action.ant-btn {
+  display: none;
+} */
+
+:where(.css-dev-only-do-not-override-rpkac2).ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload.ant-upload-select{
+  width: 200px;
+  height: 200px;
+}
+
+:where(.css-dev-only-do-not-override-rpkac2).ant-tooltip .ant-tooltip-inner {
+  display: none;
+}
+
+:where(.css-dev-only-do-not-override-12og838).ant-input-lg {
+  height: 56px;
+  border-radius: 12px;
+}
+:where(.jobportal-section).ant-card .ant-card-body {
+  padding: 10px;
+}
+
+.custom-steps .ant-steps-item-process .ant-steps-item-container .ant-steps-item-title::after {
+  background-color: #065BCC !important; 
+}
+
+.custom-steps .ant-steps-item-finish .ant-steps-item-container .ant-steps-item-title::after {
+  background-color: #15BF64 !important; 
+}
+
+:where(.css-dev-only-do-not-override-12og838).ant-collapse>.ant-collapse-item >.ant-collapse-header .ant-collapse-header-text {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+:where(.css-dev-only-do-not-override-12og838).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  border-radius: 12px;
+}
+
+/* :where(.css-dev-only-do-not-override-12og838).ant-upload-wrapper .ant-upload-list .ant-upload-list-item .ant-upload-list-item-actions .ant-upload-list-item-action.ant-btn {
+  display: none;
+} */
+
+
+
+
+/* CUSTOM FONT */
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-BoldItalic.woff2") format("woff2"),
+    url("/fonts/Poppins-BoldItalic.woff") format("woff");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-BlackItalic.woff2") format("woff2"),
+    url("/fonts/Poppins-BlackItalic.woff") format("woff");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Black.woff2") format("woff2"),
+    url("/fonts/Poppins-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Bold.woff2") format("woff2"),
+    url("/fonts/Poppins-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-ExtraBold.woff2") format("woff2"),
+    url("/fonts/Poppins-ExtraBold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Italic.woff2") format("woff2"),
+    url("/fonts/Poppins-Italic.woff") format("woff");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-ExtraBoldItalic.woff2") format("woff2"),
+    url("/fonts/Poppins-ExtraBoldItalic.woff") format("woff");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-SemiBold.woff2") format("woff2"),
+    url("/fonts/Poppins-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Regular.woff2") format("woff2"),
+    url("/fonts/Poppins-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Medium.woff2") format("woff2"),
+    url("/fonts/Poppins-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-MediumItalic.woff2") format("woff2"),
+    url("/fonts/Poppins-MediumItalic.woff") format("woff");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-SemiBoldItalic.woff2") format("woff2"),
+    url("/fonts/Poppins-SemiBoldItalic.woff") format("woff");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}

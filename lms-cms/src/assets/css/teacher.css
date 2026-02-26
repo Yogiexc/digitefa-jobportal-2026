@@ -1,0 +1,550 @@
+/* ===== NAV SA START ===== */
+#contentte {
+  margin-left: 270px;
+  transition: margin-left 0.3s ease;
+ padding: 20px 3px 20px 20px;
+}
+#contentte.collapsed {
+  margin-left: 60px;
+}
+.navbg-te .ul ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+.navbg-te .platform {
+  display: inline-block;
+  width: 80px;
+}
+.navbg-te {
+  background: rgb(249, 249, 249, 1);
+  height: auto;
+  min-height: 100vh;
+  width: 100vw;
+}
+.nav-te .navbar {
+  background-color: #ffffff;
+  height: 80px;
+  z-index: 1000;
+  border-bottom: 1px solid #bbbbbb;
+}
+.tc .gap-4 .active-tab {
+  color: #0d92f4;
+}
+/* ===== NAV SA END ===== */
+
+/* ===== SIDEBAR SA START ===== */
+#sidebarte {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  height: calc(100% - 80px);
+  width: 280px;
+  background-color: #ffffff;
+  transition: width 0.3s ease;
+  z-index: 100;
+  border-right: 1px solid #bbbbbb;
+  overflow-y: scroll;
+}
+#sidebarte::-webkit-scrollbar {
+  display: none;
+}
+#sidebarte {
+  scrollbar-width: none;
+}
+
+#sidebarte.collapsed {
+  width: 70px;
+}
+
+#sidebarte.collapsed a span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sidebarte ul {
+  padding: 0;
+  list-style-type: none;
+  margin-top: 20px;
+}
+
+#sidebarte ul li a {
+  color: white;
+  text-decoration: none;
+}
+#sidebarte ul li a.active {
+  color: black;
+}
+#sidebarte ul li a span {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#sidebarte.collapsed ul li a span {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#sidebarte ul li a .icon {
+  transition: transform 0.3s ease;
+}
+#sidebarte.collapsed ul li a .icon {
+  transform: scale(1.2);
+}
+.sd .menu-text-te {
+  font-size: 25px;
+  font-weight: 300;
+  top: 13px;
+  left: 18px;
+  position: absolute;
+}
+.icon {
+  font-size: 24px;
+  color: rgb(0, 0, 0);
+  margin-right: 13px;
+}
+.side.collapsed .menu-text-te,
+.side.collapsed .menu-text-te {
+  display: none;
+}
+.toggle-teacher {
+  font-size: 24px;
+  color: #ffffff;
+  margin-right: 2px;
+}
+.sidebar-te .color-sidebar {
+  color: #303030 !important;
+  font-weight: 500;
+  height: 50px;
+  padding-top: 6px;
+}
+.sidebar-te .color-sidebar2 {
+  color: #303030 !important;
+  font-weight: 500;
+}
+.sidebar-te .nav-link:hover {
+  color: #0d92f4 !important;
+}
+.sidebar-te .active-sidebar {
+  color: #0d92f4 !important;
+  font-weight: 500;
+  background-color: #e7f4fe;
+  height: 50px;
+  padding-top: 6px;
+}
+.sidebar-te .active-sidebar2 {
+  color: #0d92f4 !important;
+  font-weight: 500;
+}
+.sd .menu-logo-te {
+  font-size: 25px;
+  font-weight: 300;
+  top: 13px;
+  left: 25px;
+  position: absolute;
+}
+.side.collapsed .menu-logo-te,
+.side.collapsed .menu-text {
+  display: none;
+}
+#toggle-btn {
+  cursor: pointer;
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: white;
+  background: none;
+  border: none;
+}
+/* ===== SIDEBAR SA END ===== */
+
+/* ===== AUTH START ===== */
+.bg-blok {
+  height: 100vh;
+}
+/* ===== AUTH END ===== */
+
+/* ===== AUTH START ===== */
+.navbg-teacher {
+  background: rgb(249, 249, 249, 1);
+  height: auto;
+  min-height: 100vh;
+  /* width: 100vw; */
+}
+/* ===== AUTH END ===== */
+
+.dashboard-teacher .gap-4 .pointer {
+  cursor: pointer;
+  transition: background-color 0.3s, opacity 0.3s, color 0.3s;
+  position: relative;
+  color: black;
+}
+.dashboard-teacher .gap-4 .active-tab {
+  color: #0d92f4;
+}
+
+/* ==== SHADOW CARD TEACHER START ==== */
+.navbg-teacher .ds .card {
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.1); 
+}
+.navbg-teacher .lvl .card {
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.1); 
+}
+.navbg-teacher .pw .card {
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.1); 
+}
+
+
+/* ==== SHADOW CARD TEACHER START ==== */
+
+
+/* ==== TABEL TEACHER STRAT ==== */
+.navbg-teacher .custom-table {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.navbg-teacher .table-custom .dropdown-menu {
+  margin-right: 17px !important;
+  background: #e9e9e9;
+}
+.navbg-teacher .thead-custom {
+  background-color: rgba(216, 216, 216, 1) !important;
+}
+
+.navbg-teacher .thead-custom tr,
+.navbg-teacher .thead-custom th {
+  background-color: rgba(233, 233, 233, 1) !important;
+  border-bottom: #a8a8a8;
+  height: 45px;
+}
+
+/* .table-custom {
+  background-color: #28a745 !important;
+}
+.table-custom td,
+.table-custom th {
+  background-color: #28a745 !important;
+} */
+
+.navbg-teacher .table-custom tr:last-of-type td {
+  background-color: rgba(233, 233, 233, 1) !important;
+  padding: 5px !important;
+}
+.navbg-teacher .table-custom thead {
+  background-color: rgba(216, 216, 216, 1) !important;
+  color: white;
+}
+.navbg-teacher .custom-modal {
+  max-width: 500px;
+  width: 100%;
+}
+.navbg-teacher .custom-modal-sosmed {
+  max-width: 600px;
+  width: 100%;
+}
+.navbg-teacher .table-custom {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.navbg-teacher .table-custom thead {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  overflow: hidden;
+}
+.navbg-teacher .table-custom th {
+  border: none;
+}
+.navbg-teacher .table-custom td {
+  border-top: 1px solid #a8a8a8;
+}
+.navbg-teacher .table-custom tbody tr td:first-child,
+.navbg-teacher .table-custom tbody tr td:nth-child(2),
+.navbg-teacher .table-custom tbody tr td:last-child {
+  border-right: none;
+}
+.navbg-teacher .pagination {
+  margin: 0;
+}
+
+
+.body-login-profile .custom-table {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.body-login-profile .thead-custom {
+  background-color: rgba(216, 216, 216, 1) !important;
+}
+
+.body-login-profile .thead-custom tr,
+.body-login-profile .thead-custom th {
+  background-color: rgba(233, 233, 233, 1) !important;
+  border-bottom: #a8a8a8;
+  height: 45px;
+}
+.body-login-profile .table-custom tr:last-of-type td {
+  background-color: rgba(233, 233, 233, 1) !important;
+  height: 43px !important;
+}
+.body-login-profile .table-custom thead {
+  background-color: rgba(216, 216, 216, 1) !important;
+  color: white;
+}
+.body-login-profile .custom-modal {
+  max-width: 500px;
+  width: 100%;
+}
+.body-login-profile .custom-modal-sosmed {
+  max-width: 600px;
+  width: 100%;
+}
+.body-login-profile .table-custom {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.body-login-profile .table-custom thead {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  overflow: hidden;
+}
+.body-login-profile .table-custom th {
+  border: none;
+}
+.body-login-profile .table-custom td {
+  border-top: 1px solid #a8a8a8;
+}
+.body-login-profile .table-custom tbody tr td:first-child,
+.body-login-profile .table-custom tbody tr td:nth-child(2),
+.body-login-profile .table-custom tbody tr td:last-child {
+  border-right: none;
+}
+
+.body-login-profile .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+
+
+.my .custom-table {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.my .thead-custom {
+  background-color: rgba(216, 216, 216, 1) !important;
+}
+.my .thead-custom tr,
+.my .thead-custom th {
+  background-color: rgba(233, 233, 233, 1) !important;
+  border-bottom: #a8a8a8;
+}
+.my .table-custom tr:last-of-type td {
+  background-color: rgba(233, 233, 233, 1) !important;
+  height: 41px !important;
+}
+.my .table-custom thead {
+  background-color: rgba(216, 216, 216, 1) !important;
+  color: white;
+}
+.my .custom-modal {
+  max-width: 500px;
+  width: 100%;
+}
+.my .custom-modal-sosmed {
+  max-width: 600px;
+  width: 100%;
+}
+.my .table-custom {
+  border-radius: 16px;
+  overflow: hidden;
+}
+.my .table-custom thead {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  overflow: hidden;
+}
+.my .table-custom th {
+  border: none;
+}
+.my .table-custom td {
+  border-top: 1px solid #a8a8a8;
+}
+.my .table-custom tbody tr td:first-child,
+.my .table-custom tbody tr td:nth-child(2),
+.my .table-custom tbody tr td:last-child {
+  border-right: none;
+}
+.my .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+/* ==== TABEL TEACHER END ==== */
+
+/* ==== PAGINATION TEACHER START ==== */
+.navbg-teacher .pagination {
+  display: flex;
+  justify-content: flex-start;
+  gap: 15px;
+}
+.dashboard-teacher .pagination .page-item {
+  display: inline-block;
+}
+.navbg-teacher .pagination .page-link {
+  border-radius: 10%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: #ffffff; */
+  background: none;
+  color: black;
+  border: none;
+}
+.navbg-teacher .pagination .page-item.active .page-link {
+  background-color: rgba(13, 146, 244, 1);
+  color: black;
+}
+.navbg-teacher .pagination .page-item:not(.active) .page-link {
+  color: black;
+}
+.navbg-teacher .pagination .page-item.disabled .page-link {
+  background-color: transparent;
+  color: black;
+  cursor: default;
+}
+.navbg-teacher .pagination .page-link:hover {
+  background-color: #a8a8a8;
+}
+.navbg-teacher .custom-pagination .page-link {
+  height: 30px;
+  width: 30px;
+  line-height: 15px;
+  font-size: 15px;
+}
+/* ==== PAGINATION TEACHER END ==== */
+
+/* ==== TOOLTIP TEACHER END ==== */
+.navbg-teacher .tc .tooltip {
+  position: absolute !important;
+  bottom: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background-color: #656668 !important;
+  color: #fff !important;
+  border-radius: 4px !important;
+  white-space: nowrap !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s !important;
+  z-index: 10 !important;
+  margin-left: 20px !important;
+  margin-bottom: 5px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+.navbg-teacher .tc td:hover .tooltip {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.navbg-teacher .tc .tooltip::after {
+  margin-left: -25px !important;
+  border-color: #656668 transparent transparent transparent !important;
+}
+
+.reminder-student {
+  width: 15px;
+  height: 15px;
+  background-color: #3b82f6;
+  margin-right: 5px;
+}
+.reminder-rating {
+  width: 15px;
+  height: 15px;
+  background-color: #fdc04e;
+  margin-right: 5px;
+}
+.reminder-student-sa {
+  width: 15px;
+  height: 15px;
+  background-color: rgba(126, 211, 33, 1);
+  margin-right: 5px;
+}
+.reminder-teacher-sa {
+  width: 15px;
+  height: 15px;
+  background-color: rgba(245, 166, 35, 1);
+  margin-right: 5px;
+}
+
+.reminder-overview {
+  width: 50px;
+  height: 50px;
+  background-color: #3b82f6;
+  padding: 3px;
+  text-align: center;
+}
+/* ==== TOOLTIP TEACHER END ==== */
+
+.studentteacher .search-input .bi-search {
+  position: absolute;
+  top: 55%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.navbg-teacher .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+.bg-biruu {
+  background-color: #f4f7fd;
+}
+
+.navbg-teacher .c-border:hover {
+  border-color: #bbbbbb;
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* .card-body ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.card-body li {
+  list-style-type: disc;
+  line-height: 1.5;
+} */
+
+.dashboard-teacher .modul .dynamic-input {
+  width: 500px !important;
+  max-width: 500px  !important; 
+  transition: width 0.3s ease  !important;
+}
+.dashboard-teacher .modul .dynamic-input:focus {
+  width: 500px  !important;
+}
+.dashboard-teacher .modul input:focus {
+  outline: none;
+  box-shadow: none;
+}
+.dashboard-teacher .modul .text-container {
+  display: inline-block;
+  max-width: 500px;
+  overflow-x: auto;
+  white-space: nowrap;
+  cursor: pointer;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.dashboard-teacher .modul .text-container::-webkit-scrollbar {
+  display: none;
+}
+.button-container {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+}

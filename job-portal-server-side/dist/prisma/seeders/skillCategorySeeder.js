@@ -1,0 +1,116 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
+async function main() {
+    const skillCategories = [
+        { category_name: 'Programming Languages' },
+        { category_name: 'Web Development' },
+        { category_name: 'Mobile Development' },
+        { category_name: 'Data Science' },
+        { category_name: 'Machine Learning' },
+        { category_name: 'DevOps' },
+        { category_name: 'Cyber Security' },
+        { category_name: 'Cloud Computing' },
+        { category_name: 'Database Management' },
+        { category_name: 'Project Management' },
+        { category_name: 'Design' },
+        { category_name: 'Testing' },
+        { category_name: 'Networking' },
+        { category_name: 'AI & Robotics' },
+        { category_name: 'Game Development' },
+        { category_name: 'UI/UX Design' },
+        { category_name: 'Backend Development' },
+        { category_name: 'Frontend Development' },
+        { category_name: 'Full Stack Development' },
+        { category_name: 'Embedded Systems' },
+        { category_name: 'IoT' },
+        { category_name: 'Software Engineering' },
+        { category_name: 'Business Analysis' },
+        { category_name: 'System Administration' },
+        { category_name: 'IT Management' },
+        { category_name: 'Quality Assurance' },
+        { category_name: 'Agile Methodologies' },
+        { category_name: 'Scrum' },
+        { category_name: 'Kanban' },
+        { category_name: 'Product Management' },
+        { category_name: 'Technical Support' },
+        { category_name: 'Customer Support' },
+        { category_name: 'Salesforce' },
+        { category_name: 'ERP Systems' },
+        { category_name: 'Healthcare IT' },
+        { category_name: 'E-commerce' },
+        { category_name: 'Finance' },
+        { category_name: 'Marketing' },
+        { category_name: 'Content Management' },
+        { category_name: 'Social Media Marketing' },
+        { category_name: 'SEO' },
+        { category_name: 'Digital Marketing' },
+        { category_name: 'Graphic Design' },
+        { category_name: 'Video Editing' },
+        { category_name: 'Photography' },
+        { category_name: 'Animation' },
+        { category_name: 'Illustration' },
+        { category_name: 'Copywriting' },
+        { category_name: 'Translation' },
+        { category_name: 'Legal Services' },
+        { category_name: 'Human Resources' },
+        { category_name: 'Recruitment' },
+        { category_name: 'Training & Development' },
+        { category_name: 'Event Management' },
+        { category_name: 'Public Relations' },
+        { category_name: 'Journalism' },
+        { category_name: 'Publishing' },
+        { category_name: 'Education' },
+        { category_name: 'Research' },
+        { category_name: 'Non-profit' },
+        { category_name: 'Government' },
+        { category_name: 'Military' },
+        { category_name: 'Aerospace Engineering' },
+        { category_name: 'Automotive Engineering' },
+        { category_name: 'Mechanical Engineering' },
+        { category_name: 'Civil Engineering' },
+        { category_name: 'Electrical Engineering' },
+        { category_name: 'Chemical Engineering' },
+        { category_name: 'Environmental Engineering' },
+        { category_name: 'Biomedical Engineering' },
+        { category_name: 'Pharmaceuticals' },
+        { category_name: 'Biotechnology' },
+        { category_name: 'Food Industry' },
+        { category_name: 'Fashion Industry' },
+        { category_name: 'Entertainment Industry' },
+        { category_name: 'Gaming Industry' },
+        { category_name: 'Sports' },
+        { category_name: 'Travel & Tourism' },
+        { category_name: 'Hospitality' },
+        { category_name: 'Real Estate' },
+        { category_name: 'Property Management' },
+        { category_name: 'Construction' },
+        { category_name: 'Retail' },
+        { category_name: 'Supply Chain Management' },
+        { category_name: 'Logistics' },
+        { category_name: 'Warehousing' },
+        { category_name: 'Transportation' },
+        { category_name: 'Aviation' },
+        { category_name: 'Maritime' },
+        { category_name: 'Energy' },
+        { category_name: 'Renewable Energy' },
+        { category_name: 'Oil & Gas' },
+        { category_name: 'Mining' },
+    ];
+    for (const category of skillCategories) {
+        await prisma.skills_category.create({
+            data: category,
+        });
+    }
+}
+main()
+    .catch((e) => {
+    console.error(e);
+    process.exit(1);
+})
+    .finally(async () => {
+    await prisma.$disconnect();
+    console.log('Skill categories have been seeded');
+});
+//# sourceMappingURL=skillCategorySeeder.js.map
