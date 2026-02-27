@@ -57,7 +57,12 @@ function ProtectedRoute({ requiredRole }) {
     return <Navigate to="/login" />;
   }
 
-  const userData = JSON.parse(sessionStorage.getItem("userData"));
+  const userDataRaw = sessionStorage.getItem("userData");
+const userData = userDataRaw ? JSON.parse(userDataRaw) : null;
+
+if (!userData) {
+  return <Navigate to="/login" />;
+}
   const userRole = userData?.role;
   if (
     location.pathname != "/fill-data-company" &&
@@ -84,12 +89,24 @@ function ProtectedRoute({ requiredRole }) {
 }
 
 function AuthRoute() {
-  const token =
-    sessionStorage.getItem("token") || localStorage.getItem("token");
-  const location = useLocation();
+  const sessionToken = sessionStorage.getItem("token");
+  const localToken = localStorage.getItem("token");
 
-  if (token && location.pathname !== "/forgot-password") {
-    return <Navigate to="/dashboard" />;
+  let token = null;
+
+  if (sessionToken) {
+    try {
+      const parsed = JSON.parse(sessionToken);
+      token = parsed?.value;
+    } catch {
+      token = sessionToken;
+    }
+  } else if (localToken) {
+    token = localToken;
+  }
+
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;
@@ -105,7 +122,7 @@ function RoutesIndex() {
         <Route path="/confirm-email" element={<ConfirmEmail />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/reset-successfully" element={<ResetSuccessfully />} />
+        <Route path="/reset-successfully" element  ={<ResetSuccessfully />} />
         <Route path="/verification-account" element={<VerificationAccount />} />
       </Route>
 
@@ -178,7 +195,7 @@ function RoutesIndex() {
         <Route path="/fill-profile-company" element={<FillProfileCompany />} />
       </Route>
 
-      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 }

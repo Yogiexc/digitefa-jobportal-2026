@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -11,8 +11,8 @@ async function main() {
     const passwordUniversity = await bcrypt.hash('university', 10);
     const passwordCompany = await bcrypt.hash('companyy', 10);
     const passwordSuperadmin = await bcrypt.hash('superadmin', 10);
-    const passwordAdmin = await bcrypt.hash('admin', 10);
-
+    const passwordAdmin = await bcrypt.hash('admin123', 10);
+    
     // Seed job seekers
     for (let i = 1; i <= totalGenerated; i++) {
         let number = i;

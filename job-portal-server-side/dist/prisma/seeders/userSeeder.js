@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const prisma = new client_1.PrismaClient();
 async function main() {
     const totalGenerated = 15;
@@ -9,7 +9,7 @@ async function main() {
     const passwordUniversity = await bcrypt.hash('university', 10);
     const passwordCompany = await bcrypt.hash('companyy', 10);
     const passwordSuperadmin = await bcrypt.hash('superadmin', 10);
-    const passwordAdmin = await bcrypt.hash('admin', 10);
+    const passwordAdmin = await bcrypt.hash('admin123', 10);
     for (let i = 1; i <= totalGenerated; i++) {
         let number = i;
         while (true) {

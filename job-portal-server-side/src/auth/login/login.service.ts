@@ -4,7 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginJobSeekerDto } from './dto/loginJobSeeker.dto';
@@ -77,7 +77,7 @@ export class LoginService {
       this.prisma.admins.findUnique({ where: { email: loginCMSDto.email } }),
       this.prisma.companies.findUnique({ where: { email: loginCMSDto.email } }),
     ]);
-
+    
     // Not found
     if (!job_seeker && !university && !admin && !company) {
       throw new NotFoundException(
@@ -105,12 +105,13 @@ export class LoginService {
     } else if (
       admin &&
       (await bcrypt.compare(loginCMSDto.password, admin.password))
+      
     ) {
       user = { ...admin, role: 'superadmin' };
     } else {
       throw new UnauthorizedException('Invalid credentials');
     }
-
+    
     return user;
   }
 

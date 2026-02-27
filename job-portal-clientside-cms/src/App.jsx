@@ -13,7 +13,8 @@ function App() {
       try {
         if (sessionStorage.getItem("token")) {
           try {
-            const token = JSON.parse(sessionStorage.getItem("token"));
+            const tokenObj = JSON.parse(sessionStorage.getItem("token"));
+            const token = tokenObj?.value;
             const response = await Api.get("/auth/user", {
               headers: {
                 Authorization: `Bearer ${token}`,

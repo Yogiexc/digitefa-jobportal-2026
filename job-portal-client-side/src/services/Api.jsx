@@ -2,7 +2,7 @@ import axios from "axios";
 
 const Api = axios.create();
 
-Api.defaults.baseURL = import.meta.env.VITE_APP_API_URL || "http://127.0.0.1:3000/api";
+Api.defaults.baseURL = import.meta.env.VITE_APP_API_URL || "http://localhost:3000/api";
 
 Api.defaults.headers = {
   "Content-Type": "application/json",
