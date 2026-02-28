@@ -98,7 +98,11 @@ export declare class CompaniesService {
             };
         };
     }>;
-    changeStatusCompany(company_id: string, status: "accepted" | "rejected", notes: string): Promise<{
+    searchTalents(query: string): Promise<{
+        status: string;
+        data: any;
+    }>;
+    changeStatusCompany(company_id: string, status: 'accepted' | 'rejected', notes: string): Promise<{
         status: string;
         message: string;
     }>;

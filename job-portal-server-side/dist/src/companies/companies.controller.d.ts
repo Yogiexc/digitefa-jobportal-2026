@@ -68,6 +68,10 @@ export declare class CompaniesController {
             };
         };
     }>;
+    searchTalents(query: string): Promise<{
+        status: string;
+        data: any;
+    }>;
     changeStatus(changeStatusDto: ChangeStatusCompanyDto): Promise<{
         status: string;
         message: string;

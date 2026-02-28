@@ -1,13 +1,27 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CompaniesService } from './companies.service';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ChangeStatusCompanyDto } from './dto/change-status-company.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @ApiTags('companies')
 @Controller('companies')
 export class CompaniesController {
-  constructor(private readonly companiesService: CompaniesService) { }
+  constructor(private readonly companiesService: CompaniesService) {}
 
   // @Post()
   // @ApiOperation({ summary: 'Create a company' })
@@ -19,38 +33,110 @@ export class CompaniesController {
   @ApiBearerAuth('access-token')
   @UseGuards(new JwtAuthGuard(['superadmin']))
   @ApiOperation({ summary: 'List all company (Company Management)' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1, description: 'Page number' })
-  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10, description: 'Number of items per page' })
-  @ApiQuery({ name: 'search', required: false, type: String, example: '', description: 'Search term' })
-  @ApiQuery({ name: 'sortBy', required: false, type: String, example: '', description: 'Field to sort by' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], example: 'asc', description: 'Sort order' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+    example: 10,
+    description: 'Number of items per page',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    example: '',
+    description: 'Search term',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    example: '',
+    description: 'Field to sort by',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['asc', 'desc'],
+    example: 'asc',
+    description: 'Sort order',
+  })
   findAllCompanyManagement(
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc'
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
-    return this.companiesService.findAllCompanyManagement({ page, pageSize, search, sortBy, sortOrder });
+    return this.companiesService.findAllCompanyManagement({
+      page,
+      pageSize,
+      search,
+      sortBy,
+      sortOrder,
+    });
   }
 
   @Get()
   @ApiBearerAuth('access-token')
   @UseGuards(new JwtAuthGuard(['superadmin']))
   @ApiOperation({ summary: 'List all company' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1, description: 'Page number' })
-  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10, description: 'Number of items per page' })
-  @ApiQuery({ name: 'search', required: false, type: String, example: '', description: 'Search term' })
-  @ApiQuery({ name: 'sortBy', required: false, type: String, example: '', description: 'Field to sort by' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], example: 'asc', description: 'Sort order' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+    example: 10,
+    description: 'Number of items per page',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    example: '',
+    description: 'Search term',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    example: '',
+    description: 'Field to sort by',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['asc', 'desc'],
+    example: 'asc',
+    description: 'Sort order',
+  })
   findAll(
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc'
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
-    return this.companiesService.findAll({ page, pageSize, search, sortBy, sortOrder });
+    return this.companiesService.findAll({
+      page,
+      pageSize,
+      search,
+      sortBy,
+      sortOrder,
+    });
   }
 
   @Get(':company_id')
@@ -61,6 +147,20 @@ export class CompaniesController {
     return this.companiesService.findOne(company_id);
   }
 
+  @Get('search/ai-talents')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['company']))
+  @ApiOperation({ summary: 'Semantic AI Search for Talents' })
+  @ApiQuery({
+    name: 'query',
+    required: true,
+    type: String,
+    description: 'Search query',
+  })
+  searchTalents(@Query('query') query: string) {
+    return this.companiesService.searchTalents(query);
+  }
+
   @Post('change-status')
   @ApiConsumes('application/json')
   @ApiConsumes('multipart/form-data')
@@ -68,7 +168,11 @@ export class CompaniesController {
   @UseGuards(new JwtAuthGuard(['superadmin']))
   @ApiOperation({ summary: 'Change company status' })
   changeStatus(@Body() changeStatusDto: ChangeStatusCompanyDto) {
-    return this.companiesService.changeStatusCompany(changeStatusDto.company_id, changeStatusDto.status, changeStatusDto.notes);
+    return this.companiesService.changeStatusCompany(
+      changeStatusDto.company_id,
+      changeStatusDto.status,
+      changeStatusDto.notes,
+    );
   }
 
   // @Put(':company_id')

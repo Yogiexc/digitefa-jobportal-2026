@@ -32,4 +32,9 @@ export declare class ProfileService {
         message: string;
         data: any;
     }>;
+    cvAutofill(user: any, file: Express.Multer.File): Promise<{
+        status: string;
+        message: string;
+        data: any;
+    }>;
 }

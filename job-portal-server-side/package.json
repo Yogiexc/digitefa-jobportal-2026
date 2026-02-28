@@ -60,8 +60,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
-    "yaml": "^2.4.5",
-    "zeromq": "^6.3.0"
+    "yaml": "^2.4.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.3.2",

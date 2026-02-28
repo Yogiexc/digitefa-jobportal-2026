@@ -23,39 +23,51 @@ let ProfileService = class ProfileService {
     async getUser(user) {
         let users;
         if (user.role === 'job_seeker') {
-            users = await this.prisma.job_seekers.findUnique({ where: { job_seeker_id: user.job_seeker_id } });
+            users = await this.prisma.job_seekers.findUnique({
+                where: { job_seeker_id: user.job_seeker_id },
+            });
             users = { ...users, role: 'job_seeker' };
         }
         else if (user.role === 'university') {
             users = await this.prisma.universities.findUnique({
-                where: { university_id: user.university_id }, include: {
-                    university_detail: true
-                }
+                where: { university_id: user.university_id },
+                include: {
+                    university_detail: true,
+                },
             });
             users = { ...users, role: 'university' };
         }
         else if (user.role === 'company') {
             users = await this.prisma.companies.findUnique({
-                where: { company_id: user.company_id }, include: {
-                    company_detail: true
-                }
+                where: { company_id: user.company_id },
+                include: {
+                    company_detail: true,
+                },
             });
             users = { ...users, role: 'company' };
         }
         else if (user.role === 'superadmin') {
-            users = await this.prisma.admins.findUnique({ where: { admin_id: user.admin_id } });
+            users = await this.prisma.admins.findUnique({
+                where: { admin_id: user.admin_id },
+            });
             users = { ...users, role: 'superadmin' };
         }
         if (!users) {
             throw new common_1.UnauthorizedException('Token not found!, Please login again');
         }
-        const detailUser = Object.fromEntries(Object.entries(users).filter(([key]) => !['otp', 'otpExpires', 'password', 'updated_at', 'created_at'].includes(key)));
+        const detailUser = Object.fromEntries(Object.entries(users).filter(([key]) => ![
+            'otp',
+            'otpExpires',
+            'password',
+            'updated_at',
+            'created_at',
+        ].includes(key)));
         return {
-            status: "success",
+            status: 'success',
             message: 'Profile fetched successfully',
             data: {
-                user: detailUser
-            }
+                user: detailUser,
+            },
         };
     }
     async changePassword(user, changePasswordDto) {
@@ -64,74 +76,90 @@ let ProfileService = class ProfileService {
         }
         let users;
         if (user.role === 'job_seeker') {
-            users = await this.prisma.job_seekers.findUnique({ where: { job_seeker_id: user.job_seeker_id } });
+            users = await this.prisma.job_seekers.findUnique({
+                where: { job_seeker_id: user.job_seeker_id },
+            });
         }
         else if (user.role === 'university') {
-            users = await this.prisma.universities.findUnique({ where: { university_id: user.university_id } });
+            users = await this.prisma.universities.findUnique({
+                where: { university_id: user.university_id },
+            });
         }
         else if (user.role === 'company') {
-            users = await this.prisma.companies.findUnique({ where: { company_id: user.company_id } });
+            users = await this.prisma.companies.findUnique({
+                where: { company_id: user.company_id },
+            });
         }
         else if (user.role === 'superadmin') {
-            users = await this.prisma.admins.findUnique({ where: { admin_id: user.admin_id } });
+            users = await this.prisma.admins.findUnique({
+                where: { admin_id: user.admin_id },
+            });
         }
         if (!users) {
             throw new common_1.UnauthorizedException('Token not found!, Please login again');
         }
         if (!(await bcrypt.compareSync(changePasswordDto.oldPassword, users.password))) {
-            throw new common_1.HttpException({ status: "failed", message: 'Old password is incorrect!' }, common_1.HttpStatus.BAD_REQUEST);
+            throw new common_1.HttpException({ status: 'failed', message: 'Old password is incorrect!' }, common_1.HttpStatus.BAD_REQUEST);
         }
         const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
         if (user.role === 'job_seeker') {
             await this.prisma.job_seekers.update({
                 where: { job_seeker_id: user.job_seeker_id },
                 data: {
-                    password: hashedPassword
-                }
+                    password: hashedPassword,
+                },
             });
         }
         else if (user.role === 'university') {
             await this.prisma.universities.update({
                 where: { university_id: user.university_id },
                 data: {
-                    password: hashedPassword
-                }
+                    password: hashedPassword,
+                },
             });
         }
         else if (user.role === 'company') {
             await this.prisma.companies.update({
                 where: { company_id: user.company_id },
                 data: {
-                    password: hashedPassword
-                }
+                    password: hashedPassword,
+                },
             });
         }
         else if (user.role === 'superadmin') {
             await this.prisma.admins.update({
                 where: { admin_id: user.admin_id },
                 data: {
-                    password: hashedPassword
-                }
+                    password: hashedPassword,
+                },
             });
         }
         return {
-            status: "success",
-            message: 'Password changed successfully'
+            status: 'success',
+            message: 'Password changed successfully',
         };
     }
     async changeEmail(user, changeEmailDto) {
         let users;
         if (user.role === 'job_seeker') {
-            users = await this.prisma.job_seekers.findUnique({ where: { job_seeker_id: user.job_seeker_id } });
+            users = await this.prisma.job_seekers.findUnique({
+                where: { job_seeker_id: user.job_seeker_id },
+            });
         }
         else if (user.role === 'university') {
-            users = await this.prisma.universities.findUnique({ where: { university_id: user.university_id } });
+            users = await this.prisma.universities.findUnique({
+                where: { university_id: user.university_id },
+            });
         }
         else if (user.role === 'company') {
-            users = await this.prisma.companies.findUnique({ where: { company_id: user.company_id } });
+            users = await this.prisma.companies.findUnique({
+                where: { company_id: user.company_id },
+            });
         }
         else if (user.role === 'superadmin') {
-            users = await this.prisma.admins.findUnique({ where: { admin_id: user.admin_id } });
+            users = await this.prisma.admins.findUnique({
+                where: { admin_id: user.admin_id },
+            });
         }
         if (!users) {
             throw new common_1.UnauthorizedException('Token not found!, Please login again');
@@ -170,24 +198,32 @@ let ProfileService = class ProfileService {
         }
         await this.sendOtpEmail(changeEmailDto.newEmail, otp);
         return {
-            status: "success",
-            message: 'Email OTP sent successfully. Please check your email for the OTP code.'
+            status: 'success',
+            message: 'Email OTP sent successfully. Please check your email for the OTP code.',
         };
     }
     async verifyChangeEmail(user, verifyChangeEmailDto) {
         const { newEmail, otp } = verifyChangeEmailDto;
         let users;
         if (user.role === 'job_seeker') {
-            users = await this.prisma.job_seekers.findUnique({ where: { job_seeker_id: user.job_seeker_id } });
+            users = await this.prisma.job_seekers.findUnique({
+                where: { job_seeker_id: user.job_seeker_id },
+            });
         }
         else if (user.role === 'university') {
-            users = await this.prisma.universities.findUnique({ where: { university_id: user.university_id } });
+            users = await this.prisma.universities.findUnique({
+                where: { university_id: user.university_id },
+            });
         }
         else if (user.role === 'company') {
-            users = await this.prisma.companies.findUnique({ where: { company_id: user.company_id } });
+            users = await this.prisma.companies.findUnique({
+                where: { company_id: user.company_id },
+            });
         }
         else if (user.role === 'superadmin') {
-            users = await this.prisma.admins.findUnique({ where: { admin_id: user.admin_id } });
+            users = await this.prisma.admins.findUnique({
+                where: { admin_id: user.admin_id },
+            });
         }
         const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
         if (!users) {
@@ -205,8 +241,8 @@ let ProfileService = class ProfileService {
                 data: {
                     email: newEmail,
                     otp: null,
-                    otpExpires: null
-                }
+                    otpExpires: null,
+                },
             });
         }
         else if (user.role === 'university') {
@@ -215,8 +251,8 @@ let ProfileService = class ProfileService {
                 data: {
                     email: newEmail,
                     otp: null,
-                    otpExpires: null
-                }
+                    otpExpires: null,
+                },
             });
         }
         else if (user.role === 'company') {
@@ -225,13 +261,13 @@ let ProfileService = class ProfileService {
                 data: {
                     email: newEmail,
                     otp: null,
-                    otpExpires: null
-                }
+                    otpExpires: null,
+                },
             });
         }
         return {
-            status: "success",
-            message: 'Email changed successfully, Please login again'
+            status: 'success',
+            message: 'Email changed successfully, Please login again',
         };
     }
     async sendOtpEmail(email, otp) {
@@ -244,8 +280,8 @@ let ProfileService = class ProfileService {
                 pass: process.env.EMAIL_PASS,
             },
             tls: {
-                rejectUnauthorized: false
-            }
+                rejectUnauthorized: false,
+            },
         });
         const htmlContent = (0, otp_change_email_template_1.otpChangeEmailTemplate)(otp, email);
         await transporter.sendMail({
@@ -262,40 +298,40 @@ let ProfileService = class ProfileService {
         if (user.role === 'job_seeker') {
             users = await this.prisma.job_seeker_details.findFirst({
                 where: {
-                    job_seeker_id: user.job_seeker_id
+                    job_seeker_id: user.job_seeker_id,
                 },
                 select: {
-                    profile_picture_url: true
-                }
+                    profile_picture_url: true,
+                },
             });
             picture = users.profile_picture_url;
         }
         else if (user.role === 'university') {
             users = await this.prisma.university_details.findUnique({
                 where: {
-                    university_id: user.university_id
+                    university_id: user.university_id,
                 },
                 select: {
-                    logo_url: true
-                }
+                    logo_url: true,
+                },
             });
             picture = users.logo_url;
         }
         else if (user.role === 'company') {
             users = await this.prisma.company_details.findUnique({
                 where: {
-                    company_id: user.company_id
+                    company_id: user.company_id,
                 },
                 select: {
-                    logo_url: true
-                }
+                    logo_url: true,
+                },
             });
             picture = users.logo_url;
         }
         else if (user.role === 'superadmin') {
             users = await this.prisma.admins.findUnique({
                 where: {
-                    admin_id: user.admin_id
+                    admin_id: user.admin_id,
                 },
             });
             picture = null;
@@ -304,10 +340,85 @@ let ProfileService = class ProfileService {
             throw new common_1.UnauthorizedException('Token not found!, Please login again');
         }
         return {
-            status: "success",
+            status: 'success',
             message: 'Profile picture fetched successfully',
-            data: picture
+            data: picture,
         };
+    }
+    async cvAutofill(user, file) {
+        if (user.role !== 'job_seeker') {
+            throw new common_1.ForbiddenException('Only job seekers can use this feature');
+        }
+        const gpythonUrl = process.env.URL_SERVER_PYTHON;
+        if (!gpythonUrl) {
+            throw new common_1.InternalServerErrorException('Python microservice URL not configured');
+        }
+        const formData = new FormData();
+        const blob = new Blob([file.buffer], { type: file.mimetype });
+        formData.append('file', blob, file.originalname);
+        try {
+            const response = await fetch(`${gpythonUrl}/parse-cv`, {
+                method: 'POST',
+                body: formData,
+            });
+            if (!response.ok) {
+                throw new common_1.InternalServerErrorException(`Python API error: ${response.statusText}`);
+            }
+            const result = await response.json();
+            const parsedData = result.parsed_data;
+            const detail = await this.prisma.job_seeker_details.findUnique({
+                where: { job_seeker_id: user.job_seeker_id },
+            });
+            if (!detail) {
+                throw new common_1.BadRequestException('Job seeker profile details not found');
+            }
+            if (parsedData.skills && parsedData.skills.length > 0) {
+                const existingSkills = await this.prisma.skills.findMany({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+                });
+                const existingSkillNames = existingSkills.map((s) => s.skill_name.toLowerCase());
+                for (const skill of parsedData.skills) {
+                    if (!existingSkillNames.includes(skill.toLowerCase())) {
+                        await this.prisma.skills.create({
+                            data: {
+                                skill_name: skill,
+                                job_seeker_detail_id: detail.job_seeker_detail_id,
+                            },
+                        });
+                    }
+                }
+            }
+            if (parsedData.experience) {
+                await this.prisma.experiences.create({
+                    data: {
+                        job_seeker_detail_id: detail.job_seeker_detail_id,
+                        experience_title: 'Experience from CV',
+                        company_name: 'Various',
+                        description: parsedData.experience,
+                    },
+                });
+            }
+            if (parsedData.education) {
+                await this.prisma.education.create({
+                    data: {
+                        job_seeker_detail_id: detail.job_seeker_detail_id,
+                        university_name: 'From CV',
+                        degree: 'Auto-filled',
+                        major: 'General',
+                        start_date: new Date(),
+                    },
+                });
+            }
+            return {
+                status: 'success',
+                message: 'CV processed and profile updated',
+                data: parsedData,
+            };
+        }
+        catch (error) {
+            console.error('Error autofilling CV:', error);
+            throw new common_1.InternalServerErrorException('Failed to process CV: ' + error.message);
+        }
     }
 };
 exports.ProfileService = ProfileService;

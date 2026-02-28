@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProfileController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
 const profile_service_1 = require("./profile.service");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
@@ -38,6 +39,12 @@ let ProfileController = class ProfileController {
     }
     async profilePicture(req) {
         return this.profileService.getProfilePicture(req.user);
+    }
+    async cvAutofill(req, file) {
+        if (!file) {
+            throw new common_1.BadRequestException('CV file is required');
+        }
+        return this.profileService.cvAutofill(req.user, file);
     }
 };
 exports.ProfileController = ProfileController;
@@ -100,6 +107,19 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "profilePicture", null);
+__decorate([
+    (0, common_1.Post)('cv-autofill'),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Auto-fill profile from PDF CV' }),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ProfileController.prototype, "cvAutofill", null);
 exports.ProfileController = ProfileController = __decorate([
     (0, swagger_1.ApiTags)('profile'),
     (0, common_1.Controller)('profile'),

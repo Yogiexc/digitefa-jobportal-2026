@@ -23,13 +23,28 @@ let CompaniesController = class CompaniesController {
         this.companiesService = companiesService;
     }
     findAllCompanyManagement(page, pageSize, search, sortBy, sortOrder) {
-        return this.companiesService.findAllCompanyManagement({ page, pageSize, search, sortBy, sortOrder });
+        return this.companiesService.findAllCompanyManagement({
+            page,
+            pageSize,
+            search,
+            sortBy,
+            sortOrder,
+        });
     }
     findAll(page, pageSize, search, sortBy, sortOrder) {
-        return this.companiesService.findAll({ page, pageSize, search, sortBy, sortOrder });
+        return this.companiesService.findAll({
+            page,
+            pageSize,
+            search,
+            sortBy,
+            sortOrder,
+        });
     }
     findOne(company_id) {
         return this.companiesService.findOne(company_id);
+    }
+    searchTalents(query) {
+        return this.companiesService.searchTalents(query);
     }
     changeStatus(changeStatusDto) {
         return this.companiesService.changeStatusCompany(changeStatusDto.company_id, changeStatusDto.status, changeStatusDto.notes);
@@ -41,11 +56,41 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['superadmin'])),
     (0, swagger_1.ApiOperation)({ summary: 'List all company (Company Management)' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number, example: 1, description: 'Page number' }),
-    (0, swagger_1.ApiQuery)({ name: 'pageSize', required: false, type: Number, example: 10, description: 'Number of items per page' }),
-    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String, example: '', description: 'Search term' }),
-    (0, swagger_1.ApiQuery)({ name: 'sortBy', required: false, type: String, example: '', description: 'Field to sort by' }),
-    (0, swagger_1.ApiQuery)({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], example: 'asc', description: 'Sort order' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'page',
+        required: false,
+        type: Number,
+        example: 1,
+        description: 'Page number',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'pageSize',
+        required: false,
+        type: Number,
+        example: 10,
+        description: 'Number of items per page',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'search',
+        required: false,
+        type: String,
+        example: '',
+        description: 'Search term',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sortBy',
+        required: false,
+        type: String,
+        example: '',
+        description: 'Field to sort by',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sortOrder',
+        required: false,
+        enum: ['asc', 'desc'],
+        example: 'asc',
+        description: 'Sort order',
+    }),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('pageSize')),
     __param(2, (0, common_1.Query)('search')),
@@ -60,11 +105,41 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['superadmin'])),
     (0, swagger_1.ApiOperation)({ summary: 'List all company' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number, example: 1, description: 'Page number' }),
-    (0, swagger_1.ApiQuery)({ name: 'pageSize', required: false, type: Number, example: 10, description: 'Number of items per page' }),
-    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String, example: '', description: 'Search term' }),
-    (0, swagger_1.ApiQuery)({ name: 'sortBy', required: false, type: String, example: '', description: 'Field to sort by' }),
-    (0, swagger_1.ApiQuery)({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], example: 'asc', description: 'Sort order' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'page',
+        required: false,
+        type: Number,
+        example: 1,
+        description: 'Page number',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'pageSize',
+        required: false,
+        type: Number,
+        example: 10,
+        description: 'Number of items per page',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'search',
+        required: false,
+        type: String,
+        example: '',
+        description: 'Search term',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sortBy',
+        required: false,
+        type: String,
+        example: '',
+        description: 'Field to sort by',
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sortOrder',
+        required: false,
+        enum: ['asc', 'desc'],
+        example: 'asc',
+        description: 'Sort order',
+    }),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('pageSize')),
     __param(2, (0, common_1.Query)('search')),
@@ -84,6 +159,22 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CompaniesController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)('search/ai-talents'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['company'])),
+    (0, swagger_1.ApiOperation)({ summary: 'Semantic AI Search for Talents' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'query',
+        required: true,
+        type: String,
+        description: 'Search query',
+    }),
+    __param(0, (0, common_1.Query)('query')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], CompaniesController.prototype, "searchTalents", null);
 __decorate([
     (0, common_1.Post)('change-status'),
     (0, swagger_1.ApiConsumes)('application/json'),
