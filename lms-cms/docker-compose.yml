@@ -1,0 +1,38 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: cms
+    container_name: cms-container
+    restart: unless-stopped
+    ports:
+      - 8880:80
+    environment:
+      - VUE_APP_API_URL=https://api-lms.digitefa.id/api
+      - VUE_APP_TEACHER_IDENTITY_URL=https://api-lms.digitefa.id/uploads/Teacher/Identity
+      - VUE_APP_TEACHER_PORTOFOLIO_URL=https://api-lms.digitefa.id/uploads/Teacher/Portofolio
+      - VUE_APP_TEACHER_PROFILE_URL="https://api-lms.digitefa.id/uploads/Teacher/Profile Picture"
+      - VUE_APP_TEACHER_CERTIFICATE_URL="https://api-lms.digitefa.id/uploads/Teacher/Teacher Certificates"
+      - VUE_APP_COURSE_THUMBNAIL_URL=https://api-lms.digitefa.id/uploads/Courses/Thumbnail
+    working_dir: /app
+    volumes:
+      - ./:/app
+    networks:
+      - cms
+
+  nginx:
+    image: nginx:alpine
+    container_name: cms-nginx
+    restart: unless-stopped
+    ports:
+      - 3330:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - cms
+
+networks:
+  cms:
+    driver: bridge

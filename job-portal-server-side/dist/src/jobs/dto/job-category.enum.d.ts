@@ -1,0 +1,17 @@
+export declare enum JobCategory {
+    information_and_communication_technology = "information_and_communication_technology",
+    finance_and_insurance = "finance_and_insurance",
+    human_resources_and_administration = "human_resources_and_administration",
+    sales_and_marketing = "sales_and_marketing",
+    healthcare_and_social_assistance = "healthcare_and_social_assistance",
+    education_and_training = "education_and_training",
+    manufacturing = "manufacturing",
+    construction = "construction",
+    arts_entertainment_and_media = "arts_entertainment_and_media",
+    hospitality_and_tourism = "hospitality_and_tourism",
+    transportation_and_logistics = "transportation_and_logistics",
+    public_administration_and_government = "public_administration_and_government",
+    retail = "retail",
+    legal = "legal",
+    science_and_research = "science_and_research"
+}

@@ -1,0 +1,18 @@
+# Folder dependency
+**/node_modules/
+**/vendor/
+
+# Python junk
+**/__pycache__/
+**/*.pyc
+
+# Laravel / Server junk
+**/storage/*.log
+**/storage/framework/cache/data/*
+**/storage/framework/sessions/*
+**/storage/framework/views/*
+**/.env
+
+# OS junk
+.DS_Store
+Thumbs.db

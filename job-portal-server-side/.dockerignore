@@ -1,0 +1,11 @@
+.git
+node_modules
+dist
+venv
+.env
+.eslint*
+.prettier*
+.gitignore
+Dockerfile
+.dockerignore
+README.md

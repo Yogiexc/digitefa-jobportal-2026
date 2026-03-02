@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: server-side
+    container_name: lms-be-container
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - server-side
+
+  nginx:
+    image: nginx:alpine
+    container_name: lms-be-nginx
+    restart: unless-stopped
+    ports:
+      - 8888:80
+    volumes:
+      - ./:/var/www
+      - ./nginx:/etc/nginx/conf.d/
+    networks:
+      - server-side
+
+networks:
+  server-side:
+    driver: bridge

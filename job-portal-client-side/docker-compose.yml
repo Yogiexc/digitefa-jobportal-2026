@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: digitefa-clientside
+    image: ${BUILD_IMAGE}
+    ports:
+      - "80:80"
+    restart: always

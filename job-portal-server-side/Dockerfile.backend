@@ -1,0 +1,82 @@
+###################
+# BUILD FOR LOCAL DEVELOPMENT
+###################
+
+FROM node:18-bullseye-slim AS development
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Copy application dependency manifests
+COPY --chown=node:node package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm ci; \
+    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
+
+# Bundle app source
+COPY --chown=node:node . .
+
+# Ensure public directory exists and has correct permissions
+RUN apt-get update && apt-get install -y openssl && mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+
+USER node
+
+###################
+# BUILD FOR PRODUCTION
+###################
+
+FROM node:18-bullseye-slim AS build
+
+WORKDIR /usr/src/app
+
+COPY --chown=node:node package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node . .
+
+# Ensure public directory exists and has correct permissions
+RUN apt-get update && apt-get install -y openssl && mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+
+# Run the build command
+RUN \
+    if [ -f yarn.lock ]; then yarn prisma generate && yarn build; \
+    elif [ -f package-lock.json ]; then npx prisma generate && npm run build; \
+    else echo "pnpm package not found setup." && exit 1; \
+    fi
+
+ENV NODE_ENV=production
+
+RUN \
+    if [ -f yarn.lock ]; then yarn install --production --frozen-lockfile && yarn cache clean; \
+    elif [ -f package-lock.json ]; then npm ci --only=production && npm cache clean --force; \
+    else echo "pnpm package not found setup." && exit 1; \
+    fi
+
+USER node
+
+###################
+# PRODUCTION
+###################
+
+FROM node:18-bullseye-slim AS production
+
+WORKDIR /usr/src/app
+
+# Create public directory and set permissions
+RUN apt-get update && apt-get install -y openssl && mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+
+# Copy the bundled code
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY --chown=node:node .env* ./
+
+USER node
+
+# Define volume for public directory
+VOLUME ["/usr/src/app/public"]
+
+# CMD ["npx", "cross-env", "NODE_ENV=staging", "node", "dist/src/main.js"]
+CMD ["sh", "-c", "node -r dotenv/config dist/src/main.js dotenv_config_path=.env.production"]

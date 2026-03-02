@@ -1,0 +1,442 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum verified {
+  true
+  false
+}
+
+enum status {
+  not_submitted
+  submitted
+  accepted
+  rejected
+}
+
+enum role {
+  superadmin
+  admin
+}
+
+model job_seekers {
+  job_seeker_id     String              @id @default(uuid())
+  email             String              @unique
+  password          String
+  full_name         String
+  otp               String?
+  otpExpires        DateTime?
+  verified          verified            @default(false)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  job_seeker_detail job_seeker_details?
+  applications      applications[]
+  saved_jobs        saved_jobs[]
+  lmsUserId         String?     
+  lmsLinkedAt       DateTime? 
+}
+
+model job_seeker_details {
+  job_seeker_detail_id String           @id @default(uuid())
+  job_seeker_id        String           @unique
+  job_seeker           job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id])
+  profile_picture_url  String?
+  personal_summary     String?          @db.Text
+  personal_info        personal_info?
+  education            education?
+  experiences          experiences[]
+  skills               skills[]
+  projects             projects[]
+  certifications       certifications[]
+  created_at           DateTime         @default(now())
+  updated_at           DateTime         @updatedAt
+  languages            languages[]
+}
+
+model personal_info {
+  personal_info_id     String             @id @default(uuid())
+  job_seeker_detail_id String             @unique
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  address              String?
+  phone_number         String?            @db.VarChar(15)
+  date_of_birth        DateTime?
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+}
+
+model education {
+  education_id         String             @id @default(uuid())
+  job_seeker_detail_id String             @unique
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  university_id        String?
+  university_name      String
+  degree               String
+  major                String
+  start_date           DateTime
+  end_date             DateTime?
+  grade                String?
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+  university           universities?      @relation(fields: [university_id], references: [university_id])
+}
+
+model experiences {
+  experience_id        String             @id @default(uuid())
+  job_seeker_detail_id String
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  experience_title     String
+  employment_type      String?
+  company_name         String
+  location             String?
+  location_type        String?
+  description          String?            @db.VarChar(255)
+  start_date           DateTime?
+  end_date             DateTime?
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+}
+
+model languages {
+  language_id          String              @id @default(uuid())
+  language_name        String
+  created_at           DateTime            @default(now())
+  updated_at           DateTime            @updatedAt
+  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_detail_id String?
+
+  @@unique([job_seeker_detail_id, language_name])
+}
+
+model skills {
+  skill_id             String              @id @default(uuid())
+  skill_name           String
+  created_at           DateTime            @default(now())
+  updated_at           DateTime            @updatedAt
+  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_detail_id String?
+}
+
+model skills_category {
+  skill_category_id String               @id @default(uuid())
+  category_name     String               @unique
+  skills            skills_requirement[]
+  jobs              jobs[]
+  created_at        DateTime             @default(now())
+  updated_at        DateTime             @updatedAt
+  deleted_at        DateTime?
+}
+
+model projects {
+  project_id           String             @id @default(uuid())
+  job_seeker_detail_id String
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  project_name         String
+  description          String?            @db.VarChar(255)
+  start_date           DateTime?
+  end_date             DateTime?
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+}
+
+model certifications {
+  certification_id     String             @id @default(uuid())
+  job_seeker_detail_id String
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  certification_name   String
+  issuing_organization String?
+  issue_date           DateTime?
+  expiration_date      DateTime?
+  credential_url       String?
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+}
+
+model approval {
+  approval_id   String        @id @default(uuid())
+  company_id    String?       @unique
+  university_id String?       @unique
+  notes         String?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  company       companies?    @relation(fields: [company_id], references: [company_id])
+  university    universities? @relation(fields: [university_id], references: [university_id])
+}
+
+model companies {
+  company_id     String           @id @default(uuid())
+  email          String           @unique
+  password       String
+  full_name      String
+  phone_number   String           @db.VarChar(15)
+  otp            String?
+  otpExpires     DateTime?
+  verified       verified         @default(false)
+  status         status           @default(not_submitted)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+  company_detail company_details?
+  jobs           jobs[]
+  approval       approval?
+}
+
+model company_details {
+  company_detail_id String    @id @default(uuid())
+  company_id        String    @unique
+  company           companies @relation(fields: [company_id], references: [company_id])
+  logo_url          String?
+  legal_name        String?
+  market_name       String?
+  category          String?
+  company_size      String?
+  description       String?   @db.Text
+  country           String?
+  province          String?
+  city              String?
+  district          String?
+  full_address      String?
+  postal_code       String?
+  website           String?
+  facebook_url      String?
+  twitter_url       String?
+  instagram_url     String?
+  youtube_url       String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+}
+
+model position_levels {
+  position_level_id String   @id @default(uuid())
+  position_name     String   @unique
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+model jobs {
+  job_id                 String               @id @default(uuid())
+  company_id             String
+  company                companies            @relation(fields: [company_id], references: [company_id])
+  title                  String
+  category               job_category
+  employment_type        String
+  work_type              work_type
+  description            String               @db.Text
+  location               String
+  salary_type            salary_type
+  minimum_salary         BigInt?              @db.BigInt
+  maximum_salary         BigInt?              @db.BigInt
+  skills_category_id     String
+  skills_category        skills_category      @relation(fields: [skills_category_id], references: [skill_category_id])
+  skills_requirement     skills_requirement[]
+  education_requirement  String?
+  experience_requirement String?
+  benefits               job_benefits[]
+  status                 job_status           @default(draft)
+  published_at           DateTime?
+  expired_at             DateTime?
+  deleted_at             DateTime?
+  created_at             DateTime             @default(now())
+  updated_at             DateTime             @updatedAt
+  applications           applications[]
+  saved_jobs             saved_jobs[]
+}
+
+enum work_type {
+  on_site
+  remote
+  hybrid
+}
+
+enum salary_type {
+  monthly_based
+  project_based
+}
+
+enum job_status {
+  active
+  draft
+}
+
+enum job_category {
+  information_and_communication_technology
+  finance_and_insurance
+  human_resources_and_administration
+  sales_and_marketing
+  healthcare_and_social_assistance
+  education_and_training
+  manufacturing
+  construction
+  arts_entertainment_and_media
+  hospitality_and_tourism
+  transportation_and_logistics
+  public_administration_and_government
+  retail
+  legal
+  science_and_research
+}
+
+model job_benefits {
+  job_benefit_id String   @id @default(uuid())
+  job_id         String
+  job            jobs     @relation(fields: [job_id], references: [job_id])
+  benefit        String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}
+
+model skills_requirement {
+  skill_requirement_id String          @id @default(uuid())
+  job_id               String
+  job                  jobs            @relation(fields: [job_id], references: [job_id])
+  skill                String
+  skill_category_id    String
+  skill_category       skills_category @relation(fields: [skill_category_id], references: [skill_category_id])
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
+}
+
+enum applicant_status {
+  pending
+  accepted
+  rejected
+}
+
+model match_scores {
+  match_score_id String       @id @default(uuid())
+  application_id String       @unique
+  overall        Float?
+  summary        Float?
+  skills         Float?
+  experience     Float?
+  education      Float?
+  projects       Float?
+  certifications Float?
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  applications   applications @relation(fields: [application_id], references: [application_id])
+}
+
+model applications {
+  application_id   String           @id @default(uuid())
+  job_seeker_id    String
+  job_id           String
+  status           applicant_status @default(pending)
+  resume_url       String
+  expected_salary  BigInt?          @db.BigInt
+  experience_years String?
+  applied_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  job_seeker       job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id])
+  job              jobs             @relation(fields: [job_id], references: [job_id])
+  match_scores     match_scores?
+}
+
+model universities {
+  university_id     String              @id @default(uuid())
+  email             String              @unique
+  password          String
+  full_name         String
+  otp               String?
+  otpExpires        DateTime?
+  verified          verified            @default(false)
+  status            status              @default(not_submitted)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  university_detail university_details?
+  students          education[]
+  approval          approval?
+}
+
+model university_details {
+  university_detail_id String       @id @default(uuid())
+  university_id        String       @unique
+  university           universities @relation(fields: [university_id], references: [university_id])
+  university_name      String       @unique
+  logo_url             String?
+  phone_number         String?      @db.VarChar(15)
+  category             String?
+  country              String?
+  province             String?
+  city                 String?
+  district             String?
+  full_address         String?
+  postal_code          String?
+  website              String?
+  facebook_url         String?
+  twitter_url          String?
+  instagram_url        String?
+  youtube_url          String?
+  created_at           DateTime     @default(now())
+  updated_at           DateTime     @updatedAt
+}
+
+model admins {
+  admin_id   String   @id @default(uuid())
+  email      String   @unique
+  full_name  String
+  password   String
+  role       role     @default(admin)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model saved_jobs {
+  saved_job_id  String      @id @default(uuid())
+  job_seeker_id String
+  job_id        String
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+  job_seeker    job_seekers @relation(fields: [job_seeker_id], references: [job_seeker_id])
+  job           jobs        @relation(fields: [job_id], references: [job_id])
+
+  @@unique([job_id, job_seeker_id])
+}
+
+model pages {
+  page_id    String        @id @default(uuid())
+  slug       String        @unique
+  title      String?       @db.VarChar(255)
+  category   page_category
+  content    String        @db.Text
+  image_url  String?
+  event_date DateTime?     @db.DateTime()
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+
+  @@index([slug])
+}
+
+enum page_category {
+  about_us
+  privacy_policy
+  event
+  news
+}
+
+model log_activities {
+  log_activity_id String   @id @default(uuid())
+  user_id         String
+  user_role       String
+  activity        String
+  created_at      DateTime @default(now())
+}
+
+model experience_levels {
+  experience_level_id String   @id @default(uuid())
+  name                String   @unique
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+}
+
+model settings {
+  setting_id String   @id @default(uuid())
+  key        String   @unique
+  value      String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}

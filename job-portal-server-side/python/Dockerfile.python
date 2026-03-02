@@ -1,0 +1,17 @@
+# Gunakan image Python 3.8-slim sebagai base image
+FROM python:3.8-slim
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy file requirements.txt dari folder python ke working directory
+COPY requirements.txt ./requirements.txt
+
+# Install dependensi Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Salin seluruh kode aplikasi dari folder python ke container
+COPY . .
+
+# Jalankan server ZeroMQ (misalnya, file server.py adalah entrypoint)
+CMD ["python", "job_recommender_server.py"]
