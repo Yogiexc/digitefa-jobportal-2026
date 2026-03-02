@@ -43,8 +43,13 @@ let CompaniesController = class CompaniesController {
     findOne(company_id) {
         return this.companiesService.findOne(company_id);
     }
+<<<<<<< HEAD
     searchTalents(query, job_description) {
         return this.companiesService.searchTalents(job_description || query);
+=======
+    searchTalents(query) {
+        return this.companiesService.searchTalents(query);
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     }
     changeStatus(changeStatusDto) {
         return this.companiesService.changeStatusCompany(changeStatusDto.company_id, changeStatusDto.status, changeStatusDto.notes);
@@ -165,6 +170,7 @@ __decorate([
     (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['company'])),
     (0, swagger_1.ApiOperation)({ summary: 'Semantic AI Search for Talents' }),
     (0, swagger_1.ApiQuery)({
+<<<<<<< HEAD
         name: 'job_description',
         required: false,
         type: String,
@@ -174,6 +180,16 @@ __decorate([
     __param(1, (0, common_1.Query)('job_description')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
+=======
+        name: 'query',
+        required: true,
+        type: String,
+        description: 'Search query',
+    }),
+    __param(0, (0, common_1.Query)('query')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     __metadata("design:returntype", void 0)
 ], CompaniesController.prototype, "searchTalents", null);
 __decorate([

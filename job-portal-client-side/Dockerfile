@@ -17,10 +17,15 @@ COPY . .
 
 # ENV VITE_APP_API_URL=https://api.digitefa.id/api
 # ENV VITE_IMAGE_API=https://api.digitefa.id/api
+<<<<<<< HEAD
 # ENV VITE_APP_API_URL=https://api.tefa.my.id/api
 # ENV VITE_IMAGE_API=https://api.tefa.my.id
 ENV VITE_APP_API_URL=http://localhost:3000/api
 ENV VITE_IMAGE_API=http://localhost:3000
+=======
+ENV VITE_APP_API_URL=https://api.tefa.my.id/api
+ENV VITE_IMAGE_API=https://api.tefa.my.id
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 RUN npm run build
 
 FROM ${NGINX_IMAGE}

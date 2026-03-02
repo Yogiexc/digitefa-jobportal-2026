@@ -388,6 +388,7 @@ let ProfileService = class ProfileService {
                     }
                 }
             }
+<<<<<<< HEAD
             if (parsedData.experience_structured && parsedData.experience_structured.length > 0) {
                 for (const exp of parsedData.experience_structured) {
                     await this.prisma.experiences.create({
@@ -401,11 +402,15 @@ let ProfileService = class ProfileService {
                 }
             }
             else if (parsedData.experience) {
+=======
+            if (parsedData.experience) {
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
                 await this.prisma.experiences.create({
                     data: {
                         job_seeker_detail_id: detail.job_seeker_detail_id,
                         experience_title: 'Experience from CV',
                         company_name: 'Various',
+<<<<<<< HEAD
                         description: parsedData.experience.substring(0, 250),
                     },
                 });
@@ -424,6 +429,13 @@ let ProfileService = class ProfileService {
                 }
             }
             else if (parsedData.education) {
+=======
+                        description: parsedData.experience,
+                    },
+                });
+            }
+            if (parsedData.education) {
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
                 await this.prisma.education.create({
                     data: {
                         job_seeker_detail_id: detail.job_seeker_detail_id,

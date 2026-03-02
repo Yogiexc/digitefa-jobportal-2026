@@ -18,7 +18,11 @@ import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
 
 @Injectable()
 export class ProfileService {
+<<<<<<< HEAD
   constructor(private prisma: PrismaService) { }
+=======
+  constructor(private prisma: PrismaService) {}
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
   async getUser(user: any) {
     let users;
     if (user.role === 'job_seeker') {
@@ -349,7 +353,11 @@ export class ProfileService {
     };
   }
 
+<<<<<<< HEAD
   async cvAutofill(user: any, file: any) {
+=======
+  async cvAutofill(user: any, file: Express.Multer.File) {
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     if (user.role !== 'job_seeker') {
       throw new ForbiddenException('Only job seekers can use this feature');
     }
@@ -361,14 +369,21 @@ export class ProfileService {
       );
     }
 
+<<<<<<< HEAD
     // @ts-ignore
     const formData = new FormData();
     // @ts-ignore
+=======
+    const formData = new FormData();
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     const blob = new Blob([file.buffer], { type: file.mimetype });
     formData.append('file', blob, file.originalname);
 
     try {
+<<<<<<< HEAD
       // @ts-ignore
+=======
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
       const response = await fetch(`${gpythonUrl}/parse-cv`, {
         method: 'POST',
         body: formData,
@@ -412,6 +427,7 @@ export class ProfileService {
         }
       }
 
+<<<<<<< HEAD
       if (parsedData.experience_structured && parsedData.experience_structured.length > 0) {
         for (const exp of parsedData.experience_structured) {
           await this.prisma.experiences.create({
@@ -424,16 +440,24 @@ export class ProfileService {
           });
         }
       } else if (parsedData.experience) {
+=======
+      if (parsedData.experience) {
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         await this.prisma.experiences.create({
           data: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
             experience_title: 'Experience from CV',
             company_name: 'Various',
+<<<<<<< HEAD
             description: parsedData.experience.substring(0, 250),
+=======
+            description: parsedData.experience,
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
           },
         });
       }
 
+<<<<<<< HEAD
       if (parsedData.education_structured && parsedData.education_structured.length > 0) {
         // Find and delete existing education to prevent Unique Constraint failure
         const existingEdu = await this.prisma.education.findUnique({
@@ -469,6 +493,9 @@ export class ProfileService {
           });
         }
 
+=======
+      if (parsedData.education) {
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         await this.prisma.education.create({
           data: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -492,6 +519,7 @@ export class ProfileService {
       );
     }
   }
+<<<<<<< HEAD
 
   async deleteEducation(user: any) {
     if (user.role !== 'job_seeker') {
@@ -521,4 +549,6 @@ export class ProfileService {
       message: 'Education deleted successfully',
     };
   }
+=======
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 }

@@ -378,6 +378,7 @@ async def parse_cv(file: UploadFile = File(...)):
             lline = line.lower().strip()
             
             # Identify section transitions
+<<<<<<< HEAD
             if "experience" in lline or "employment" in lline or "work history" in lline or "pengalaman" in lline or "riwayat kerja" in lline:
                 current_section = "experience"
                 continue
@@ -385,6 +386,15 @@ async def parse_cv(file: UploadFile = File(...)):
                 current_section = "education"
                 continue
             elif "skill" in lline or "technolog" in lline or "tool" in lline or "keahlian" in lline or "kemampuan" in lline or "keterampilan" in lline:
+=======
+            if "experience" in lline or "employment" in lline or "work history" in lline:
+                current_section = "experience"
+                continue
+            elif "education" in lline or "academic" in lline:
+                current_section = "education"
+                continue
+            elif "skill" in lline or "technolog" in lline or "tool" in lline:
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
                 current_section = "skills"
                 continue
                 
@@ -401,6 +411,7 @@ async def parse_cv(file: UploadFile = File(...)):
         # Deduplicate and remove noisy ones
         sections["skills"] = list(set([s for s in sections["skills"] if len(s) > 1 and len(s) < 30]))
         
+<<<<<<< HEAD
         # Clean up education and experience by extracting structured blocks based on dates
         exp_list = []
         current_exp = {"title": "Recent Experience", "company": "Unknown Company", "description": ""}
@@ -446,6 +457,11 @@ async def parse_cv(file: UploadFile = File(...)):
             
         sections["education_structured"] = edu_list
         sections["education"] = " ".join(sections["education"][:10]) # KEEP FOR BACKWARDS COMPATIBILITY
+=======
+        # Clean up education and experience by just joining them into chunks/blocks
+        sections["experience"] = " ".join(sections["experience"][:20]) # Take first 20 lines approx
+        sections["education"] = " ".join(sections["education"][:10])
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         
         return {
             "parsed_data": sections,
