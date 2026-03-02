@@ -14,15 +14,11 @@ const common_1 = require("@nestjs/common");
 const common_2 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const axios_1 = require("@nestjs/axios");
-const zmq = require("zeromq");
-const python_server_helper_1 = require("../helper/python-server.helper");
 const rxjs_1 = require("rxjs");
 let JobsSearchService = class JobsSearchService {
     constructor(prisma, httpService) {
         this.prisma = prisma;
         this.httpService = httpService;
-        (this.socket = new zmq.Request()),
-            this.socket.connect(process.env.SOCKET_SERVER_PYTHON);
     }
     async findJobs(user, params) {
         const { page = 1, pageSize = 10, search, location, sortBy = 'most_recent', recommendationSort, minimumSalary, maximumSalary, } = params;
@@ -168,35 +164,52 @@ let JobsSearchService = class JobsSearchService {
                         console.error('Error fetching LMS data:', error);
                     }
                 }
-                let message;
-                if (sortBy === 'most_relevant') {
-                    console.log(recommendationSort);
-                    message = JSON.stringify({
-                        action: 'job_recommendation',
-                        user: jobSeeker,
-                        jobs: allJobs,
-                        is_sort: 'true',
-                        sort: recommendationSort,
-                        lms: dataLMS ?? null,
-                    }, (_, value) => typeof value === 'bigint' ? value.toString() : value);
-                }
-                else if (search) {
-                    message = JSON.stringify({
-                        action: 'job_search',
-                        search_text: search,
-                        jobs: allJobs,
-                        is_sort: 'true',
-                        sort: recommendationSort,
-                        lms: dataLMS ?? null,
-                    }, (_, value) => typeof value === 'bigint' ? value.toString() : value);
-                }
-                const serverActive = await (0, python_server_helper_1.checkPythonServerAlive)(1000);
                 let recommendedJobs = [];
-                if (serverActive && jobSeeker) {
-                    await this.socket.send(message);
-                    const [resultBuffer] = await this.socket.receive();
-                    const result = JSON.parse(resultBuffer.toString());
-                    recommendedJobs = result.jobs;
+                if (jobSeeker) {
+                    const skillsText = jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
+                    const expText = jobSeeker.experiences
+                        ?.map((e) => `${e.experience_title} at ${e.company_name} - ${e.description}`)
+                        .join('; ') || '';
+                    const eduText = jobSeeker.education
+                        ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+                        : '';
+                    let profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
+                    let jobsPayload = [];
+                    if (sortBy === 'most_relevant') {
+                        jobsPayload = allJobs.map((j) => ({
+                            id: j.job_id,
+                            job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}. Work Type: ${j.work_type}. Skills Requirement: ${j.skills_requirement.map((s) => s.skill).join(', ')}`,
+                        }));
+                    }
+                    else if (search) {
+                        jobsPayload = allJobs.map((j) => ({
+                            id: j.job_id,
+                            job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}`,
+                        }));
+                        profileText = search;
+                    }
+                    try {
+                        const gpythonUrl = process.env.URL_SERVER_PYTHON;
+                        const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                talent_profile_text: profileText,
+                                jobs: jobsPayload,
+                            }),
+                        });
+                        if (res.ok) {
+                            const parsed = await res.json();
+                            recommendedJobs = parsed.results.map((r) => ({
+                                job_id: r.job_id,
+                                similarity_score: r.score,
+                                match_details: { skills_match: r.score },
+                            }));
+                        }
+                    }
+                    catch (error) {
+                        console.error('Error hitting Python API:', error);
+                    }
                 }
                 let filteredJobs = [];
                 console.log('recommendedJobs', recommendedJobs);
@@ -231,6 +244,7 @@ let JobsSearchService = class JobsSearchService {
                 }
                 return {
                     job_id: job.job_id,
+                    similarity_score: job.similarity_score ?? undefined,
                     is_saved: savedJob ? true : false,
                     is_applied: appliedJob ? true : false,
                     applied_at: appliedJob ? appliedJob.applied_at : null,
@@ -340,19 +354,44 @@ let JobsSearchService = class JobsSearchService {
             },
         });
         console.log('job', job);
-        const message = JSON.stringify({
-            action: 'job_recommendation',
-            user: jobSeeker,
-            jobs: job,
-        }, (_, value) => (typeof value === 'bigint' ? value.toString() : value));
-        const serverActive = await (0, python_server_helper_1.checkPythonServerAlive)(1000);
         let recommendedJobs = [];
-        if (serverActive && jobSeeker) {
-            await this.socket.send(message);
-            const [resultBuffer] = await this.socket.receive();
-            const result = JSON.parse(resultBuffer.toString());
-            recommendedJobs = result.jobs;
-            console.log(recommendedJobs);
+        if (jobSeeker) {
+            const skillsText = jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
+            const expText = jobSeeker.experiences
+                ?.map((e) => `${e.experience_title} at ${e.company_name} - ${e.description}`)
+                .join('; ') || '';
+            const eduText = jobSeeker.education
+                ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+                : '';
+            const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
+            const jobsPayload = [
+                {
+                    id: job.job_id,
+                    job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
+                },
+            ];
+            try {
+                const gpythonUrl = process.env.URL_SERVER_PYTHON;
+                const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        talent_profile_text: profileText,
+                        jobs: jobsPayload,
+                    }),
+                });
+                if (res.ok) {
+                    const parsed = await res.json();
+                    recommendedJobs = parsed.results.map((r) => ({
+                        job_id: r.job_id,
+                        similarity_score: r.score,
+                        match_details: { skills_match: r.score },
+                    }));
+                }
+            }
+            catch (error) {
+                console.error('Error hitting Python API:', error);
+            }
         }
         try {
             const job = await this.prisma.jobs.findUnique({

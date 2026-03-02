@@ -1,6 +1,26 @@
-import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  Get,
+<<<<<<< HEAD
+  Delete,
+=======
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfileService } from './profile.service';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ChangeEmailDto } from './dto/change-email.dto';
@@ -9,7 +29,11 @@ import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
 @ApiTags('profile')
 @Controller('profile')
 export class ProfileController {
+<<<<<<< HEAD
   constructor(private readonly profileService: ProfileService) { }
+=======
+  constructor(private readonly profileService: ProfileService) {}
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
   @Get('my')
   @ApiBearerAuth('access-token')
@@ -25,7 +49,10 @@ export class ProfileController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Change user password' })
   @UseGuards(JwtAuthGuard)
-  async changePassword(@Request() req, @Body() changePasswordDto: ChangePasswordDto) {
+  async changePassword(
+    @Request() req,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
     return this.profileService.changePassword(req.user, changePasswordDto);
   }
 
@@ -45,8 +72,14 @@ export class ProfileController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Verify change email' })
   @UseGuards(JwtAuthGuard)
-  async verifyChangeEmail(@Request() req, @Body() verifyChangeEmailDto: VerifyChangeEmailDto) {
-    return this.profileService.verifyChangeEmail(req.user, verifyChangeEmailDto);
+  async verifyChangeEmail(
+    @Request() req,
+    @Body() verifyChangeEmailDto: VerifyChangeEmailDto,
+  ) {
+    return this.profileService.verifyChangeEmail(
+      req.user,
+      verifyChangeEmailDto,
+    );
   }
 
   @Get('profile-picture')
@@ -56,4 +89,32 @@ export class ProfileController {
   async profilePicture(@Request() req) {
     return this.profileService.getProfilePicture(req.user);
   }
+
+  @Post('cv-autofill')
+  @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Auto-fill profile from PDF CV' })
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+<<<<<<< HEAD
+  async cvAutofill(@Request() req, @UploadedFile() file: any) {
+=======
+  async cvAutofill(@Request() req, @UploadedFile() file: Express.Multer.File) {
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
+    if (!file) {
+      throw new BadRequestException('CV file is required');
+    }
+    return this.profileService.cvAutofill(req.user, file);
+  }
+<<<<<<< HEAD
+
+  @Delete('education')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Delete user education' })
+  @UseGuards(JwtAuthGuard)
+  async deleteEducation(@Request() req) {
+    return this.profileService.deleteEducation(req.user);
+  }
+=======
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 }

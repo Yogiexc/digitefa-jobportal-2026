@@ -2,20 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
-import * as zmq from 'zeromq';
-import { checkPythonServerAlive } from 'src/helper/python-server.helper';
+
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class JobsSearchService {
-  private socket: zmq.Request;
   constructor(
     private prisma: PrismaService,
     private httpService: HttpService,
-  ) {
-    (this.socket = new zmq.Request()),
-      this.socket.connect(process.env.SOCKET_SERVER_PYTHON);
-  }
+  ) {}
 
   async findJobs(
     user: any,
@@ -213,51 +208,59 @@ export class JobsSearchService {
             console.error('Error fetching LMS data:', error);
           }
         }
-        let message;
-        if (sortBy === 'most_relevant') {
-          console.log(recommendationSort);
-          message = JSON.stringify(
-            {
-              action: 'job_recommendation',
-              user: jobSeeker,
-              jobs: allJobs,
-              is_sort: 'true',
-              sort: recommendationSort,
-              lms: dataLMS ?? null,
-            },
-            (_, value) =>
-              typeof value === 'bigint' ? value.toString() : value,
-          );
-        } else if (search) {
-          message = JSON.stringify(
-            {
-              action: 'job_search',
-              search_text: search,
-              jobs: allJobs,
-              is_sort: 'true',
-              sort: recommendationSort,
-              lms: dataLMS ?? null,
-            },
-            (_, value) =>
-              typeof value === 'bigint' ? value.toString() : value,
-          );
-        }
-
-        // Cek apakah server python rekomendasi job aktif
-        const serverActive = await checkPythonServerAlive(1000);
         let recommendedJobs = [];
 
-        // Jika server aktif, kirim pesan cek rekomendasi
-        if (serverActive && jobSeeker) {
-          // Kirim pesan ke server ZeroMQ
-          await this.socket.send(message);
+        if (jobSeeker) {
+          const skillsText =
+            jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
+          const expText =
+            jobSeeker.experiences
+              ?.map(
+                (e) =>
+                  `${e.experience_title} at ${e.company_name} - ${e.description}`,
+              )
+              .join('; ') || '';
+          const eduText = jobSeeker.education
+            ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+            : '';
+          let profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
-          // Terima respons (buffer) dari server
-          const [resultBuffer] = await this.socket.receive();
+          let jobsPayload = [];
+          if (sortBy === 'most_relevant') {
+            jobsPayload = allJobs.map((j) => ({
+              id: j.job_id,
+              job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}. Work Type: ${j.work_type}. Skills Requirement: ${j.skills_requirement.map((s) => s.skill).join(', ')}`,
+            }));
+          } else if (search) {
+            jobsPayload = allJobs.map((j) => ({
+              id: j.job_id,
+              job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}`,
+            }));
+            profileText = search; // Override profile text with search query
+          }
 
-          // Parsing respons JSON
-          const result = JSON.parse(resultBuffer.toString());
-          recommendedJobs = result.jobs;
+          try {
+            const gpythonUrl = process.env.URL_SERVER_PYTHON;
+            const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                talent_profile_text: profileText,
+                jobs: jobsPayload,
+              }),
+            });
+
+            if (res.ok) {
+              const parsed = await res.json();
+              recommendedJobs = parsed.results.map((r: any) => ({
+                job_id: r.job_id,
+                similarity_score: r.score,
+                match_details: { skills_match: r.score },
+              }));
+            }
+          } catch (error) {
+            console.error('Error hitting Python API:', error);
+          }
         }
 
         // Filter, mapping, dan sorting job berdasarkan relevansi
@@ -305,6 +308,7 @@ export class JobsSearchService {
         }
         return {
           job_id: job.job_id,
+          similarity_score: (job as any).similarity_score ?? undefined,
           is_saved: savedJob ? true : false,
           is_applied: appliedJob ? true : false,
           applied_at: appliedJob ? appliedJob.applied_at : null,
@@ -422,32 +426,52 @@ export class JobsSearchService {
 
     console.log('job', job);
 
-    const message = JSON.stringify(
-      {
-        action: 'job_recommendation',
-        user: jobSeeker,
-        jobs: job,
-      },
-      (_, value) => (typeof value === 'bigint' ? value.toString() : value),
-    );
-
-    // Cek apakah server python rekomendasi job aktif
-    const serverActive = await checkPythonServerAlive(1000);
     let recommendedJobs = [];
 
-    // Jika server aktif, kirim pesan cek rekomendasi
-    if (serverActive && jobSeeker) {
-      // Kirim pesan ke server ZeroMQ
-      await this.socket.send(message);
+    if (jobSeeker) {
+      const skillsText =
+        jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
+      const expText =
+        jobSeeker.experiences
+          ?.map(
+            (e) =>
+              `${e.experience_title} at ${e.company_name} - ${e.description}`,
+          )
+          .join('; ') || '';
+      const eduText = jobSeeker.education
+        ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+        : '';
+      const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
-      // Terima respons (buffer) dari server
-      const [resultBuffer] = await this.socket.receive();
+      const jobsPayload = [
+        {
+          id: job.job_id,
+          job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
+        },
+      ];
 
-      // Parsing respons JSON
-      const result = JSON.parse(resultBuffer.toString());
-      recommendedJobs = result.jobs;
+      try {
+        const gpythonUrl = process.env.URL_SERVER_PYTHON;
+        const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            talent_profile_text: profileText,
+            jobs: jobsPayload,
+          }),
+        });
 
-      console.log(recommendedJobs);
+        if (res.ok) {
+          const parsed = await res.json();
+          recommendedJobs = parsed.results.map((r: any) => ({
+            job_id: r.job_id,
+            similarity_score: r.score,
+            match_details: { skills_match: r.score },
+          }));
+        }
+      } catch (error) {
+        console.error('Error hitting Python API:', error);
+      }
     }
 
     try {

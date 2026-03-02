@@ -3,6 +3,7 @@ import Navbar from "../../components/Navbar";
 import Banners from "../../components/home/Banners";
 import Information from "../../components/home/Information";
 import LatestJobsOpen from "../../components/home/LatestJobsOpen";
+import RecommendedJobs from "../../components/home/RecommendedJobs";
 import WhyChoose from "../../components/home/WhyChoose";
 import Footers from "../../components/Footers";
 import { Helmet, HelmetProvider } from "react-helmet-async";
@@ -21,9 +22,10 @@ const Home = () => {
         <Navbar />
         <Banners />
         <Information />
+        <RecommendedJobs />
         <LatestJobsOpen />
         <WhyChoose />
-        <BigData/>
+        <BigData />
         <Footers />
       </Layout>
     </HelmetProvider>

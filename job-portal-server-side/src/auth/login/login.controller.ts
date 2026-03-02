@@ -15,7 +15,11 @@ import { LoginGoogleDto } from './dto/loginGoogle.dto';
 @ApiTags('auth-login')
 @Controller('auth/login')
 export class LoginController {
+<<<<<<< HEAD
+  constructor(private loginService: LoginService) { }
+=======
   constructor(private loginService: LoginService) {}
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
   @Post('google')
   @ApiConsumes('multipart/form-data')
@@ -35,11 +39,19 @@ export class LoginController {
     const user = await this.loginService.validateJobSeeker(loginJobSeekerDto);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+<<<<<<< HEAD
+    }
+    // Bypass verification check for development since OTP emails fail
+    // else if (user.verified === 'false') {
+    //   throw new NotFoundException('User not found. Please register to create an account.');
+    // }
+=======
     } else if (user.verified === 'false') {
       throw new NotFoundException(
         'User not found. Please register to create an account.',
       );
     }
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     return this.loginService.login(user);
   }
 
@@ -52,11 +64,19 @@ export class LoginController {
     const user = await this.loginService.validateCMS(loginCMSDto);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+<<<<<<< HEAD
+    }
+    // Bypass verification check for development since OTP emails fail
+    // else if (user.verified === 'false') {
+    //   throw new NotFoundException('User not found. Please register to create an account.');
+    // }
+=======
     } else if (user.verified === 'false') {
       throw new NotFoundException(
         'User not found. Please register to create an account.',
       );
     }
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     return this.loginService.login(user);
   }
 }

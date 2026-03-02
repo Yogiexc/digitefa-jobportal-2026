@@ -2,7 +2,11 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
+<<<<<<< HEAD
+FROM node:18-bullseye-slim AS development
+=======
 FROM node:18-alpine AS development
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -20,7 +24,11 @@ RUN \
 COPY --chown=node:node . .
 
 # Ensure public directory exists and has correct permissions
+<<<<<<< HEAD
+RUN apt-get update && apt-get install -y openssl && mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+=======
 RUN mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
 USER node
 
@@ -28,7 +36,11 @@ USER node
 # BUILD FOR PRODUCTION
 ###################
 
+<<<<<<< HEAD
+FROM node:18-bullseye-slim AS build
+=======
 FROM node:18-alpine AS build
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
 WORKDIR /usr/src/app
 
@@ -37,7 +49,11 @@ COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modul
 COPY --chown=node:node . .
 
 # Ensure public directory exists and has correct permissions
+<<<<<<< HEAD
+RUN apt-get update && apt-get install -y openssl && mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+=======
 RUN mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
 # Run the build command
 RUN \
@@ -60,12 +76,20 @@ USER node
 # PRODUCTION
 ###################
 
+<<<<<<< HEAD
+FROM node:18-bullseye-slim AS production
+=======
 FROM node:18-alpine AS production
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
 WORKDIR /usr/src/app
 
 # Create public directory and set permissions
+<<<<<<< HEAD
+RUN apt-get update && apt-get install -y openssl && mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+=======
 RUN mkdir -p /usr/src/app/public && chown node:node /usr/src/app/public
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
 # Copy the bundled code
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules

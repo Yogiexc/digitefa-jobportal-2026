@@ -68,6 +68,14 @@ export declare class CompaniesController {
             };
         };
     }>;
+<<<<<<< HEAD
+    searchTalents(query: string, job_description: string): Promise<{
+=======
+    searchTalents(query: string): Promise<{
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
+        status: string;
+        data: any;
+    }>;
     changeStatus(changeStatusDto: ChangeStatusCompanyDto): Promise<{
         status: string;
         message: string;

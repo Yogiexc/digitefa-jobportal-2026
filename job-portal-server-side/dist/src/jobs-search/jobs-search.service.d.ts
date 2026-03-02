@@ -3,7 +3,6 @@ import { HttpService } from '@nestjs/axios';
 export declare class JobsSearchService {
     private prisma;
     private httpService;
-    private socket;
     constructor(prisma: PrismaService, httpService: HttpService);
     findJobs(user: any, params: {
         page?: number;
@@ -28,6 +27,7 @@ export declare class JobsSearchService {
         size: number;
         data: {
             job_id: string;
+            similarity_score: any;
             is_saved: boolean;
             is_applied: boolean;
             applied_at: any;

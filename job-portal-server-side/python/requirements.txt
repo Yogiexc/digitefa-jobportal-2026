@@ -7,4 +7,10 @@ torch
 torchvision
 torchaudio
 
+<<<<<<< HEAD
 sentence-transformers
+autocorrect
+nltk
+=======
+sentence-transformers
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204

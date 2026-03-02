@@ -2,7 +2,6 @@ import { PrismaService } from 'prisma/prisma.service';
 import { Response } from 'express';
 export declare class ApplicantsService {
     private prisma;
-    private socket;
     constructor(prisma: PrismaService);
     applyJob(user: any, job_id: string, applyJobDto: any, resume: Express.Multer.File): Promise<{
         status: string;

@@ -7,17 +7,22 @@ import Skills from "./Skills";
 import Projects from "./Projects";
 import CertificationsLicenses from "./CertificationsLicenses";
 import Languages from "./Languages";
-import LinkAccount from "./LinkAccount"; 
+import LinkAccount from "./LinkAccount";
+import WebChart from "./WebChart";
 import {
   CheckCircleIcon,
   XCircleIcon,
   PencilSquareIcon,
   TrashIcon,
-  LinkIcon, 
+  LinkIcon,
+  SparklesIcon,
+  DocumentArrowUpIcon
 } from "@heroicons/react/24/outline";
+import { message, Upload } from "antd";
 import { useProfile } from "../../../hooks/useProfile";
 import { useOnMountUnsafe } from "../../../hooks/useMountUnsave.jsx";
 import { toPascalCase, dateToMonthYear } from "../../../utils";
+import Api from "../../../services/Api";
 
 const Profiles = () => {
   const [profileCompletion, setProfileCompletion] = useState({
@@ -42,7 +47,7 @@ const Profiles = () => {
   } = useProfile({ defaultPercentage: 30 });
 
   const [popup, setPopUp] = useState(defaultPopUp);
-  const [linkAccountOpen, setLinkAccountOpen] = useState(false); 
+  const [linkAccountOpen, setLinkAccountOpen] = useState(false);
 
   const sections = {
     [sectionEnums.PERSONAL_SUMMARY]: {
@@ -90,6 +95,14 @@ const Profiles = () => {
 
   const onDestroy = async ({ sectionId, data }) => {
     let payload = {};
+<<<<<<< HEAD
+    if ("education_id" in data)
+      payload = {
+        primaryKey: "education_id",
+        values: { education_id: data.education_id },
+      };
+=======
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     if ("experience_id" in data)
       payload = {
         primaryKey: "experience_id",
@@ -123,6 +136,26 @@ const Profiles = () => {
     }));
   };
 
+  const onCvUpload = async (options) => {
+    const { file, onSuccess, onError } = options;
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      message.loading({ content: 'Parsing CV with AI...', key: 'cvupload' });
+      await Api.post("/profile/cv-autofill", formData, {
+        headers: { "content-type": "multipart/form-data" },
+      });
+      message.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
+      onSuccess();
+      // Reload the data gracefully instead of full page reload if possible
+      getAllSectionData();
+    } catch (error) {
+      console.error(error);
+      message.error({ content: 'Failed to process CV', key: 'cvupload' });
+      onError(error);
+    }
+  };
+
   useOnMountUnsafe(getAllSectionData);
 
   return (
@@ -133,10 +166,10 @@ const Profiles = () => {
           <Section
             title={sections.ACCOUNT_INTEGRATION.title}
             description={sections.ACCOUNT_INTEGRATION.description}
-            type="modal" 
+            type="modal"
             onButtonClick={() => setLinkAccountOpen(true)}
-            buttonText="Link Account" 
-            icon={<LinkIcon className="h-4 w-4 mr-1" />} 
+            buttonText="Link Account"
+            icon={<LinkIcon className="h-4 w-4 mr-1" />}
           />
 
           {Object.keys(sectionEnums).map((key) => {
@@ -161,6 +194,18 @@ const Profiles = () => {
               <div className="text-base font-semibold mb-6 md:mb-8">
                 Profile Completion
               </div>
+              <Upload
+                accept=".pdf"
+                customRequest={onCvUpload}
+                showUploadList={false}
+              >
+                <Button
+                  icon={<SparklesIcon className="w-5 h-5 text-purple-600" />}
+                  className="mb-8 w-full border-purple-300 bg-purple-50 hover:bg-purple-100 flex items-center justify-center h-12 rounded-xl shadow-sm"
+                >
+                  <span className="text-purple-700 font-semibold text-sm">Autofill from CV</span>
+                </Button>
+              </Upload>
               <Progress
                 type="circle"
                 percent={percentage}
@@ -218,6 +263,7 @@ const Profiles = () => {
                 })}
               </List>
             )}
+            <WebChart sectionItems={sectionItems} />
           </Card>
         </div>
       </div>
@@ -307,7 +353,7 @@ const Section = (props) => {
 
       {isModalType && props.buttonText && (
         <Button
-          className="bg-[#1890ff] text-white hover:bg-[#40a9ff]" 
+          className="bg-[#1890ff] text-white hover:bg-[#40a9ff]"
           type="primary"
           style={{
             borderRadius: 8,
@@ -316,7 +362,7 @@ const Section = (props) => {
             alignItems: "center",
           }}
           icon={props.icon}
-          onClick={props.onButtonClick} 
+          onClick={props.onButtonClick}
         >
           {props.buttonText}
         </Button>
@@ -383,7 +429,11 @@ const TextCard = (props) => (
               </p>
             </div>
           )}
+<<<<<<< HEAD
+          <div className="w-1/5 text-right flex justify-end space-x-2">
+=======
           <div className="w-1/5 text-right">
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
             <Button
               type="text"
               onClick={() =>
@@ -397,6 +447,16 @@ const TextCard = (props) => (
               }
               icon={<PencilSquareIcon className="size-5" />}
             />
+<<<<<<< HEAD
+            {typeof props.text !== "string" && (
+              <Button
+                type="text"
+                onClick={() => props.onDestroy({ sectionId: props.sectionId, data: props.text })}
+                icon={<TrashIcon className="h-5 w-5" />}
+              />
+            )}
+=======
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
           </div>
         </div>
       }
@@ -431,7 +491,7 @@ const ListItemCard = (props) => {
                 <p className="text-xs font-normal">
                   {dateToMonthYear(item?.start_date || item?.issue_date)} -
                   {sectionId === "EXPERIENCE" &&
-                  item?.start_date === item?.end_date
+                    item?.start_date === item?.end_date
                     ? "Now"
                     : dateToMonthYear(item?.end_date || item?.expiration_date)}
                 </p>

@@ -8,16 +8,10 @@ import { PrismaService } from 'prisma/prisma.service';
 import { promises as fs } from 'fs';
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
-import * as zmq from 'zeromq';
-import { checkPythonServerAlive } from 'src/helper/python-server.helper';
 
 @Injectable()
 export class ApplicantsService {
-  private socket: zmq.Request;
-  constructor(private prisma: PrismaService) {
-    (this.socket = new zmq.Request()),
-      this.socket.connect(process.env.SOCKET_SERVER_PYTHON);
-  }
+  constructor(private prisma: PrismaService) {}
   async applyJob(
     user: any,
     job_id: string,
@@ -101,35 +95,70 @@ export class ApplicantsService {
       },
     });
 
-    const message = JSON.stringify(
-      {
-        action: 'job_recommendation',
-        user: jobSeeker,
-        jobs: job,
-        filter: 'false',
-      },
-      (_, value) => (typeof value === 'bigint' ? value.toString() : value),
-    );
-
-    // Cek apakah server python rekomendasi job aktif
-    const serverActive = await checkPythonServerAlive(1000);
     let recommendedJobs = [];
 
-    // Jika server aktif, kirim pesan cek rekomendasi
-    if (serverActive && jobSeeker) {
-      // Kirim pesan ke server ZeroMQ
-      await this.socket.send(message);
+    if (jobSeeker) {
+      const skillsText =
+        jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
+      const expText =
+        jobSeeker.experiences
+          ?.map(
+            (e) =>
+              `${e.experience_title} at ${e.company_name} - ${e.description}`,
+          )
+          .join('; ') || '';
+      const eduText = jobSeeker.education
+        ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+        : '';
+      const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
-      // Terima respons (buffer) dari server
-      const [resultBuffer] = await this.socket.receive();
+      const jobsPayload = [
+        {
+          id: job.job_id,
+          job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
+        },
+      ];
 
-      // Parsing respons JSON
-      const result = JSON.parse(resultBuffer.toString());
-      recommendedJobs = result.jobs;
+      try {
+        const gpythonUrl = process.env.URL_SERVER_PYTHON;
+        const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            talent_profile_text: profileText,
+            jobs: jobsPayload,
+          }),
+        });
 
-      console.log(result);
+        if (res.ok) {
+          const parsed = await res.json();
+          recommendedJobs = parsed.results.map((r: any) => ({
+            job_id: r.job_id,
+            similarity_score: r.score,
+            match_details: {
+              personal_summary_match: r.score,
+              skills_match: r.score,
+              education_match: r.score,
+              experience_match: r.score,
+              certifications_match: null,
+              projects_match: null,
+            },
+          }));
+        }
+      } catch (error) {
+        console.error('Error hitting Python API:', error);
+      }
+    }
 
-      console.log(recommendedJobs);
+    // Fallback if AI fails
+    if (!recommendedJobs.length) {
+      recommendedJobs = [
+        {
+          job_id: job.job_id,
+          similarity_score: 0,
+          match_details: {},
+        },
+      ];
     }
 
     try {

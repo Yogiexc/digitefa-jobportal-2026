@@ -11,6 +11,7 @@ export declare class JobsSearchController {
         size: number;
         data: {
             job_id: string;
+            similarity_score: any;
             is_saved: boolean;
             is_applied: boolean;
             applied_at: any;

@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { RegisterJobSeekerDto } from './dto/register-job-seeker.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import * as nodemailer from 'nodemailer';
@@ -14,9 +20,12 @@ import { JwtService } from '@nestjs/jwt';
 export class RegisterService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,) { }
+    private jwtService: JwtService,
+  ) {}
 
-  async registerJobSeeker(registerJobSeekerDto: RegisterJobSeekerDto): Promise<any> {
+  async registerJobSeeker(
+    registerJobSeekerDto: RegisterJobSeekerDto,
+  ): Promise<any> {
     const errors = await validate(registerJobSeekerDto);
     if (errors.length > 0) {
       throw new BadRequestException(errors);
@@ -38,16 +47,24 @@ export class RegisterService {
 
     if (job_seeker || company || university || admin) {
       if (company && company.verified === 'true') {
-        throw new ConflictException('Email is already registered and verified for company. Please login for company.');
+        throw new ConflictException(
+          'Email is already registered and verified for company. Please login for company.',
+        );
       }
       if (university && university.verified === 'true') {
-        throw new ConflictException('Email is already registered and verified for university. Please login for university.');
+        throw new ConflictException(
+          'Email is already registered and verified for university. Please login for university.',
+        );
       }
-      if (job_seeker) {
-        throw new ConflictException('Email is already registered as job seeker. Please login instead.');
+      if (job_seeker && job_seeker.verified === 'true') {
+        throw new ConflictException(
+          'Email is already registered as job seeker. Please login instead.',
+        );
       }
       if (admin) {
-        throw new ConflictException('Email is already registered in this platform. Please login instead.');
+        throw new ConflictException(
+          'Email is already registered in this platform. Please login instead.',
+        );
       }
     }
 
@@ -56,41 +73,57 @@ export class RegisterService {
     const otp = crypto.randomInt(1000, 9999).toString();
     const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
 
-    if (job_seeker) {
-      if (job_seeker.verified === 'false') {
-        await this.prisma.job_seekers.update({
-          where: { job_seeker_id: job_seeker.job_seeker_id },
+    try {
+      if (job_seeker) {
+        if (job_seeker.verified === 'false') {
+          await this.prisma.job_seekers.update({
+            where: { job_seeker_id: job_seeker.job_seeker_id },
+            data: {
+              email,
+              full_name,
+              password: hashedPassword,
+              otp: otpHash,
+              otpExpires: new Date(Date.now() + 15 * 60 * 1000), // OTP expires in 15 minutes
+            },
+          });
+        }
+      } else {
+        await this.prisma.job_seekers.create({
           data: {
             email,
             full_name,
             password: hashedPassword,
             otp: otpHash,
             otpExpires: new Date(Date.now() + 15 * 60 * 1000), // OTP expires in 15 minutes
+            job_seeker_detail: {
+              create: {},
+            },
           },
         });
       }
-    } else {
-      await this.prisma.job_seekers.create({
-        data: {
-          email,
-          full_name,
-          password: hashedPassword,
-          otp: otpHash,
-          otpExpires: new Date(Date.now() + 15 * 60 * 1000), // OTP expires in 15 minutes
-          job_seeker_detail: {
-            create: {
-            },
-          },
-        },
-      });
+
+<<<<<<< HEAD
+      try {
+        await this.sendOtpEmail(email, otp);
+      } catch (err) {
+        console.error('Failed to send OTP email. For development, OTP is:', otp);
+      }
+=======
+      await this.sendOtpEmail(email, otp);
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
+
+      return {
+        status: 'success',
+        message:
+          'OTP sent successfully.Please check your email for the OTP code.',
+      };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Registration error: ' + (error.message || error),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-
-    await this.sendOtpEmail(email, otp);
-
-    return {
-      status: 'success',
-      message: 'OTP sent successfully.Please check your email for the OTP code.',
-    };
   }
 
   async registerCompany(registerCompanyDto: RegisterCompanyDto): Promise<any> {
@@ -115,20 +148,29 @@ export class RegisterService {
 
     if (job_seeker || company || university || admin) {
       if (company && company.verified === 'true') {
-        throw new ConflictException('Email is already registered and verified for company. Please login for company.');
+        throw new ConflictException(
+          'Email is already registered and verified for company. Please login for company.',
+        );
       }
       if (university && university.verified === 'true') {
-        throw new ConflictException('Email is already registered and verified for university. Please login for university.');
+        throw new ConflictException(
+          'Email is already registered and verified for university. Please login for university.',
+        );
       }
-      if (job_seeker) {
-        throw new ConflictException('Email is already registered as job seeker. Please login instead.');
+      if (job_seeker && job_seeker.verified === 'true') {
+        throw new ConflictException(
+          'Email is already registered as job seeker. Please login instead.',
+        );
       }
       if (admin) {
-        throw new ConflictException('Email is already registered as admin. Please login instead.');
+        throw new ConflictException(
+          'Email is already registered as admin. Please login instead.',
+        );
       }
     }
 
-    const { legal_name, full_name, phone_number, email, password } = registerCompanyDto;
+    const { legal_name, full_name, phone_number, email, password } =
+      registerCompanyDto;
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = crypto.randomInt(1000, 9999).toString();
     const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
@@ -145,9 +187,10 @@ export class RegisterService {
             otpExpires: new Date(Date.now() + 15 * 60 * 1000), // OTP expires in 15 minutes
             company_detail: {
               upsert: {
-                update: { legal_name, }, create: { legal_name, }
+                update: { legal_name },
+                create: { legal_name },
               },
-            }
+            },
           },
         });
       }
@@ -169,15 +212,26 @@ export class RegisterService {
       });
     }
 
+<<<<<<< HEAD
+    try {
+      await this.sendOtpEmail(email, otp);
+    } catch (err) {
+      console.error('Failed to send OTP email. For development, OTP is:', otp);
+    }
+=======
     await this.sendOtpEmail(email, otp);
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
     return {
       status: 'success',
-      message: 'OTP sent successfully.Please check your email for the OTP code.',
+      message:
+        'OTP sent successfully.Please check your email for the OTP code.',
     };
   }
 
-  async registerUniversity(registerUniversityDto: RegisterUniversityDto): Promise<any> {
+  async registerUniversity(
+    registerUniversityDto: RegisterUniversityDto,
+  ): Promise<any> {
     const errors = await validate(registerUniversityDto);
     if (errors.length > 0) {
       throw new BadRequestException(errors);
@@ -199,20 +253,29 @@ export class RegisterService {
 
     if (job_seeker || company || university || admin) {
       if (company && company.verified === 'true') {
-        throw new ConflictException('Email is already registered and verified for company. Please login for company.');
+        throw new ConflictException(
+          'Email is already registered and verified for company. Please login for company.',
+        );
       }
       if (university && university.verified === 'true') {
-        throw new ConflictException('Email is already registered and verified for university. Please login for university.');
+        throw new ConflictException(
+          'Email is already registered and verified for university. Please login for university.',
+        );
       }
-      if (job_seeker) {
-        throw new ConflictException('Email is already registered as job seeker. Please login instead.');
+      if (job_seeker && job_seeker.verified === 'true') {
+        throw new ConflictException(
+          'Email is already registered as job seeker. Please login instead.',
+        );
       }
       if (admin) {
-        throw new ConflictException('Email is already registered as admin. Please login instead.');
+        throw new ConflictException(
+          'Email is already registered as admin. Please login instead.',
+        );
       }
     }
 
-    const { university_name, full_name, email, password } = registerUniversityDto;
+    const { university_name, full_name, email, password } =
+      registerUniversityDto;
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = crypto.randomInt(1000, 9999).toString();
     const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
@@ -229,9 +292,10 @@ export class RegisterService {
             otpExpires: new Date(Date.now() + 15 * 60 * 1000), // OTP expires in 15 minutes
             university_detail: {
               upsert: {
-                update: { university_name }, create: { university_name }
+                update: { university_name },
+                create: { university_name },
               },
-            }
+            },
           },
         });
       }
@@ -245,18 +309,27 @@ export class RegisterService {
           otpExpires: new Date(Date.now() + 15 * 60 * 1000), // OTP expires in 15 minutes
           university_detail: {
             create: {
-              university_name
+              university_name,
             },
           },
         },
       });
     }
 
+<<<<<<< HEAD
+    try {
+      await this.sendOtpEmail(email, otp);
+    } catch (err) {
+      console.error('Failed to send OTP email. For development, OTP is:', otp);
+    }
+=======
     await this.sendOtpEmail(email, otp);
+>>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
     return {
       status: 'success',
-      message: 'OTP sent successfully.Please check your email for the OTP code.',
+      message:
+        'OTP sent successfully.Please check your email for the OTP code.',
     };
   }
 
@@ -270,8 +343,8 @@ export class RegisterService {
         pass: process.env.EMAIL_PASS,
       },
       tls: {
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+      },
     });
 
     const htmlContent = otpEmailTemplate(otp, email);
@@ -304,65 +377,95 @@ export class RegisterService {
     let user;
     if (job_seeker) {
       if (job_seeker.otp !== otpHash || new Date() > job_seeker.otpExpires) {
-        throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Invalid or expired OTP',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Update user verification
       user = await this.prisma.job_seekers.update({
         where: { email },
         data: {
-          verified: "true",
+          verified: 'true',
           otp: null,
           otpExpires: null,
         },
       });
-      user.role = "job_seeker";
+      user.role = 'job_seeker';
     } else if (company) {
       if (company.otp !== otpHash || new Date() > company.otpExpires) {
-        throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Invalid or expired OTP',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Update user verification
       user = await this.prisma.companies.update({
         where: { email },
         data: {
-          verified: "true",
+          verified: 'true',
           otp: null,
           otpExpires: null,
         },
       });
-      user.role = "company";
+      user.role = 'company';
     } else if (university) {
       if (university.otp !== otpHash || new Date() > university.otpExpires) {
-        throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Invalid or expired OTP',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Update user verification
       user = await this.prisma.universities.update({
         where: { email },
         data: {
-          verified: "true",
+          verified: 'true',
           otp: null,
           otpExpires: null,
         },
       });
-      user.role = "university";
+      user.role = 'university';
     }
 
     // Create payload and generate token
     let payload;
-    if (user.role === "job_seeker") {
-      payload = { job_seeker_id: user.job_seeker_id, email: user.email, role: user.role };
-    } else if (user.role === "university") {
-      payload = { university_id: user.university_id, email: user.email, role: user.role };
-    } else if (user.role === "company") {
-      payload = { company_id: user.company_id, email: user.email, role: user.role };
+    if (user.role === 'job_seeker') {
+      payload = {
+        job_seeker_id: user.job_seeker_id,
+        email: user.email,
+        role: user.role,
+      };
+    } else if (user.role === 'university') {
+      payload = {
+        university_id: user.university_id,
+        email: user.email,
+        role: user.role,
+      };
+    } else if (user.role === 'company') {
+      payload = {
+        company_id: user.company_id,
+        email: user.email,
+        role: user.role,
+      };
     }
     const token = await this.jwtService.signAsync(payload);
 
     // Remove sensitive information
     const detailUser = Object.fromEntries(
-      Object.entries(user).filter(([key]) => !['otp', 'otpExpires', 'password', 'updated_at', 'created_at'].includes(key))
+      Object.entries(user).filter(
+        ([key]) =>
+          ![
+            'otp',
+            'otpExpires',
+            'password',
+            'updated_at',
+            'created_at',
+          ].includes(key),
+      ),
     );
 
     return {
@@ -370,9 +473,8 @@ export class RegisterService {
       message: 'Email verified successfully.',
       data: {
         token: token,
-        user: detailUser
-      }
+        user: detailUser,
+      },
     };
   }
-
 }

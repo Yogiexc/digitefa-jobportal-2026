@@ -14,13 +14,9 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const fs_1 = require("fs");
 const ExcelJS = require("exceljs");
-const zmq = require("zeromq");
-const python_server_helper_1 = require("../helper/python-server.helper");
 let ApplicantsService = class ApplicantsService {
     constructor(prisma) {
         this.prisma = prisma;
-        (this.socket = new zmq.Request()),
-            this.socket.connect(process.env.SOCKET_SERVER_PYTHON);
     }
     async applyJob(user, job_id, applyJobDto, resume) {
         if (!resume) {
@@ -93,21 +89,60 @@ let ApplicantsService = class ApplicantsService {
                 },
             },
         });
-        const message = JSON.stringify({
-            action: 'job_recommendation',
-            user: jobSeeker,
-            jobs: job,
-            filter: 'false',
-        }, (_, value) => (typeof value === 'bigint' ? value.toString() : value));
-        const serverActive = await (0, python_server_helper_1.checkPythonServerAlive)(1000);
         let recommendedJobs = [];
-        if (serverActive && jobSeeker) {
-            await this.socket.send(message);
-            const [resultBuffer] = await this.socket.receive();
-            const result = JSON.parse(resultBuffer.toString());
-            recommendedJobs = result.jobs;
-            console.log(result);
-            console.log(recommendedJobs);
+        if (jobSeeker) {
+            const skillsText = jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
+            const expText = jobSeeker.experiences
+                ?.map((e) => `${e.experience_title} at ${e.company_name} - ${e.description}`)
+                .join('; ') || '';
+            const eduText = jobSeeker.education
+                ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+                : '';
+            const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
+            const jobsPayload = [
+                {
+                    id: job.job_id,
+                    job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
+                },
+            ];
+            try {
+                const gpythonUrl = process.env.URL_SERVER_PYTHON;
+                const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        talent_profile_text: profileText,
+                        jobs: jobsPayload,
+                    }),
+                });
+                if (res.ok) {
+                    const parsed = await res.json();
+                    recommendedJobs = parsed.results.map((r) => ({
+                        job_id: r.job_id,
+                        similarity_score: r.score,
+                        match_details: {
+                            personal_summary_match: r.score,
+                            skills_match: r.score,
+                            education_match: r.score,
+                            experience_match: r.score,
+                            certifications_match: null,
+                            projects_match: null,
+                        },
+                    }));
+                }
+            }
+            catch (error) {
+                console.error('Error hitting Python API:', error);
+            }
+        }
+        if (!recommendedJobs.length) {
+            recommendedJobs = [
+                {
+                    job_id: job.job_id,
+                    similarity_score: 0,
+                    match_details: {},
+                },
+            ];
         }
         try {
             await this.prisma.$transaction(async (tx) => {

@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./job-portal-server-side
+      dockerfile: Dockerfile.backend
+    container_name: job_portal_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      # Use the container names for inter-service communication
+      - URL_SERVER_PYTHON=http://ai_http_server:9090
+      - SOCKET_SERVER_PYTHON=tcp://python_server:5555
+      - DATABASE_URL=mysql://root:root@db:3306/digitefa_job_portal
+    env_file:
+      - ./job-portal-server-side/.env.development
+    volumes:
+      - ./job-portal-server-side/public:/usr/src/app/public
+    networks:
+      - app_network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: job_portal_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=digitefa_job_portal
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sample-db-job-portal.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app_network
+
+  python_server:
+    build:
+      context: ./job-portal-server-side/python
+      dockerfile: Dockerfile.python
+    container_name: job_portal_python_server
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+    networks:
+      - app_network
+
+  ai_http_server:
+    build:
+      context: ./digitefa-python
+      dockerfile: Dockerfile
+    container_name: job_portal_ai_http_server
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    networks:
+      - app_network
+
+  frontend_client:
+    build:
+      context: ./job-portal-client-side
+      dockerfile: Dockerfile
+    container_name: job_portal_client
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app_network
+
+  frontend_cms:
+    build:
+      context: ./job-portal-clientside-cms
+      dockerfile: dockerfile
+    container_name: job_portal_cms
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    name: digitefa_app_network
+
+volumes:
+  db_data:
