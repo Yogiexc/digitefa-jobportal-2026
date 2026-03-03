@@ -21,11 +21,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @ApiTags('companies')
 @Controller('companies')
 export class CompaniesController {
-<<<<<<< HEAD
   constructor(private readonly companiesService: CompaniesService) { }
-=======
-  constructor(private readonly companiesService: CompaniesService) {}
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
   // @Post()
   // @ApiOperation({ summary: 'Create a company' })
@@ -156,7 +152,6 @@ export class CompaniesController {
   @UseGuards(new JwtAuthGuard(['company']))
   @ApiOperation({ summary: 'Semantic AI Search for Talents' })
   @ApiQuery({
-<<<<<<< HEAD
     name: 'job_description',
     required: false,
     type: String,
@@ -164,15 +159,6 @@ export class CompaniesController {
   })
   searchTalents(@Query('query') query: string, @Query('job_description') job_description: string) {
     return this.companiesService.searchTalents(job_description || query);
-=======
-    name: 'query',
-    required: true,
-    type: String,
-    description: 'Search query',
-  })
-  searchTalents(@Query('query') query: string) {
-    return this.companiesService.searchTalents(query);
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
   }
 
   @Post('change-status')

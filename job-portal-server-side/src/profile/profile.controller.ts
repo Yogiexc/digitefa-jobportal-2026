@@ -5,10 +5,7 @@ import {
   UseGuards,
   Request,
   Get,
-<<<<<<< HEAD
   Delete,
-=======
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
   UploadedFile,
   UseInterceptors,
   BadRequestException,
@@ -29,11 +26,7 @@ import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
 @ApiTags('profile')
 @Controller('profile')
 export class ProfileController {
-<<<<<<< HEAD
   constructor(private readonly profileService: ProfileService) { }
-=======
-  constructor(private readonly profileService: ProfileService) {}
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
   @Get('my')
   @ApiBearerAuth('access-token')
@@ -96,17 +89,12 @@ export class ProfileController {
   @ApiOperation({ summary: 'Auto-fill profile from PDF CV' })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-<<<<<<< HEAD
   async cvAutofill(@Request() req, @UploadedFile() file: any) {
-=======
-  async cvAutofill(@Request() req, @UploadedFile() file: Express.Multer.File) {
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     if (!file) {
       throw new BadRequestException('CV file is required');
     }
     return this.profileService.cvAutofill(req.user, file);
   }
-<<<<<<< HEAD
 
   @Delete('education')
   @ApiBearerAuth('access-token')
@@ -115,6 +103,4 @@ export class ProfileController {
   async deleteEducation(@Request() req) {
     return this.profileService.deleteEducation(req.user);
   }
-=======
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 }
