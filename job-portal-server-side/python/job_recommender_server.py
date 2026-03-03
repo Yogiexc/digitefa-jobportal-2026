@@ -99,11 +99,7 @@ def benchmark(func):
 
 
 class JobRecommender:
-<<<<<<< HEAD
     def __init__(self, port="tcp://0.0.0.0:5555", title_weight=0.3, detail_weight=0.7, minimum_similarity=0.44):
-=======
-    def __init__(self, port="tcp://127.0.0.1:5555", title_weight=0.3, detail_weight=0.7, minimum_similarity=0.44):
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         """
         Inisialisasi model, ZeroMQ, dan bobot custom untuk perhitungan similarity.
         title_weight  : bobot untuk similarity dari job title.

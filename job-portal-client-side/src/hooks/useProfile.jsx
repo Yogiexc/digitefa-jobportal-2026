@@ -30,10 +30,7 @@ const useProfile = ({ defaultPercentage }) => {
         },
         [sectionEnums.EDUCATION]: {
             put: 'update education',
-<<<<<<< HEAD
             delete: 'delete education',
-=======
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         },
         [sectionEnums.EXPERIENCE]: {
             post: 'create new experience',
@@ -68,10 +65,7 @@ const useProfile = ({ defaultPercentage }) => {
         [sectionEnums.EDUCATION]: {
             get: '/profile/job-seeker/education',
             put: '/profile/job-seeker/education',
-<<<<<<< HEAD
             delete: '/profile/job-seeker/education',
-=======
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         },
         [sectionEnums.EXPERIENCE]: {
             get: '/profile/job-seeker/experience',

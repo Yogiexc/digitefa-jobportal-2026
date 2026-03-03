@@ -102,15 +102,11 @@ export class RegisterService {
         });
       }
 
-<<<<<<< HEAD
       try {
         await this.sendOtpEmail(email, otp);
       } catch (err) {
         console.error('Failed to send OTP email. For development, OTP is:', otp);
       }
-=======
-      await this.sendOtpEmail(email, otp);
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
       return {
         status: 'success',
@@ -212,15 +208,11 @@ export class RegisterService {
       });
     }
 
-<<<<<<< HEAD
     try {
       await this.sendOtpEmail(email, otp);
     } catch (err) {
       console.error('Failed to send OTP email. For development, OTP is:', otp);
     }
-=======
-    await this.sendOtpEmail(email, otp);
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
     return {
       status: 'success',
@@ -316,15 +308,11 @@ export class RegisterService {
       });
     }
 
-<<<<<<< HEAD
     try {
       await this.sendOtpEmail(email, otp);
     } catch (err) {
       console.error('Failed to send OTP email. For development, OTP is:', otp);
     }
-=======
-    await this.sendOtpEmail(email, otp);
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
 
     return {
       status: 'success',

@@ -95,14 +95,11 @@ const Profiles = () => {
 
   const onDestroy = async ({ sectionId, data }) => {
     let payload = {};
-<<<<<<< HEAD
     if ("education_id" in data)
       payload = {
         primaryKey: "education_id",
         values: { education_id: data.education_id },
       };
-=======
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
     if ("experience_id" in data)
       payload = {
         primaryKey: "experience_id",
@@ -429,11 +426,7 @@ const TextCard = (props) => (
               </p>
             </div>
           )}
-<<<<<<< HEAD
           <div className="w-1/5 text-right flex justify-end space-x-2">
-=======
-          <div className="w-1/5 text-right">
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
             <Button
               type="text"
               onClick={() =>
@@ -447,7 +440,6 @@ const TextCard = (props) => (
               }
               icon={<PencilSquareIcon className="size-5" />}
             />
-<<<<<<< HEAD
             {typeof props.text !== "string" && (
               <Button
                 type="text"
@@ -455,8 +447,6 @@ const TextCard = (props) => (
                 icon={<TrashIcon className="h-5 w-5" />}
               />
             )}
-=======
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
           </div>
         </div>
       }

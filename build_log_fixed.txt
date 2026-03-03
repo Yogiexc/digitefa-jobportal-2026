@@ -1,0 +1,320 @@
+﻿docker : time="2026-03-02T22:26
+:38+07:00" level=warning msg="D
+:\\BelajarCoding\\digitefa-jobp
+ortal-2026-uji-coba\\docker-com
+pose.yml: the attribute 
+`version` is obsolete, it will 
+be ignored, please remove it 
+to avoid potential confusion"
+At line:1 char:1
++ docker compose build > 
+build_log.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo          :  
+   NotSpecified: (time="2026-  
+  03-0...tial confusion":Str   
+ ing) [], RemoteException
+    + FullyQualifiedErrorId :  
+   NativeCommandError
+ 
+ Image digitefa-jobportal-2026-
+uji-coba-frontend_cms Building 
+ Image digitefa-jobportal-2026-
+uji-coba-backend Building 
+ Image digitefa-jobportal-2026-
+uji-coba-python_server 
+Building 
+ Image digitefa-jobportal-2026-
+uji-coba-ai_http_server 
+Building 
+ Image digitefa-jobportal-2026-
+uji-coba-frontend_client 
+Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 3.06kB done
+#1 DONE 0.0s
+
+#2 [python_server internal] load build definition from Dockerfile.python
+#2 transferring dockerfile: 541B 0.0s done
+#2 DONE 0.1s
+
+#3 [backend internal] load build definition from Dockerfile.backend
+#3 transferring dockerfile: 2.75kB 0.0s done
+#3 DONE 0.1s
+
+#4 [frontend_cms internal] load build definition from dockerfile
+#4 transferring dockerfile: 497B 0.0s done
+#4 DONE 0.1s
+
+#5 [frontend_client internal] load build definition from Dockerfile
+#5 transferring dockerfile: 1.11kB 0.1s done
+#5 DONE 0.1s
+
+#6 [frontend_client internal] load metadata for docker.io/library/nginx:1.16.0-alpine
+#6 ...
+
+#7 [ai_http_server internal] load build definition from Dockerfile
+#7 transferring dockerfile: 1.07kB 0.0s done
+#7 DONE 0.1s
+
+#8 [backend internal] load metadata for docker.io/library/node:18-bullseye-slim
+#8 ...
+
+#9 [python_server internal] load metadata for docker.io/library/python:3.8-slim
+#9 DONE 1.2s
+
+#8 [backend internal] load metadata for docker.io/library/node:18-bullseye-slim
+#8 DONE 1.2s
+
+#10 [ai_http_server internal] load metadata for docker.io/library/python:3.12-slim
+#10 DONE 1.2s
+
+#11 [python_server internal] load .dockerignore
+#11 transferring context: 2B 0.0s done
+#11 DONE 0.0s
+
+#12 [backend internal] load .dockerignore
+#12 transferring context: 138B 0.0s done
+#12 DONE 0.0s
+
+#13 [ai_http_server internal] load .dockerignore
+#13 transferring context: 494B 0.0s done
+#13 DONE 0.0s
+
+#14 [ai_http_server internal] load build context
+#14 DONE 0.0s
+
+#15 [python_server internal] load build context
+#15 transferring context: 156B done
+#15 DONE 0.0s
+
+#16 [frontend_cms internal] load metadata for docker.io/library/node:latest
+#16 DONE 1.3s
+
+#17 [frontend_client internal] load metadata for docker.io/library/node:16-alpine
+#17 DONE 1.3s
+
+#6 [frontend_client internal] load metadata for docker.io/library/nginx:1.16.0-alpine
+#6 DONE 1.3s
+
+#18 [frontend_client internal] load .dockerignore
+#18 transferring context: 2B done
+#18 DONE 0.0s
+
+#19 [frontend_cms internal] load .dockerignore
+#19 transferring context: 2B done
+#19 DONE 0.0s
+
+#20 [python_server 1/5] FROM docker.io/library/python:3.8-slim@sha256:1d52838af602b4b5a831beb13a0e4d073280665ea7be7f69ce2382f29c5a613f
+#20 resolve docker.io/library/python:3.8-slim@sha256:1d52838af602b4b5a831beb13a0e4d073280665ea7be7f69ce2382f29c5a613f 0.1s done
+#20 DONE 0.1s
+
+#21 [python_server 2/5] WORKDIR /usr/src/app
+#21 CACHED
+
+#22 [python_server 3/5] COPY requirements.txt ./requirements.txt
+#22 CACHED
+
+#23 [ai_http_server 1/7] FROM docker.io/library/python:3.12-slim@sha256:f3fa41d74a768c2fce8016b98c191ae8c1bacd8f1152870a3f9f87d350920b7c
+#23 resolve docker.io/library/python:3.12-slim@sha256:f3fa41d74a768c2fce8016b98c191ae8c1bacd8f1152870a3f9f87d350920b7c 0.1s done
+#23 DONE 0.1s
+
+#24 [backend development 1/6] FROM docker.io/library/node:18-bullseye-slim@sha256:d69fb189fa7765636655db043a6a9e6be5ddf94bd1a8dc33fd0bcf4664606a9e
+#24 resolve docker.io/library/node:18-bullseye-slim@sha256:d69fb189fa7765636655db043a6a9e6be5ddf94bd1a8dc33fd0bcf4664606a9e 0.0s done
+#24 DONE 0.1s
+
+#14 [ai_http_server internal] load build context
+#14 transferring context: 66B done
+#14 DONE 0.0s
+
+#25 [ai_http_server 2/7] WORKDIR /app
+#25 CACHED
+
+#26 [ai_http_server 3/7] RUN apt-get update && apt-get install -y --no-install-recommends     build-essential     libffi-dev     libssl-dev     && rm -rf /var/lib/apt/lists/*
+#26 CACHED
+
+#27 [ai_http_server 4/7] COPY requirements.txt .
+#27 CACHED
+
+#28 [backend internal] load build context
+#28 transferring context: 23.19kB 0.1s done
+#28 DONE 0.1s
+
+#29 [frontend_client internal] load build context
+#29 transferring context: 12.79kB 0.0s done
+#29 DONE 0.0s
+
+#30 [frontend_cms internal] load build context
+#30 transferring context: 15.78kB 0.0s done
+#30 DONE 0.1s
+
+#31 [frontend_cms 1/5] FROM docker.io/library/node:latest@sha256:c4bfed36421c310d1fbb6dc51faf98065768fbc1c2c1ddd554813ecaa81bb2db
+#31 resolve docker.io/library/node:latest@sha256:c4bfed36421c310d1fbb6dc51faf98065768fbc1c2c1ddd554813ecaa81bb2db 0.1s done
+#31 DONE 0.1s
+
+#32 [frontend_client stage-2 1/5] FROM docker.io/library/nginx:1.16.0-alpine@sha256:270bea203d2fc3743fb9ce0193325e188b7e6233043487e3d3cf117ea4d3f337
+#32 resolve docker.io/library/nginx:1.16.0-alpine@sha256:270bea203d2fc3743fb9ce0193325e188b7e6233043487e3d3cf117ea4d3f337 0.1s done
+#32 DONE 0.1s
+
+#33 [frontend_client deps 1/5] FROM docker.io/library/node:16-alpine@sha256:a1f9d027912b58a7c75be7716c97cfbc6d3099f3a97ed84aa490be9dee20e787
+#33 resolve docker.io/library/node:16-alpine@sha256:a1f9d027912b58a7c75be7716c97cfbc6d3099f3a97ed84aa490be9dee20e787 0.1s done
+#33 DONE 0.1s
+
+#34 [ai_http_server 5/7] RUN pip install --no-cache-dir --upgrade pip &&     pip install --no-cache-dir -r requirements.txt
+#34 ...
+
+#35 [backend development 2/6] WORKDIR /usr/src/app
+#35 CACHED
+
+#36 [backend development 3/6] COPY --chown=node:node package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+#36 CACHED
+
+#37 [frontend_cms 4/5] RUN npm install
+#37 CACHED
+
+#38 [frontend_cms 3/5] COPY package*.json ./
+#38 CACHED
+
+#39 [frontend_cms 2/5] WORKDIR /app
+#39 CACHED
+
+#40 [frontend_cms 5/5] COPY . .
+#40 CACHED
+
+#41 [frontend_client deps 3/5] WORKDIR /app
+#41 CACHED
+
+#42 [frontend_client builder 3/5] COPY --from=deps /app/node_modules ./node_modules
+#42 CACHED
+
+#43 [frontend_client builder 2/5] WORKDIR /app
+#43 CACHED
+
+#44 [frontend_client deps 5/5] RUN npm ci && npm cache clean --force
+#44 CACHED
+
+#45 [frontend_client deps 4/5] COPY package.json package-lock.json ./
+#45 CACHED
+
+#46 [frontend_client deps 2/5] RUN apk add --no-cache libc6-compat
+#46 CACHED
+
+#47 [frontend_client builder 4/5] COPY . .
+#47 CACHED
+
+#48 [frontend_cms] exporting to image
+#48 exporting layers 0.0s done
+#48 exporting manifest sha256:581134d8351c6a778ed120cc4a46e2378ee985174d36a6fcfb629e4fca0da756 done
+#48 exporting config sha256:4887036d604055553471892443f6955912b2d83a6e6724be2fbc974fcd65688b done
+#48 exporting attestation manifest sha256:08a6dddc8b9e5002ad1696c77c2abcf8b0f691b932fa48d87748ece29611a29f 0.0s done
+#48 exporting manifest list sha256:bf99e2fb8664fd858c23859e9334952c08125aee5ff4a4045cde60270966620c 0.0s done
+#48 naming to docker.io/library/digitefa-jobportal-2026-uji-coba-frontend_cms:latest done
+#48 unpacking to docker.io/library/digitefa-jobportal-2026-uji-coba-frontend_cms:latest 0.0s done
+#48 DONE 0.2s
+
+#49 [frontend_client builder 5/5] RUN npm run build
+#49 ...
+
+#50 [frontend_cms] resolving provenance for metadata file
+#50 DONE 0.0s
+
+#51 [backend development 4/6] RUN     if [ -f yarn.lock ]; then yarn --frozen-lockfile;     elif [ -f package-lock.json ]; then npm ci;     elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i;     else echo "Lockfile not found." && exit 1;     fi
+#51 ...
+
+#34 [ai_http_server 5/7] RUN pip install --no-cache-dir --upgrade pip &&     pip install --no-cache-dir -r requirements.txt
+#34 3.186 Requirement already satisfied: pip in /usr/local/lib/python3.12/site-packages (25.0.1)
+#34 3.404 Collecting pip
+#34 3.699   Downloading pip-26.0.1-py3-none-any.whl.metadata (4.7 kB)
+#34 3.773 Downloading pip-26.0.1-py3-none-any.whl (1.8 MB)
+#34 4.032    ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü 1.8/1.8 MB 8.9 MB/s eta 0:00:00
+#34 4.061 Installing collected packages: pip
+#34 4.061   Attempting uninstall: pip
+#34 4.066     Found existing installation: pip 25.0.1
+#34 4.158     Uninstalling pip-25.0.1:
+#34 4.702       Successfully uninstalled pip-25.0.1
+#34 ...
+
+#52 [python_server 4/5] RUN pip install --no-cache-dir -r requirements.txt
+#52 3.685 Collecting fastapi==0.110.0
+#52 3.880   Downloading fastapi-0.110.0-py3-none-any.whl (92 kB)
+#52 3.938      ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü 92.1/92.1 kB 1.7 MB/s eta 0:00:00
+#52 4.096 Collecting uvicorn==0.29.0
+#52 4.158   Downloading uvicorn-0.29.0-py3-none-any.whl (60 kB)
+#52 4.173      ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü 60.8/60.8 kB 4.5 MB/s eta 0:00:00
+#52 4.652 ERROR: Ignored the following versions that require a different python version: 0.125.0 Requires-Python >=3.9; 0.126.0 Requires-Python >=3.9; 0.127.0 Requires-Python >=3.9; 0.127.1 Requires-Python >=3.9; 0.128.0 Requires-Python >=3.9; 0.128.1 Requires-Python >=3.9; 0.128.2 Requires-Python >=3.9; 0.128.3 Requires-Python >=3.9; 0.128.4 Requires-Python >=3.9; 0.128.5 Requires-Python >=3.9; 0.128.6 Requires-Python >=3.9; 0.128.7 Requires-Python >=3.9; 0.128.8 Requires-Python >=3.9; 0.129.0 Requires-Python >=3.10; 0.129.1 Requires-Python >=3.10; 0.129.2 Requires-Python >=3.10; 0.130.0 Requires-Python >=3.10; 0.131.0 Requires-Python >=3.10; 0.132.0 Requires-Python >=3.10; 0.132.1 Requires-Python >=3.10; 0.133.0 Requires-Python >=3.10; 0.133.1 Requires-Python >=3.10; 0.134.0 Requires-Python >=3.10; 0.135.0 Requires-Python >=3.10; 0.135.1 Requires-Python >=3.10; 0.34.0 Requires-Python >=3.9; 0.34.1 Requires-Python >=3.9; 0.34.2 Requires-Python >=3.9; 0.34.3 Requires-Python >=3.9; 0.35.0 Requires-Python >=3.9; 0.36.0 Requires-Python >=3.9; 0.36.1 Requires-Python >=3.9; 0.37.0 Requires-Python >=3.9; 0.38.0 Requires-Python >=3.9; 0.39.0 Requires-Python >=3.9; 0.40.0 Requires-Python >=3.10; 0.41.0 Requires-Python >=3.10; 2.1.0 Requires-Python >=3.9; 2.1.1 Requires-Python >=3.9; 2.1.2 Requires-Python >=3.9; 2.1.3 Requires-Python >=3.9; 2.1.4 Requires-Python >=3.9; 2.2.0 Requires-Python >=3.9; 2.2.1 Requires-Python >=3.9; 2.2.2 Requires-Python >=3.9; 2.2.3 Requires-Python >=3.9; 2.3.0 Requires-Python >=3.9; 2.3.1 Requires-Python >=3.9; 2.3.2 Requires-Python >=3.9; 2.3.3 Requires-Python >=3.9; 3.0.0 Requires-Python >=3.11; 3.0.0rc0 Requires-Python >=3.11; 3.0.0rc1 Requires-Python >=3.11; 3.0.0rc2 Requires-Python >=3.11; 3.0.1 Requires-Python >=3.11
+#52 4.652 ERROR: Could not find a version that satisfies the requirement pandas==2.2.2 (from versions: 0.1, 0.2, 0.3.0, 0.4.0, 0.4.1, 0.4.2, 0.4.3, 0.5.0, 0.6.0, 0.6.1, 0.7.0, 0.7.1, 0.7.2, 0.7.3, 0.8.0, 0.8.1, 0.9.0, 0.9.1, 0.10.0, 0.10.1, 0.11.0, 0.12.0, 0.13.0, 0.13.1, 0.14.0, 0.14.1, 0.15.0, 0.15.1, 0.15.2, 0.16.0, 0.16.1, 0.16.2, 0.17.0, 0.17.1, 0.18.0, 0.18.1, 0.19.0, 0.19.1, 0.19.2, 0.20.0, 0.20.1, 0.20.2, 0.20.3, 0.21.0, 0.21.1, 0.22.0, 0.23.0, 0.23.1, 0.23.2, 0.23.3, 0.23.4, 0.24.0, 0.24.1, 0.24.2, 0.25.0, 0.25.1, 0.25.2, 0.25.3, 1.0.0, 1.0.1, 1.0.2, 1.0.3, 1.0.4, 1.0.5, 1.1.0, 1.1.1, 1.1.2, 1.1.3, 1.1.4, 1.1.5, 1.2.0, 1.2.1, 1.2.2, 1.2.3, 1.2.4, 1.2.5, 1.3.0, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.0, 1.4.1, 1.4.2, 1.4.3, 1.4.4, 1.5.0, 1.5.1, 1.5.2, 1.5.3, 2.0.0, 2.0.1, 2.0.2, 2.0.3)
+#52 4.653 ERROR: No matching distribution found for pandas==2.2.2
+#52 4.880 
+#52 4.880 [notice] A new release of pip is available: 23.0.1 -> 25.0.1
+#52 4.880 [notice] To update, run: pip install --upgrade pip
+#52 ERROR: process "/bin/sh -c pip install --no-cache-dir -r requirements.txt" did not complete successfully: exit code: 1
+
+#49 [frontend_client builder 5/5] RUN npm run build
+#49 1.927 
+#49 1.927 > jobseeker@0.0.0 build
+#49 1.927 > vite build
+#49 1.927 
+#49 2.419 vite v5.2.13 building for production...
+#49 3.249 transforming...
+#49 3.312 Browserslist: caniuse-lite is outdated. Please run:
+#49 3.312   npx update-browserslist-db@latest
+#49 3.312   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+#49 ...
+
+#34 [ai_http_server 5/7] RUN pip install --no-cache-dir --upgrade pip &&     pip install --no-cache-dir -r requirements.txt
+#34 CANCELED
+
+#51 [backend development 4/6] RUN     if [ -f yarn.lock ]; then yarn --frozen-lockfile;     elif [ -f package-lock.json ]; then npm ci;     elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i;     else echo "Lockfile not found." && exit 1;     fi
+#51 CANCELED
+
+#49 [frontend_client builder 5/5] RUN npm run build
+#49 CANCELED
+------
+ > [python_server 4/5] RUN pip install --no-cache-dir -r requirements.txt:
+3.938      ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü 92.1/92.1 kB 1.7 MB/s eta 0:00:00
+4.096 Collecting uvicorn==0.29.0
+4.158   Downloading uvicorn-0.29.0-py3-none-any.whl (60 kB)
+4.173      ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü 60.8/60.8 kB 4.5 MB/s eta 0:00:00
+4.652 ERROR: Ignored the following versions that require a different python version: 0.125.0 Requires-Python >=3.9; 0.126.0 Requires-Python >=3.9; 0.127.0 Requires-Python >=3.9; 0.127.1 Requires-Python >=3.9; 0.128.0 Requires-Python >=3.9; 0.128.1 Requires-Python >=3.9; 0.128.2 Requires-Python >=3.9; 0.128.3 Requires-Python >=3.9; 0.128.4 Requires-Python >=3.9; 0.128.5 Requires-Python >=3.9; 0.128.6 Requires-Python >=3.9; 0.128.7 Requires-Python >=3.9; 0.128.8 Requires-Python >=3.9; 0.129.0 Requires-Python >=3.10; 0.129.1 Requires-Python >=3.10; 0.129.2 Requires-Python >=3.10; 0.130.0 Requires-Python >=3.10; 0.131.0 Requires-Python >=3.10; 0.132.0 Requires-Python >=3.10; 0.132.1 Requires-Python >=3.10; 0.133.0 Requires-Python >=3.10; 0.133.1 Requires-Python >=3.10; 0.134.0 Requires-Python >=3.10; 0.135.0 Requires-Python >=3.10; 0.135.1 Requires-Python >=3.10; 0.34.0 Requires-Python >=3.9; 0.34.1 Requires-Python >=3.9; 0.34.2 Requires-Python >=3.9; 0.34.3 Requires-Python >=3.9; 0.35.0 Requires-Python >=3.9; 0.36.0 Requires-Python >=3.9; 0.36.1 Requires-Python >=3.9; 0.37.0 Requires-Python >=3.9; 0.38.0 Requires-Python >=3.9; 0.39.0 Requires-Python >=3.9; 0.40.0 Requires-Python >=3.10; 0.41.0 Requires-Python >=3.10; 2.1.0 Requires-Python >=3.9; 2.1.1 Requires-Python >=3.9; 2.1.2 Requires-Python >=3.9; 2.1.3 Requires-Python >=3.9; 2.1.4 Requires-Python >=3.9; 2.2.0 Requires-Python >=3.9; 2.2.1 Requires-Python >=3.9; 2.2.2 Requires-Python >=3.9; 2.2.3 Requires-Python >=3.9; 2.3.0 Requires-Python >=3.9; 2.3.1 Requires-Python >=3.9; 2.3.2 Requires-Python >=3.9; 2.3.3 Requires-Python >=3.9; 3.0.0 Requires-Python >=3.11; 3.0.0rc0 Requires-Python >=3.11; 3.0.0rc1 Requires-Python >=3.11; 3.0.0rc2 Requires-Python >=3.11; 3.0.1 Requires-Python >=3.11
+4.652 ERROR: Could not find a version that satisfies the requirement pandas==2.2.2 (from versions: 0.1, 0.2, 0.3.0, 0.4.0, 0.4.1, 0.4.2, 0.4.3, 0.5.0, 0.6.0, 0.6.1, 0.7.0, 0.7.1, 0.7.2, 0.7.3, 0.8.0, 0.8.1, 0.9.0, 0.9.1, 0.10.0, 0.10.1, 0.11.0, 0.12.0, 0.13.0, 0.13.1, 0.14.0, 0.14.1, 0.15.0, 0.15.1, 0.15.2, 0.16.0, 0.16.1, 0.16.2, 0.17.0, 0.17.1, 0.18.0, 0.18.1, 0.19.0, 0.19.1, 0.19.2, 0.20.0, 0.20.1, 0.20.2, 0.20.3, 0.21.0, 0.21.1, 0.22.0, 0.23.0, 0.23.1, 0.23.2, 0.23.3, 0.23.4, 0.24.0, 0.24.1, 0.24.2, 0.25.0, 0.25.1, 0.25.2, 0.25.3, 1.0.0, 1.0.1, 1.0.2, 1.0.3, 1.0.4, 1.0.5, 1.1.0, 1.1.1, 1.1.2, 1.1.3, 1.1.4, 1.1.5, 1.2.0, 1.2.1, 1.2.2, 1.2.3, 1.2.4, 1.2.5, 1.3.0, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.0, 1.4.1, 1.4.2, 1.4.3, 1.4.4, 1.5.0, 1.5.1, 1.5.2, 1.5.3, 2.0.0, 2.0.1, 2.0.2, 2.0.3)
+4.653 ERROR: No matching distribution found for pandas==2.2.2
+4.880 
+4.880 [notice] A new release of pip is available: 23.0.1 -> 25.0.1
+4.880 [notice] To update, run: pip install --upgrade pip
+------
+Dockerfile.python:11
+
+--------------------
+
+   9 |     
+
+  10 |     # Install 
+dependensi Python
+
+  11 | >>> RUN pip install 
+--no-cache-dir -r 
+requirements.txt
+
+  12 |     
+
+  13 |     # Salin seluruh 
+kode aplikasi dari folder 
+python ke container
+
+--------------------
+
+target python_server: failed 
+to solve: process "/bin/sh -c 
+pip install --no-cache-dir -r 
+requirements.txt" did not 
+complete successfully: exit 
+code: 1
+
+
+
+View build details: docker-desk
+top://dashboard/build/default/d
+efault/xohx9ywvwurvyede6k84jj9h
+b
+
