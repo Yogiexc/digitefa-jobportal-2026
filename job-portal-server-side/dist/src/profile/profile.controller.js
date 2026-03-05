@@ -46,6 +46,9 @@ let ProfileController = class ProfileController {
         }
         return this.profileService.cvAutofill(req.user, file);
     }
+    async deleteEducation(req) {
+        return this.profileService.deleteEducation(req.user);
+    }
 };
 exports.ProfileController = ProfileController;
 __decorate([
@@ -120,6 +123,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "cvAutofill", null);
+__decorate([
+    (0, common_1.Delete)('education'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete user education' }),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProfileController.prototype, "deleteEducation", null);
 exports.ProfileController = ProfileController = __decorate([
     (0, swagger_1.ApiTags)('profile'),
     (0, common_1.Controller)('profile'),

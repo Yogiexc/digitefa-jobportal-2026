@@ -32,9 +32,13 @@ export declare class ProfileService {
         message: string;
         data: any;
     }>;
-    cvAutofill(user: any, file: Express.Multer.File): Promise<{
+    cvAutofill(user: any, file: any): Promise<{
         status: string;
         message: string;
         data: any;
+    }>;
+    deleteEducation(user: any): Promise<{
+        status: string;
+        message: string;
     }>;
 }

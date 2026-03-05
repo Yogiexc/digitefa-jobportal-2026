@@ -16,7 +16,7 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
   const [fileList, setFileList] = useState([]);
   const [previewImage, setPreviewImage] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [jobSeekerData, setJobSeekerData] = useState("");
+  const [jobSeekerData, setJobSeekerData] = useState({});
   
 
   useEffect(() => {
@@ -24,7 +24,13 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
       Api.get(`/jobs/applicants/detail/${applicantsId}`)
         .then((response) => {
           if (response && response.data) {
-            const data = response.data;
+            const data = response.data.data || response.data;
+            console.log("FULL RESPONSE:", response);
+  console.log("DATA:", response.data);
+  console.log("DATA.DATA:", response.data.data);
+  console.log("JOB SEEKER:", data.jobSeeker);
+console.log("FULL EDUCATION:", data.jobSeeker?.educations);
+            
             const profilePictureUrl = data.profile_picture_url
               ? `http://localhost:3000/${data.profile_picture_url.replace(
                   /\\/g,
@@ -32,21 +38,24 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
                 )}`
               : null;
 
-              setJobSeekerData({
-                full_name: data.job_seeker.full_name,
-                phone_number: data.personal_info.phone_number,
-                email: data.job_seeker.email,
-                date_of_birth: data.personal_info.date_of_birth,
-                address: data.personal_info.address,
-                personal_summary: data.personal_summary,
-                education: data.education, 
-                experience: data.experiences,
-                skill: data.skills, 
-                project: data.projects, 
-                certification: data.certifications, 
-                language: data.languages, 
-              });
-    
+             setJobSeekerData({
+  full_name: data?.jobSeeker?.full_name || "",
+  email: data?.jobSeeker?.email || "",
+  profile_picture_url: data?.jobSeeker?.profile_picture_url || "",
+
+  phone_number: data?.jobSeeker?.personal_info?.phone_number || "",
+  date_of_birth: data?.jobSeeker?.personal_info?.date_of_birth || null,
+  address: data?.jobSeeker?.personal_info?.address || "",
+
+  personal_summary: data?.jobSeeker?.personal_summary || "",
+
+  education: data?.jobSeeker?.educations || [],
+  experience: data?.jobSeeker?.experiences || [],
+  skill: data?.jobSeeker?.skills || [],
+  project: data?.jobSeeker?.projects || [],
+  certification: data?.jobSeeker?.certifications || [],
+  language: data?.jobSeeker?.languages || [],
+});
             if (profilePictureUrl) {
               setFileList([
                 {
@@ -112,53 +121,55 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
           />
         )}
         <Text className="font-medium text-xl">
-          {jobSeekerData.full_name}
+          {jobSeekerData?.full_name}
         </Text>
         <br />
-        <Text>{jobSeekerData.phone_number}</Text>
+        <Text>{jobSeekerData?.phone_number}</Text>
         <br />
-        <Text>{jobSeekerData.email}</Text>
+        <Text>{jobSeekerData?.email}</Text>
         <br />
         <Text className="text-xs">
-          {new Date(jobSeekerData.date_of_birth).toLocaleDateString("in-IN", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </Text>
+  {jobSeekerData?.date_of_birth
+    ? new Date(jobSeekerData.date_of_birth).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : ""}
+</Text>
         <div className="mb-6" />
-        <Text className="text-xs">{jobSeekerData.address}</Text>
+        <Text className="text-xs">{jobSeekerData?.address}</Text>
       </div>
     );
   };
 
   const renderEducation = (education) => {
-    if (!Array.isArray(education) || education.length === 0) {
-      return <Text>No education available</Text>;
-    }
+  if (!Array.isArray(education) || education.length === 0) {
+    return <Text>No education available</Text>;
+  }
 
-    const formatDate = (date) => {
-      if (!date) return "";
-      return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-      });
-    };
-
-    return (
-      <div className="mb-2">
-        <Text>
-          {education.university_name} - {education.major}
-        </Text>
-        <br />
-        <Text className="text-xs">{education.degree}</Text>
-        <div className="mb-6" />
-        <Text className="text-xs">
-          {formatDate(education.start_date)} - {formatDate(education.end_date)}
-        </Text>
-      </div>
-    );
+  const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+    });
   };
+
+  return education.map((edu, index) => (
+    <div key={index} className="mb-2">
+      <Text>
+        {edu.university_name} - {edu.major}
+      </Text>
+      <br />
+      <Text className="text-xs">{edu.degree}</Text>
+      <div className="mb-6" />
+      <Text className="text-xs">
+        {formatDate(edu.start_date)} - {formatDate(edu.end_date)}
+      </Text>
+    </div>
+  ));
+};
 
   const renderSkills = (skills) => {
     if (!Array.isArray(skills) || skills.length === 0) {
@@ -308,37 +319,37 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
       <Section
         icon={PersonalSummaryIcon}
         title="Personal Summary"
-        content={jobSeekerData.personal_summary}
+        content={jobSeekerData?.personal_summary}
       />
       <Section
         icon={EducationIcon}
         title="Educational Information"
-        content={renderEducation(jobSeekerData.education)}
+        content={renderEducation(jobSeekerData?.education)}
       />
       <Section
         icon={ExperienceIcon}
         title="Experience"
-        content={renderExperience(jobSeekerData.experience)}
+        content={renderExperience(jobSeekerData?.experience)}
       />
       <Section
         icon={SkillIcon}
         title="Skill"
-        content={renderSkills(jobSeekerData.skill)}
+        content={renderSkills(jobSeekerData?.skill)}
       />
       <Section
         icon={ProjectIcon}
         title="Project"
-        content={renderProjects(jobSeekerData.project)}
+        content={renderProjects(jobSeekerData?.project)}
       />
       <Section
         icon={CertificationIcon}
         title="Certifications and Licences"
-        content={renderCertifications(jobSeekerData.certification)}
+        content={renderCertifications(jobSeekerData?.certification)}
       />
       <Section
         icon={LanguageIcon}
         title="Language"
-        content={renderLanguages(jobSeekerData.language)}
+        content={renderLanguages(jobSeekerData?.language)}
       />
 
       <div className="flex justify-end mt-6">

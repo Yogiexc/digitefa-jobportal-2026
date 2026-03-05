@@ -388,7 +388,6 @@ let ProfileService = class ProfileService {
                     }
                 }
             }
-<<<<<<< HEAD
             if (parsedData.experience_structured && parsedData.experience_structured.length > 0) {
                 for (const exp of parsedData.experience_structured) {
                     await this.prisma.experiences.create({
@@ -402,20 +401,24 @@ let ProfileService = class ProfileService {
                 }
             }
             else if (parsedData.experience) {
-=======
-            if (parsedData.experience) {
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
                 await this.prisma.experiences.create({
                     data: {
                         job_seeker_detail_id: detail.job_seeker_detail_id,
                         experience_title: 'Experience from CV',
                         company_name: 'Various',
-<<<<<<< HEAD
                         description: parsedData.experience.substring(0, 250),
                     },
                 });
             }
             if (parsedData.education_structured && parsedData.education_structured.length > 0) {
+                const existingEdu = await this.prisma.education.findUnique({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+                });
+                if (existingEdu) {
+                    await this.prisma.education.delete({
+                        where: { education_id: existingEdu.education_id },
+                    });
+                }
                 for (const edu of parsedData.education_structured) {
                     await this.prisma.education.create({
                         data: {
@@ -426,16 +429,18 @@ let ProfileService = class ProfileService {
                             start_date: new Date(),
                         },
                     });
+                    break;
                 }
             }
             else if (parsedData.education) {
-=======
-                        description: parsedData.experience,
-                    },
+                const existingEdu = await this.prisma.education.findUnique({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
                 });
-            }
-            if (parsedData.education) {
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
+                if (existingEdu) {
+                    await this.prisma.education.delete({
+                        where: { education_id: existingEdu.education_id },
+                    });
+                }
                 await this.prisma.education.create({
                     data: {
                         job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -456,6 +461,29 @@ let ProfileService = class ProfileService {
             console.error('Error autofilling CV:', error);
             throw new common_1.InternalServerErrorException('Failed to process CV: ' + error.message);
         }
+    }
+    async deleteEducation(user) {
+        if (user.role !== 'job_seeker') {
+            throw new common_1.ForbiddenException('Only job seekers can use this feature');
+        }
+        const detail = await this.prisma.job_seeker_details.findUnique({
+            where: { job_seeker_id: user.job_seeker_id },
+        });
+        if (!detail) {
+            throw new common_1.BadRequestException('Job seeker profile details not found');
+        }
+        const existingEdu = await this.prisma.education.findUnique({
+            where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+        });
+        if (existingEdu) {
+            await this.prisma.education.delete({
+                where: { education_id: existingEdu.education_id },
+            });
+        }
+        return {
+            status: 'success',
+            message: 'Education deleted successfully',
+        };
     }
 };
 exports.ProfileService = ProfileService;
