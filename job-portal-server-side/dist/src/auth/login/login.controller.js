@@ -31,18 +31,12 @@ let LoginController = class LoginController {
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        else if (user.verified === 'false') {
-            throw new common_1.NotFoundException('User not found. Please register to create an account.');
-        }
         return this.loginService.login(user);
     }
     async loginCMS(loginCMSDto) {
         const user = await this.loginService.validateCMS(loginCMSDto);
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
-        }
-        else if (user.verified === 'false') {
-            throw new common_1.NotFoundException('User not found. Please register to create an account.');
         }
         return this.loginService.login(user);
     }

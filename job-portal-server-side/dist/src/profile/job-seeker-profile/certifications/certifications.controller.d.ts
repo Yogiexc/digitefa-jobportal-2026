@@ -1,5 +1,13 @@
 import { CertificationsService } from './certifications.service';
 import { CreateCertificationDto } from './dto/create-certification.dto';
+export declare class LmsCertificateDto {
+    job_portal_id: string;
+    certification_name: string;
+    issuing_organization: string;
+    issue_date: Date;
+    expiration_date?: Date;
+    credential_url: string;
+}
 export declare class CertificationsController {
     private readonly certificationsService;
     constructor(certificationsService: CertificationsService);
@@ -38,6 +46,10 @@ export declare class CertificationsController {
         message: string;
     }>;
     deleteCertifications(certification_id: string, req: any): Promise<{
+        status: string;
+        message: string;
+    }>;
+    addCertificationFromLms(apiKey: string, data: LmsCertificateDto): Promise<{
         status: string;
         message: string;
     }>;

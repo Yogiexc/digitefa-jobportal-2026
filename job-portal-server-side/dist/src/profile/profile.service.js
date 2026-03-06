@@ -26,7 +26,8 @@ let ProfileService = class ProfileService {
             users = await this.prisma.job_seekers.findUnique({
                 where: { job_seeker_id: user.job_seeker_id },
             });
-            users = { ...users, role: 'job_seeker' };
+            if (users)
+                users = { ...users, role: 'job_seeker' };
         }
         else if (user.role === 'university') {
             users = await this.prisma.universities.findUnique({
@@ -35,7 +36,8 @@ let ProfileService = class ProfileService {
                     university_detail: true,
                 },
             });
-            users = { ...users, role: 'university' };
+            if (users)
+                users = { ...users, role: 'university' };
         }
         else if (user.role === 'company') {
             users = await this.prisma.companies.findUnique({
@@ -44,13 +46,15 @@ let ProfileService = class ProfileService {
                     company_detail: true,
                 },
             });
-            users = { ...users, role: 'company' };
+            if (users)
+                users = { ...users, role: 'company' };
         }
         else if (user.role === 'superadmin') {
             users = await this.prisma.admins.findUnique({
                 where: { admin_id: user.admin_id },
             });
-            users = { ...users, role: 'superadmin' };
+            if (users)
+                users = { ...users, role: 'superadmin' };
         }
         if (!users) {
             throw new common_1.UnauthorizedException('Token not found!, Please login again');
@@ -294,7 +298,7 @@ let ProfileService = class ProfileService {
     }
     async getProfilePicture(user) {
         let users;
-        let picture;
+        let picture = null;
         if (user.role === 'job_seeker') {
             users = await this.prisma.job_seeker_details.findFirst({
                 where: {
@@ -304,7 +308,7 @@ let ProfileService = class ProfileService {
                     profile_picture_url: true,
                 },
             });
-            picture = users.profile_picture_url;
+            picture = users?.profile_picture_url || null;
         }
         else if (user.role === 'university') {
             users = await this.prisma.university_details.findUnique({
@@ -315,7 +319,7 @@ let ProfileService = class ProfileService {
                     logo_url: true,
                 },
             });
-            picture = users.logo_url;
+            picture = users?.logo_url || null;
         }
         else if (user.role === 'company') {
             users = await this.prisma.company_details.findUnique({
@@ -326,7 +330,7 @@ let ProfileService = class ProfileService {
                     logo_url: true,
                 },
             });
-            picture = users.logo_url;
+            picture = users?.logo_url || null;
         }
         else if (user.role === 'superadmin') {
             users = await this.prisma.admins.findUnique({
@@ -335,9 +339,6 @@ let ProfileService = class ProfileService {
                 },
             });
             picture = null;
-        }
-        if (!users) {
-            throw new common_1.UnauthorizedException('Token not found!, Please login again');
         }
         return {
             status: 'success',
@@ -388,7 +389,6 @@ let ProfileService = class ProfileService {
                     }
                 }
             }
-<<<<<<< HEAD
             if (parsedData.experience_structured && parsedData.experience_structured.length > 0) {
                 for (const exp of parsedData.experience_structured) {
                     await this.prisma.experiences.create({
@@ -402,20 +402,24 @@ let ProfileService = class ProfileService {
                 }
             }
             else if (parsedData.experience) {
-=======
-            if (parsedData.experience) {
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
                 await this.prisma.experiences.create({
                     data: {
                         job_seeker_detail_id: detail.job_seeker_detail_id,
                         experience_title: 'Experience from CV',
                         company_name: 'Various',
-<<<<<<< HEAD
                         description: parsedData.experience.substring(0, 250),
                     },
                 });
             }
             if (parsedData.education_structured && parsedData.education_structured.length > 0) {
+                const existingEdu = await this.prisma.education.findUnique({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+                });
+                if (existingEdu) {
+                    await this.prisma.education.delete({
+                        where: { education_id: existingEdu.education_id },
+                    });
+                }
                 for (const edu of parsedData.education_structured) {
                     await this.prisma.education.create({
                         data: {
@@ -426,16 +430,18 @@ let ProfileService = class ProfileService {
                             start_date: new Date(),
                         },
                     });
+                    break;
                 }
             }
             else if (parsedData.education) {
-=======
-                        description: parsedData.experience,
-                    },
+                const existingEdu = await this.prisma.education.findUnique({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
                 });
-            }
-            if (parsedData.education) {
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
+                if (existingEdu) {
+                    await this.prisma.education.delete({
+                        where: { education_id: existingEdu.education_id },
+                    });
+                }
                 await this.prisma.education.create({
                     data: {
                         job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -445,6 +451,72 @@ let ProfileService = class ProfileService {
                         start_date: new Date(),
                     },
                 });
+            }
+            if (parsedData.personal_summary) {
+                await this.prisma.job_seeker_details.update({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+                    data: { personal_summary: parsedData.personal_summary }
+                });
+            }
+            if (parsedData.projects_structured && parsedData.projects_structured.length > 0) {
+                for (const proj of parsedData.projects_structured) {
+                    await this.prisma.projects.create({
+                        data: {
+                            job_seeker_detail_id: detail.job_seeker_detail_id,
+                            project_name: proj.title || 'Project from CV',
+                            description: (proj.description || '').substring(0, 250),
+                        },
+                    });
+                }
+            }
+            else if (parsedData.projects) {
+                await this.prisma.projects.create({
+                    data: {
+                        job_seeker_detail_id: detail.job_seeker_detail_id,
+                        project_name: 'Project from CV',
+                        description: parsedData.projects.substring(0, 250),
+                    },
+                });
+            }
+            if (parsedData.certifications_structured && parsedData.certifications_structured.length > 0) {
+                for (const cert of parsedData.certifications_structured) {
+                    await this.prisma.certifications.create({
+                        data: {
+                            job_seeker_detail_id: detail.job_seeker_detail_id,
+                            certification_name: cert.title || 'Certification from CV',
+                            issuing_organization: 'Extracted Org',
+                            credential_url: (cert.description || '').substring(0, 250),
+                            issue_date: new Date(),
+                        },
+                    });
+                }
+            }
+            else if (parsedData.certifications) {
+                await this.prisma.certifications.create({
+                    data: {
+                        job_seeker_detail_id: detail.job_seeker_detail_id,
+                        certification_name: 'Certification from CV',
+                        issuing_organization: 'Extracted Org',
+                        credential_url: parsedData.certifications.substring(0, 250),
+                        issue_date: new Date(),
+                    },
+                });
+            }
+            if (parsedData.languages && parsedData.languages.length > 0) {
+                const existingLangs = await this.prisma.languages.findMany({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+                });
+                const existingLangNames = existingLangs.map((l) => l.language_name.toLowerCase());
+                for (const lang of parsedData.languages) {
+                    if (!existingLangNames.includes(lang.toLowerCase())) {
+                        await this.prisma.languages.create({
+                            data: {
+                                language_name: lang,
+                                job_seeker_detail_id: detail.job_seeker_detail_id,
+                            },
+                        });
+                    }
+                }
             }
             return {
                 status: 'success',
@@ -456,6 +528,29 @@ let ProfileService = class ProfileService {
             console.error('Error autofilling CV:', error);
             throw new common_1.InternalServerErrorException('Failed to process CV: ' + error.message);
         }
+    }
+    async deleteEducation(user) {
+        if (user.role !== 'job_seeker') {
+            throw new common_1.ForbiddenException('Only job seekers can use this feature');
+        }
+        const detail = await this.prisma.job_seeker_details.findUnique({
+            where: { job_seeker_id: user.job_seeker_id },
+        });
+        if (!detail) {
+            throw new common_1.BadRequestException('Job seeker profile details not found');
+        }
+        const existingEdu = await this.prisma.education.findUnique({
+            where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+        });
+        if (existingEdu) {
+            await this.prisma.education.delete({
+                where: { education_id: existingEdu.education_id },
+            });
+        }
+        return {
+            status: 'success',
+            message: 'Education deleted successfully',
+        };
     }
 };
 exports.ProfileService = ProfileService;

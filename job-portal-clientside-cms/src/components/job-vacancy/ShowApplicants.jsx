@@ -17,36 +17,37 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
   const [previewImage, setPreviewImage] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [jobSeekerData, setJobSeekerData] = useState("");
-  
+
 
   useEffect(() => {
     const fetchJobSeekerDetails = () => {
       Api.get(`/jobs/applicants/detail/${applicantsId}`)
         .then((response) => {
           if (response && response.data) {
-            const data = response.data;
+            // The backend wraps the response in { data: { jobSeeker: { ... } } }
+            const data = response.data.jobSeeker || response.data;
             const profilePictureUrl = data.profile_picture_url
               ? `http://localhost:3000/${data.profile_picture_url.replace(
-                  /\\/g,
-                  "/"
-                )}`
+                /\\/g,
+                "/"
+              )}`
               : null;
 
-              setJobSeekerData({
-                full_name: data.job_seeker.full_name,
-                phone_number: data.personal_info.phone_number,
-                email: data.job_seeker.email,
-                date_of_birth: data.personal_info.date_of_birth,
-                address: data.personal_info.address,
-                personal_summary: data.personal_summary,
-                education: data.education, 
-                experience: data.experiences,
-                skill: data.skills, 
-                project: data.projects, 
-                certification: data.certifications, 
-                language: data.languages, 
-              });
-    
+            setJobSeekerData({
+              full_name: data.job_seeker?.full_name || "Unknown Name",
+              phone_number: data.personal_info?.phone_number || "-",
+              email: data.job_seeker?.email || "-",
+              date_of_birth: data.personal_info?.date_of_birth || null,
+              address: data.personal_info?.address || "-",
+              personal_summary: data.personal_summary || "",
+              education: data.education || null,
+              experience: data.experiences || [],
+              skill: data.skills || [],
+              project: data.projects || [],
+              certification: data.certifications || [],
+              language: data.languages || [],
+            });
+
             if (profilePictureUrl) {
               setFileList([
                 {
@@ -69,7 +70,7 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
 
     fetchJobSeekerDetails();
   }, [applicantsId]);
- 
+
   const handleBack = () => {
     onBack();
   };
@@ -120,11 +121,13 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
         <Text>{jobSeekerData.email}</Text>
         <br />
         <Text className="text-xs">
-          {new Date(jobSeekerData.date_of_birth).toLocaleDateString("in-IN", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
+          {jobSeekerData.date_of_birth
+            ? new Date(jobSeekerData.date_of_birth).toLocaleDateString("in-IN", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })
+            : "No Date of Birth"}
         </Text>
         <div className="mb-6" />
         <Text className="text-xs">{jobSeekerData.address}</Text>
@@ -133,7 +136,8 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
   };
 
   const renderEducation = (education) => {
-    if (!Array.isArray(education) || education.length === 0) {
+    // education is an object inprisma schema, not an array.
+    if (!education || Object.keys(education).length === 0) {
       return <Text>No education available</Text>;
     }
 
@@ -258,8 +262,8 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
         </Text>
         <br />
         <Text className="text-xs">
-        {formatDate(experiences.start_date)} -
-        {formatDate(experiences.end_date)}
+          {formatDate(experiences.start_date)} -
+          {formatDate(experiences.end_date)}
         </Text>
         <br />
         <Text className="text-xs">
@@ -344,7 +348,7 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
       <div className="flex justify-end mt-6">
         <Button
           type="primary"
-          style={{width: 120, height: 40, borderRadius: 12}}
+          style={{ width: 120, height: 40, borderRadius: 12 }}
           onClick={handleBack}
         >
           <span className="font-medium text-sm">Back</span>

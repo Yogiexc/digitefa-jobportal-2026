@@ -9,6 +9,7 @@ from typing import List, Optional
 import pdfplumber
 import re
 import io
+import os
 
 app = FastAPI()
 
@@ -18,8 +19,8 @@ model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 TOP_N_RECOMMENDATIONS = 5
 MIN_SCORE_THRESHOLD = 0.3 # Lowered slightly for MiniLM since cosine sim ranges are tighter
 
-COURSES_API_URL = "https://bedigi.ammaralamin.my.id/api/courses-all"
-JOB_API_URL = "https://beportal.ammaralamin.my.id/api/jobs/lms" 
+COURSES_API_URL = os.getenv("COURSES_API_URL", "http://127.0.0.1:8888/api/courses-all")
+JOB_API_URL = os.getenv("JOB_API_URL", "http://127.0.0.1:3000/api/jobs/lms")
 
 # Cache untuk Course
 courses_cache = {
@@ -347,9 +348,13 @@ async def parse_cv(file: UploadFile = File(...)):
             "name": "",
             "email": "",
             "phone": "",
+            "personal_summary": [],
             "skills": [],
             "experience": [],
-            "education": []
+            "education": [],
+            "projects": [],
+            "certifications": [],
+            "languages": []
         }
         
         # Regex Extractors
@@ -387,24 +392,40 @@ async def parse_cv(file: UploadFile = File(...)):
             elif "skill" in lline or "technolog" in lline or "tool" in lline or "keahlian" in lline or "kemampuan" in lline or "keterampilan" in lline:
                 current_section = "skills"
                 continue
+            elif "summary" in lline or "profile" in lline or "about me" in lline or "profil" in lline or "tentang saya" in lline or "ringkasan" in lline:
+                current_section = "personal_summary"
+                continue
+            elif "project" in lline or "proyek" in lline or "portfolio" in lline or "portofolio" in lline:
+                current_section = "projects"
+                continue
+            elif "certificat" in lline or "license" in lline or "sertifikat" in lline or "lisensi" in lline or "sertifikasi" in lline:
+                current_section = "certifications"
+                continue
+            elif "language" in lline or "bahasa" in lline:
+                current_section = "languages"
+                continue
                 
             if current_section and lline:
-                if current_section == "skills":
-                    # Split comma separated skills
+                if current_section in ["skills", "languages"]:
+                    # Split comma separated items
                     parts = [p.strip() for p in re.split(r'[,|•]', line) if p.strip()]
-                    sections["skills"].extend(parts)
+                    sections[current_section].extend(parts)
                 else:
-                    # just collect lines for experience and education
                     sections[current_section].append(line.strip())
         
-        # Clean up skills arrays
-        # Deduplicate and remove noisy ones
+        # Clean up arrays
         sections["skills"] = list(set([s for s in sections["skills"] if len(s) > 1 and len(s) < 30]))
+        sections["languages"] = list(set([s for s in sections["languages"] if len(s) > 1 and len(s) < 30]))
+        sections["personal_summary"] = " ".join(sections["personal_summary"])
         
-        # Clean up education and experience by extracting structured blocks based on dates
+        # Build structured fields
+        sections["projects_structured"] = [{"title": "Projects", "description": " ".join(sections["projects"])}] if sections["projects"] else []
+        sections["projects"] = " ".join(sections["projects"])
+        sections["certifications_structured"] = [{"title": "Certifications", "description": " ".join(sections["certifications"])}] if sections["certifications"] else []
+        sections["certifications"] = " ".join(sections["certifications"])
+
         exp_list = []
         current_exp = {"title": "Recent Experience", "company": "Unknown Company", "description": ""}
-        # Include Indonesian months: Jan, Feb, Mar, Apr, Mei, Jun, Jul, Agu, Sep, Okt, Nov, Des
         date_pattern = re.compile(r'\b(19|20)\d{2}\b|(Jan|Feb|Mar|Apr|May|Mei|Jun|Jul|Aug|Agu|Sep|Oct|Okt|Nov|Dec|Des)[a-z]*\s+(19|20)\d{2}', re.IGNORECASE)
         
         for idx, line in enumerate(sections["experience"]):
@@ -424,7 +445,7 @@ async def parse_cv(file: UploadFile = File(...)):
              exp_list.append({"title": "Experience from CV", "company": "Various", "description": " ".join(sections["experience"][:20])})
              
         sections["experience_structured"] = exp_list
-        sections["experience"] = " ".join(sections["experience"][:20]) # KEEP FOR BACKWARDS COMPATIBILITY
+        sections["experience"] = " ".join(sections["experience"][:20])
 
         edu_list = []
         current_edu = {"university": "Extracted University", "degree": "Degree", "major": "General", "description": ""}
@@ -445,7 +466,7 @@ async def parse_cv(file: UploadFile = File(...)):
             edu_list.append({"university": "From CV", "degree": "Auto-filled", "major": "General", "description": " ".join(sections["education"][:10])})
             
         sections["education_structured"] = edu_list
-        sections["education"] = " ".join(sections["education"][:10]) # KEEP FOR BACKWARDS COMPATIBILITY
+        sections["education"] = " ".join(sections["education"][:10])
         
         return {
             "parsed_data": sections,

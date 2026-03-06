@@ -13,6 +13,7 @@ const auth_service_1 = require("./auth.service");
 const prisma_module_1 = require("../../prisma/prisma.module");
 const register_module_1 = require("./register/register.module");
 const forgot_password_module_1 = require("./forgot-password/forgot-password.module");
+const login_module_1 = require("./login/login.module");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -22,6 +23,7 @@ exports.AuthModule = AuthModule = __decorate([
             prisma_module_1.PrismaModule,
             register_module_1.RegisterModule,
             forgot_password_module_1.ForgotPasswordModule,
+            login_module_1.LoginModule,
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [auth_service_1.AuthService,]

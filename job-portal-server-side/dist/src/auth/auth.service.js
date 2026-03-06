@@ -20,7 +20,8 @@ let AuthService = class AuthService {
         let users;
         if (user.role === 'job_seeker') {
             users = await this.prisma.job_seekers.findUnique({ where: { job_seeker_id: user.job_seeker_id } });
-            users = { ...users, role: 'job_seeker' };
+            if (users)
+                users = { ...users, role: 'job_seeker' };
         }
         else if (user.role === 'university') {
             users = await this.prisma.universities.findUnique({
@@ -38,7 +39,8 @@ let AuthService = class AuthService {
                     }
                 }
             });
-            users = { ...users, university_name: users.university_detail.university_name, role: 'university' };
+            if (users)
+                users = { ...users, university_name: users.university_detail?.university_name || '', role: 'university' };
         }
         else if (user.role === 'company') {
             users = await this.prisma.companies.findUnique({
@@ -57,11 +59,13 @@ let AuthService = class AuthService {
                     }
                 }
             });
-            users = { ...users, legal_name: users.company_detail.legal_name, role: 'company' };
+            if (users)
+                users = { ...users, legal_name: users.company_detail?.legal_name || '', role: 'company' };
         }
         else if (user.role === 'superadmin') {
             users = await this.prisma.admins.findUnique({ where: { admin_id: user.admin_id } });
-            users = { ...users, role: 'superadmin' };
+            if (users)
+                users = { ...users, role: 'superadmin' };
         }
         if (!users) {
             throw new common_1.UnauthorizedException('Token not found!, Please login again');

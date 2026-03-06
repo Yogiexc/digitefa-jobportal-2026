@@ -13,14 +13,14 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LmsService } from './lms.service';
 import { LinkLmsAccountDto } from './dto/link-lms-account.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiKeyGuard } from '../auth/guards/api-key.guard';
 import { ValidateJobPortalAccountDto } from './dto/validate-job-portal-account.dto';
 import { UnlinkJobPortalAccountDto } from './dto/unlink-job-portal-account.dto';
 import { ApiHeader } from '@nestjs/swagger';
 
 interface JwtPayload {
-  sub: string; 
+  sub: string;
   role: string;
   job_seeker_id?: string;
   university_id?: string;
@@ -33,7 +33,7 @@ interface JwtPayload {
 @ApiTags('lms')
 @Controller('lms')
 export class LmsController {
-  constructor(private readonly lmsService: LmsService) {}
+  constructor(private readonly lmsService: LmsService) { }
 
   @Post('unlink-from-lms')
   @UseGuards(ApiKeyGuard)
@@ -47,7 +47,7 @@ export class LmsController {
   }
 
   @Post('validate-and-link-from-lms')
-  @UseGuards(ApiKeyGuard) 
+  @UseGuards(ApiKeyGuard)
   @ApiOperation({
     summary:
       'Validate Job Portal credentials and link from LMS (Server-to-Server)',
@@ -71,7 +71,7 @@ export class LmsController {
   }
 
   @Post('link-account')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(new JwtAuthGuard(['job_seeker']))
   @ApiOperation({ summary: 'Link LMS account to job seeker' })
   async linkAccount(@Body() body: LinkLmsAccountDto, @Req() req: Request) {
     const { email, password } = body;
@@ -150,7 +150,7 @@ export class LmsController {
   }
 
   @Post('unlink-account')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(new JwtAuthGuard(['job_seeker']))
   @ApiOperation({ summary: 'Unlink LMS account from job seeker' })
   async unlinkAccount(@Req() req: Request) {
     const jwtPayload = req.user as JwtPayload;

@@ -14,7 +14,7 @@ services:
       # Use the container names for inter-service communication
       - URL_SERVER_PYTHON=http://ai_http_server:9090
       - SOCKET_SERVER_PYTHON=tcp://python_server:5555
-      - DATABASE_URL=mysql://root:root@db:3306/digitefa_job_portal
+      - DATABASE_URL=mysql://root:root@db:3306/sample-db-job-portal
     env_file:
       - ./job-portal-server-side/.env.development
     volumes:
@@ -30,12 +30,12 @@ services:
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=digitefa_job_portal
+      - MYSQL_DATABASE=sample-db-job-portal
     ports:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./sample-db-job-portal.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db-init:/docker-entrypoint-initdb.d
     networks:
       - app_network
 
@@ -83,9 +83,102 @@ services:
     networks:
       - app_network
 
+  lms_be_app:
+    build:
+      context: ./lms-server-side
+      dockerfile: Dockerfile
+    image: server-side
+    container_name: lms-be-container
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./lms-server-side:/var/www
+    networks:
+      - app_network
+
+  lms_be_nginx:
+    image: nginx:alpine
+    container_name: lms-be-nginx
+    restart: unless-stopped
+    ports:
+      - "8888:80"
+    volumes:
+      - ./lms-server-side:/var/www
+      - ./lms-server-side/nginx:/etc/nginx/conf.d/
+    networks:
+      - app_network
+
+  lms_fe_app:
+    build:
+      context: ./lms-client-side
+      dockerfile: Dockerfile
+    image: client-side
+    container_name: lms-fe-container
+    restart: unless-stopped
+    ports:
+      - "8800:80"
+    environment:
+      - VUE_APP_API_URL=http://localhost:8888/api
+      - VUE_APP_STUDENT_PROFILE_URL=http://localhost:8888/uploads/Student/Student Profile
+      - VUE_APP_TEACHER_PROFILE_URL=http://localhost:8888/uploads/Teacher/Profile Picture
+      - VUE_APP_COURSE_THUMBNAIL_URL=http://localhost:8888/uploads/Courses/Thumbnail
+      - VUE_APP_TEACHER_ABOUT_URL=http://localhost:8888/uploads
+      - VUE_APP_TEACHER_MEDIA_PARTNER_URL=http://localhost:8888/uploads/media_partner
+    working_dir: /app
+    volumes:
+      - ./lms-client-side:/app
+    networks:
+      - app_network
+
+  lms_fe_nginx:
+    image: nginx:alpine
+    container_name: lms-fe-nginx
+    restart: unless-stopped
+    ports:
+      - "3300:80"
+    volumes:
+      - ./lms-client-side/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - app_network
+
+  lms_cms_app:
+    build:
+      context: ./lms-cms
+      dockerfile: Dockerfile
+    image: cms
+    container_name: lms-cms-container
+    restart: unless-stopped
+    ports:
+      - "8880:80"
+    environment:
+      - VUE_APP_API_URL=http://localhost:8888/api
+      - VUE_APP_TEACHER_IDENTITY_URL=http://localhost:8888/uploads/Teacher/Identity
+      - VUE_APP_TEACHER_PORTOFOLIO_URL=http://localhost:8888/uploads/Teacher/Portofolio
+      - VUE_APP_TEACHER_PROFILE_URL=http://localhost:8888/uploads/Teacher/Profile Picture
+      - VUE_APP_TEACHER_CERTIFICATE_URL=http://localhost:8888/uploads/Teacher/Teacher Certificates
+      - VUE_APP_COURSE_THUMBNAIL_URL=http://localhost:8888/uploads/Courses/Thumbnail
+    working_dir: /app
+    volumes:
+      - ./lms-cms:/app
+    networks:
+      - app_network
+
+  lms_cms_nginx:
+    image: nginx:alpine
+    container_name: lms-cms-nginx
+    restart: unless-stopped
+    ports:
+      - "3330:80"
+    volumes:
+      - ./lms-cms/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - app_network
+
 networks:
   app_network:
     name: digitefa_app_network
 
 volumes:
   db_data:
+
+

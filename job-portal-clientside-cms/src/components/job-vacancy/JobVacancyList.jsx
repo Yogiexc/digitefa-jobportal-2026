@@ -9,6 +9,7 @@ import {
   UsersIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import { SparklesIcon } from "@heroicons/react/24/solid";
 import {
   Button,
   Dropdown,
@@ -28,6 +29,7 @@ import ViewApplicants from "./ViewApplicants";
 import Delete from "./Delete";
 import Pagination from "../Pagination";
 import StatusModal from "../StatusModal";
+import AiTalentMatches from "./AiTalentMatches";
 
 const { Content } = Layout;
 
@@ -42,6 +44,7 @@ const JobVacancyList = () => {
   const [loading, setLoading] = useState(false);
   const [valueSegmented, setValueSegmented] = useState("all");
   const [selectJobData, setSelectedJobData] = useState(null);
+  const [selectJobDescription, setSelectedJobDescription] = useState("");
 
   const [openDetailView, setOpenDetailView] = useState(false);
   const [openAddData, setOpenAddData] = useState(false);
@@ -49,6 +52,7 @@ const JobVacancyList = () => {
   const [openReuploadData, setOpenReuploadData] = useState(false);
   const [openViewApplicants, setOpenViewApplicants] = useState(false);
   const [openDeleteData, setOpenDeleteData] = useState(false);
+  const [openAiMatches, setOpenAiMatches] = useState(false);
 
   const [modalMessage, setModalMessage] = useState("");
   const [modalStatus, setModalStatus] = useState("");
@@ -74,6 +78,10 @@ const JobVacancyList = () => {
     } else if (action === "delete") {
       setSelectedJobData(record.job_id);
       setOpenDeleteData(true);
+    } else if (action === "aimatches") {
+      setSelectedJobData(record.job_id);
+      setSelectedJobDescription(record.description || "");
+      setOpenAiMatches(true);
     }
   };
 
@@ -104,6 +112,9 @@ const JobVacancyList = () => {
       </Menu.Item>
       <Menu.Item key="delete" icon={<TrashIcon className="size-5" />}>
         Delete
+      </Menu.Item>
+      <Menu.Item key="aimatches" icon={<SparklesIcon className="size-5 text-purple-600" />}>
+        <span className="font-semibold text-purple-700">AI Matches</span>
       </Menu.Item>
     </Menu>
   );
@@ -224,6 +235,7 @@ const JobVacancyList = () => {
     setOpenDetailView(false);
     setOpenEditData(false);
     setOpenReuploadData(false);
+    setOpenAiMatches(false);
   };
 
   return (
@@ -270,6 +282,14 @@ const JobVacancyList = () => {
           setOpen={setOpenViewApplicants}
           onBack={handleBack}
           jobId={selectJobData}
+        />
+      ) : openAiMatches ? (
+        <AiTalentMatches
+          open={openAiMatches}
+          setOpen={setOpenAiMatches}
+          onBack={handleBack}
+          jobId={selectJobData}
+          jobDescription={selectJobDescription}
         />
       ) : (
         <>

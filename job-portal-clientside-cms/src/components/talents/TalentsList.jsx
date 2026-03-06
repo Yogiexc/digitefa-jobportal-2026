@@ -115,7 +115,7 @@ const TalentsList = () => {
   const fetchData = (page, shouldFetchData) => {
     if (shouldFetchData) {
       setLoading(true);
-      const url = `/ job - seekers / management /? page = ${page} & pageSize=${pageSize} & sortBy=${sortBy} & sortOrder=${sortOrder} & search=${search}`;
+      const url = `/job-seekers/management/?page= ${page} & pageSize=${pageSize} & sortBy=${sortBy} & sortOrder=${sortOrder} & search=${search}`;
       Api.get(url)
         .then((response) => {
           setData(response.data);

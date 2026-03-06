@@ -37,7 +37,8 @@ ENV APP_DEBUG=false
 RUN echo "yes" | php artisan octane:install --server=frankenphp --no-interaction
 
 # Set permission Laravel storage & cache dengan user www-data
-RUN chown -R www-data:www-data storage bootstrap/cache && \
+RUN mkdir -p storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 777 storage bootstrap/cache
 
 # Konfigurasi PHP upload limit

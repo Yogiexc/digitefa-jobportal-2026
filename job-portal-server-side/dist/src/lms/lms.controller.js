@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const lms_service_1 = require("./lms.service");
 const link_lms_account_dto_1 = require("./dto/link-lms-account.dto");
-const passport_1 = require("@nestjs/passport");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const api_key_guard_1 = require("../auth/guards/api-key.guard");
 const validate_job_portal_account_dto_1 = require("./dto/validate-job-portal-account.dto");
 const unlink_job_portal_account_dto_1 = require("./dto/unlink-job-portal-account.dto");
@@ -130,7 +130,7 @@ __decorate([
 ], LmsController.prototype, "getJobs", null);
 __decorate([
     (0, common_1.Post)('link-account'),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['job_seeker'])),
     (0, swagger_1.ApiOperation)({ summary: 'Link LMS account to job seeker' }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
@@ -140,7 +140,7 @@ __decorate([
 ], LmsController.prototype, "linkAccount", null);
 __decorate([
     (0, common_1.Post)('unlink-account'),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['job_seeker'])),
     (0, swagger_1.ApiOperation)({ summary: 'Unlink LMS account from job seeker' }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),

@@ -225,7 +225,7 @@ const Navbar = () => {
           <Button
             type="button"
             className="bg-white text-[#06A73B] border-none hover:text-[#06A73B] hidden md:flex"
-            href={cmsUrl}
+            onClick={() => window.location.href = cmsUrl || 'http://localhost:5173'}
           >
             For Company / University
           </Button>

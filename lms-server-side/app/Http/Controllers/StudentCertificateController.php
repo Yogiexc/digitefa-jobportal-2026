@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StudentCertificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class StudentCertificateController extends Controller
 {
@@ -55,6 +56,35 @@ class StudentCertificateController extends Controller
         }
 
         $certificate = StudentCertificate::create($validated);
+
+        // Webhook to Job Portal
+        try {
+            $certificateWithRelations = StudentCertificate::with(['courseEnrollment.student.user', 'courseEnrollment.courseBatch.course'])
+                ->find($certificate->id_student_certificate);
+
+            $user = $certificateWithRelations->courseEnrollment->student->user ?? null;
+            $course = $certificateWithRelations->courseEnrollment->courseBatch->course ?? null;
+
+            if ($user && $user->job_portal_id) {
+                $jobPortalUrl = env('JOB_PORTAL_API_URL');
+                $apiKey = env('LMS_API_KEY');
+
+                if ($jobPortalUrl && $apiKey) {
+                    Http::withHeaders([
+                        'x-api-key' => $apiKey,
+                        'Accept' => 'application/json'
+                    ])->post($jobPortalUrl, [
+                                'job_portal_id' => $user->job_portal_id,
+                                'certification_name' => $course ? $course->title : 'LMS Course Certificate',
+                                'issuing_organization' => 'Digitefa LMS',
+                                'issue_date' => now()->toDateString(),
+                                'credential_url' => url('uploads/certificates/' . $certificate->file)
+                            ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send certificate webhook to Job Portal: ' . $e->getMessage());
+        }
 
         return response()->json($certificate, 201);
     }

@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateCertificationDto } from './dto/create-certification.dto';
-
+import { LmsCertificateDto } from './certifications.controller';
 @Injectable()
 export class CertificationsService {
   constructor(private prisma: PrismaService) { }
@@ -167,6 +167,42 @@ export class CertificationsService {
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('Failed to delete job seeker certifications');
+    }
+  }
+
+  async addCertificationFromLms(data: LmsCertificateDto) {
+    try {
+      const jobSeekerDetail = await this.prisma.job_seeker_details.findUnique({
+        where: { job_seeker_id: data.job_portal_id }
+      });
+
+      if (!jobSeekerDetail) {
+        throw new NotFoundException('Job Seeker Detail not found for the given job_portal_id');
+      }
+
+      await this.prisma.certifications.create({
+        data: {
+          certification_name: data.certification_name,
+          issuing_organization: data.issuing_organization,
+          issue_date: new Date(data.issue_date),
+          expiration_date: data.expiration_date ? new Date(data.expiration_date) : null,
+          credential_url: data.credential_url,
+          job_seeker_details: {
+            connect: { job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id }
+          }
+        }
+      });
+
+      return {
+        status: 'success',
+        message: 'Certification from LMS successfully added'
+      };
+    } catch (error) {
+      console.log(error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to add job seeker certification from LMS');
     }
   }
 }

@@ -12,12 +12,16 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CertificationsController = void 0;
+exports.CertificationsController = exports.LmsCertificateDto = void 0;
 const common_1 = require("@nestjs/common");
 const certifications_service_1 = require("./certifications.service");
 const jwt_auth_guard_1 = require("../../../auth/jwt-auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 const create_certification_dto_1 = require("./dto/create-certification.dto");
+const common_2 = require("@nestjs/common");
+class LmsCertificateDto {
+}
+exports.LmsCertificateDto = LmsCertificateDto;
 let CertificationsController = class CertificationsController {
     constructor(certificationsService) {
         this.certificationsService = certificationsService;
@@ -36,6 +40,12 @@ let CertificationsController = class CertificationsController {
     }
     deleteCertifications(certification_id, req) {
         return this.certificationsService.deleteCertifications(req.user, certification_id);
+    }
+    async addCertificationFromLms(apiKey, data) {
+        if (apiKey !== process.env.LMS_INTEGRATION_API_KEY) {
+            throw new common_2.UnauthorizedException('Invalid API Key');
+        }
+        return this.certificationsService.addCertificationFromLms(data);
     }
 };
 exports.CertificationsController = CertificationsController;
@@ -98,6 +108,15 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], CertificationsController.prototype, "deleteCertifications", null);
+__decorate([
+    (0, common_1.Post)('/lms-webhook'),
+    (0, swagger_1.ApiOperation)({ summary: 'Webhook to receive certificates from LMS' }),
+    __param(0, (0, common_2.Headers)('x-api-key')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, LmsCertificateDto]),
+    __metadata("design:returntype", Promise)
+], CertificationsController.prototype, "addCertificationFromLms", null);
 exports.CertificationsController = CertificationsController = __decorate([
     (0, swagger_1.ApiTags)('job-seeker-profile-certifications'),
     (0, common_1.Controller)('profile/job-seeker/certifications'),

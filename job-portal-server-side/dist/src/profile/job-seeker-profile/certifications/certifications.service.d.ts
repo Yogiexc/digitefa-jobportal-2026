@@ -1,5 +1,6 @@
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateCertificationDto } from './dto/create-certification.dto';
+import { LmsCertificateDto } from './certifications.controller';
 export declare class CertificationsService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -38,6 +39,10 @@ export declare class CertificationsService {
         message: string;
     }>;
     deleteCertifications(user: any, certification_id: string): Promise<{
+        status: string;
+        message: string;
+    }>;
+    addCertificationFromLms(data: LmsCertificateDto): Promise<{
         status: string;
         message: string;
     }>;

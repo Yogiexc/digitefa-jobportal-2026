@@ -158,6 +158,39 @@ let CertificationsService = class CertificationsService {
             throw new common_1.InternalServerErrorException('Failed to delete job seeker certifications');
         }
     }
+    async addCertificationFromLms(data) {
+        try {
+            const jobSeekerDetail = await this.prisma.job_seeker_details.findUnique({
+                where: { job_seeker_id: data.job_portal_id }
+            });
+            if (!jobSeekerDetail) {
+                throw new common_1.NotFoundException('Job Seeker Detail not found for the given job_portal_id');
+            }
+            await this.prisma.certifications.create({
+                data: {
+                    certification_name: data.certification_name,
+                    issuing_organization: data.issuing_organization,
+                    issue_date: new Date(data.issue_date),
+                    expiration_date: data.expiration_date ? new Date(data.expiration_date) : null,
+                    credential_url: data.credential_url,
+                    job_seeker_details: {
+                        connect: { job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id }
+                    }
+                }
+            });
+            return {
+                status: 'success',
+                message: 'Certification from LMS successfully added'
+            };
+        }
+        catch (error) {
+            console.log(error);
+            if (error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException('Failed to add job seeker certification from LMS');
+        }
+    }
 };
 exports.CertificationsService = CertificationsService;
 exports.CertificationsService = CertificationsService = __decorate([
