@@ -97,11 +97,16 @@ export class LmsService {
       `[LmsService] Job Portal account ${jobSeeker.job_seeker_id} linked with LMS user ${lmsUserId} successfully.`,
     );
 
-    // 4.5 Fetch completed courses from LMS and sync them as Certifications retroactively
+    await this.syncCertificationsFromLms(jobSeeker.job_seeker_id, lmsUserId);
+
+    // 5. Kembalikan ID job seeker agar bisa disimpan di Laravel
+    return { job_seeker_id: jobSeeker.job_seeker_id };
+  }
+
+  private async syncCertificationsFromLms(jobSeekerId: string, lmsUserId: string) {
     try {
-      // Find job_seeker_detail_id 
       const detail = await this.prisma.job_seeker_details.findUnique({
-        where: { job_seeker_id: jobSeeker.job_seeker_id }
+        where: { job_seeker_id: jobSeekerId }
       });
 
       if (detail) {
@@ -112,7 +117,6 @@ export class LmsService {
         const completedCourses = lmsResponse.data?.data || [];
 
         for (const course of completedCourses) {
-          // Check if already synced
           const existing = await this.prisma.certifications.findFirst({
             where: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -127,20 +131,17 @@ export class LmsService {
                 job_seeker_detail_id: detail.job_seeker_detail_id,
                 certification_name: course.title,
                 issuing_organization: 'Digitefa LMS',
-                issue_date: new Date(), // We don't have the exact date from this endpoint, default to now
-                credential_url: `http://localhost:8000/certificate/${course.id_course}` // Example URL pattern
+                issue_date: new Date(),
+                credential_url: `http://localhost:8000/certificate/${course.id_course}`
               }
             });
-            console.log(`[LmsService] Synced retro certificate: ${course.title}`);
+            console.log(`[LmsService] Synced certificate for ${jobSeekerId}: ${course.title}`);
           }
         }
       }
     } catch (e) {
-      console.error('[LmsService] Failed to sync retroactive certificates from LMS:', e.message);
+      console.error('[LmsService] Failed to sync certificates from LMS:', e.message);
     }
-
-    // 5. Kembalikan ID job seeker agar bisa disimpan di Laravel
-    return { job_seeker_id: jobSeeker.job_seeker_id };
   }
 
   async validateLmsCredentials(
@@ -247,8 +248,9 @@ export class LmsService {
           lmsLinkedAt: new Date(),
         },
       });
+      await this.syncCertificationsFromLms(jobSeekerId, lmsUserId);
       console.log(
-        `[LmsService] Job seeker ${jobSeekerId} linked with LMS user ${lmsUserId} successfully.`,
+        `[LmsService] Job seeker ${jobSeekerId} linked and synced with LMS user ${lmsUserId} successfully.`,
       );
     } catch (prismaError) {
       console.error(

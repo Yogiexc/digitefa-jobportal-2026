@@ -16,7 +16,7 @@ import { approvalEmailTemplate } from './email-templates/approval-email-template
 
 @Injectable()
 export class CompaniesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createCompanyDto: CreateCompanyDto) {
     const errors = await validate(createCompanyDto);
     if (errors.length > 0) {
@@ -182,20 +182,20 @@ export class CompaniesService {
     try {
       const where = search
         ? {
-            OR: [
-              {
-                company_detail: {
-                  legal_name: { contains: search },
-                },
+          OR: [
+            {
+              company_detail: {
+                legal_name: { contains: search },
               },
-              {
-                company_detail: {
-                  market_name: { contains: search },
-                },
+            },
+            {
+              company_detail: {
+                market_name: { contains: search },
               },
-              { email: { contains: search } },
-            ],
-          }
+            },
+            { email: { contains: search } },
+          ],
+        }
         : {};
       // Calculate total data
       const totalData = await this.prisma.companies.count({ where });
@@ -384,7 +384,7 @@ export class CompaniesService {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT),
-      secure: false, // true for 465, false for other ports
+      secure: process.env.EMAIL_PORT === '465', // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -397,7 +397,7 @@ export class CompaniesService {
     const htmlContent = approvalEmailTemplate(email, status, notes);
 
     await transporter.sendMail({
-      from: '"Digitefa" <no-reply@zenify.my.id>',
+      from: `"Digitefa" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Approval Notification Digitefa',
       text: `Approval Notification for ${email}`,

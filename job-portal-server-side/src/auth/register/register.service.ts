@@ -21,7 +21,7 @@ export class RegisterService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async registerJobSeeker(
     registerJobSeekerDto: RegisterJobSeekerDto,
@@ -325,7 +325,7 @@ export class RegisterService {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT),
-      secure: false, // true for 465, false for other ports
+      secure: process.env.EMAIL_PORT === '465', // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -338,7 +338,7 @@ export class RegisterService {
     const htmlContent = otpEmailTemplate(otp, email);
 
     await transporter.sendMail({
-      from: '"Digitefa" <no-reply@zenify.my.id>',
+      from: `"Digitefa" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Digitefa OTP Verification Code',
       text: `Your OTP code is ${otp}`,

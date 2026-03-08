@@ -308,7 +308,7 @@ export class UniversitiesService {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT),
-      secure: false, // true for 465, false for other ports
+      secure: process.env.EMAIL_PORT === '465', // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -321,7 +321,7 @@ export class UniversitiesService {
     const htmlContent = approvalEmailTemplate(email, status, notes);
 
     await transporter.sendMail({
-      from: '"Digitefa" <no-reply@zenify.my.id>',
+      from: `"Digitefa" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Approval Notification Digitefa',
       text: `Approval Notification for ${email}`,
