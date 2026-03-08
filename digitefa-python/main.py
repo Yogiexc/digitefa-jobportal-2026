@@ -348,6 +348,8 @@ async def parse_cv(file: UploadFile = File(...)):
             "name": "",
             "email": "",
             "phone": "",
+            "address": "",
+            "date_of_birth": "",
             "personal_summary": [],
             "skills": [],
             "experience": [],
@@ -360,6 +362,8 @@ async def parse_cv(file: UploadFile = File(...)):
         # Regex Extractors
         email_regex = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
         phone_regex = re.compile(r"(\+?\d[\d -]{8,12}\d)")
+        dob_regex = re.compile(r"(?i)(?:ttl|lahir|dob|date of birth)[:\s]*([0-9]{1,2}[\s\-/]+[a-zA-Z0-9]{2,10}[\s\-/]+[0-9]{2,4})")
+        address_regex = re.compile(r"(?i)(?:alamat|address|domisili)[:\s]+([^=\n]{5,50})")
 
         # Attempt to find Email and Phone 
         emails = email_regex.findall(full_text)
@@ -369,6 +373,14 @@ async def parse_cv(file: UploadFile = File(...)):
         phones = phone_regex.findall(full_text)
         if phones:
             sections["phone"] = phones[0]
+            
+        dobs = dob_regex.findall(full_text)
+        if dobs:
+            sections["date_of_birth"] = dobs[0].strip()
+            
+        addresses = address_regex.findall(full_text)
+        if addresses:
+            sections["address"] = addresses[0].strip()
 
         # Use the first line as a putative name if it looks like one, ignoring empty ones
         for line in lines:
@@ -418,11 +430,15 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["languages"] = list(set([s for s in sections["languages"] if len(s) > 1 and len(s) < 30]))
         sections["personal_summary"] = " ".join(sections["personal_summary"])
         
+        # Filter projects and certs to ignore short junk lines
+        valid_projects = [p for p in sections["projects"] if len(p.strip()) > 10]
+        valid_certs = [c for c in sections["certifications"] if len(c.strip()) > 10]
+
         # Build structured fields
-        sections["projects_structured"] = [{"title": "Projects", "description": " ".join(sections["projects"])}] if sections["projects"] else []
-        sections["projects"] = " ".join(sections["projects"])
-        sections["certifications_structured"] = [{"title": "Certifications", "description": " ".join(sections["certifications"])}] if sections["certifications"] else []
-        sections["certifications"] = " ".join(sections["certifications"])
+        sections["projects_structured"] = [{"title": "Projects", "description": " ".join(valid_projects)}] if valid_projects else []
+        sections["projects"] = " ".join(valid_projects)
+        sections["certifications_structured"] = [{"title": "Certifications", "description": " ".join(valid_certs)}] if valid_certs else []
+        sections["certifications"] = " ".join(valid_certs)
 
         exp_list = []
         current_exp = {"title": "Recent Experience", "company": "Unknown Company", "description": ""}

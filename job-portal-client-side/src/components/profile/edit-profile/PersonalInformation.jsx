@@ -117,17 +117,23 @@ const PersonalInformation = ({
   };
 
   useEffect(() => {
-    if (initialValues?.imageUrl) {
-      setFileList([
-        {
-          uid: "-1",
-          name: initialValues?.profile_picture_url,
-          status: "done",
-          url: initialValues?.imageUrl,
-        },
-      ]);
+    if (initialValues) {
+      form.setFieldsValue({
+        ...initialValues,
+        date_of_birth: initialValues.date_of_birth ? dayjs(initialValues.date_of_birth) : null,
+      });
+      if (initialValues.imageUrl) {
+        setFileList([
+          {
+            uid: "-1",
+            name: initialValues.profile_picture_url,
+            status: "done",
+            url: initialValues.imageUrl,
+          },
+        ]);
+      }
     }
-  }, [initialValues?.imageUrl]);
+  }, [initialValues, form]);
 
   return (
     <Modal

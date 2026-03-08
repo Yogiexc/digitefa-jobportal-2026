@@ -19,11 +19,11 @@ export class LmsService {
   constructor(
     private prisma: PrismaService,
     private httpService: HttpService,
-  ) {}
+  ) { }
 
-    async unlinkFromLmsCommand(dto: UnlinkJobPortalAccountDto): Promise<void> {
+  async unlinkFromLmsCommand(dto: UnlinkJobPortalAccountDto): Promise<void> {
     const { job_seeker_id } = dto;
-    
+
     console.log(
       `[LmsService] Received unlink command from LMS for job_seeker_id: ${job_seeker_id}`
     );
@@ -40,7 +40,7 @@ export class LmsService {
     } catch (prismaError) {
       if (prismaError.code === 'P2025') {
         console.warn(`[LmsService] Job seeker with ID ${job_seeker_id} not found during unlink command. Ignoring.`);
-        return; 
+        return;
       }
       console.error('[LmsService] Prisma error during unlinkFromLmsCommand:', prismaError);
       throw new InternalServerErrorException(
@@ -96,6 +96,48 @@ export class LmsService {
     console.log(
       `[LmsService] Job Portal account ${jobSeeker.job_seeker_id} linked with LMS user ${lmsUserId} successfully.`,
     );
+
+    // 4.5 Fetch completed courses from LMS and sync them as Certifications retroactively
+    try {
+      // Find job_seeker_detail_id 
+      const detail = await this.prisma.job_seeker_details.findUnique({
+        where: { job_seeker_id: jobSeeker.job_seeker_id }
+      });
+
+      if (detail) {
+        const lmsCoursesUrl = `${process.env.URL_API_LMS || 'http://localhost:8888/api'}/lms/students/${lmsUserId}/completed-courses`;
+        const lmsResponse = await firstValueFrom(
+          this.httpService.get(lmsCoursesUrl),
+        );
+        const completedCourses = lmsResponse.data?.data || [];
+
+        for (const course of completedCourses) {
+          // Check if already synced
+          const existing = await this.prisma.certifications.findFirst({
+            where: {
+              job_seeker_detail_id: detail.job_seeker_detail_id,
+              certification_name: course.title,
+              issuing_organization: 'Digitefa LMS'
+            }
+          });
+
+          if (!existing) {
+            await this.prisma.certifications.create({
+              data: {
+                job_seeker_detail_id: detail.job_seeker_detail_id,
+                certification_name: course.title,
+                issuing_organization: 'Digitefa LMS',
+                issue_date: new Date(), // We don't have the exact date from this endpoint, default to now
+                credential_url: `http://localhost:8000/certificate/${course.id_course}` // Example URL pattern
+              }
+            });
+            console.log(`[LmsService] Synced retro certificate: ${course.title}`);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('[LmsService] Failed to sync retroactive certificates from LMS:', e.message);
+    }
 
     // 5. Kembalikan ID job seeker agar bisa disimpan di Laravel
     return { job_seeker_id: jobSeeker.job_seeker_id };
@@ -257,7 +299,7 @@ export class LmsService {
         '[LmsService] LMS_UNLINK_ACCOUNT_URL or API Key is not configured. Skipping LMS notification.',
       );
     }
-      console.log(
+    console.log(
       `[LmsService] Unlinking LMS account in local DB for jobSeekerId=${jobSeekerId}`,
     );
     try {

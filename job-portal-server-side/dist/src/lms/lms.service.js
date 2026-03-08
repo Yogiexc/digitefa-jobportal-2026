@@ -66,6 +66,40 @@ let LmsService = class LmsService {
             },
         });
         console.log(`[LmsService] Job Portal account ${jobSeeker.job_seeker_id} linked with LMS user ${lmsUserId} successfully.`);
+        try {
+            const detail = await this.prisma.job_seeker_details.findUnique({
+                where: { job_seeker_id: jobSeeker.job_seeker_id }
+            });
+            if (detail) {
+                const lmsCoursesUrl = `${process.env.URL_API_LMS || 'http://localhost:8888/api'}/lms/students/${lmsUserId}/completed-courses`;
+                const lmsResponse = await (0, rxjs_1.firstValueFrom)(this.httpService.get(lmsCoursesUrl));
+                const completedCourses = lmsResponse.data?.data || [];
+                for (const course of completedCourses) {
+                    const existing = await this.prisma.certifications.findFirst({
+                        where: {
+                            job_seeker_detail_id: detail.job_seeker_detail_id,
+                            certification_name: course.title,
+                            issuing_organization: 'Digitefa LMS'
+                        }
+                    });
+                    if (!existing) {
+                        await this.prisma.certifications.create({
+                            data: {
+                                job_seeker_detail_id: detail.job_seeker_detail_id,
+                                certification_name: course.title,
+                                issuing_organization: 'Digitefa LMS',
+                                issue_date: new Date(),
+                                credential_url: `http://localhost:8000/certificate/${course.id_course}`
+                            }
+                        });
+                        console.log(`[LmsService] Synced retro certificate: ${course.title}`);
+                    }
+                }
+            }
+        }
+        catch (e) {
+            console.error('[LmsService] Failed to sync retroactive certificates from LMS:', e.message);
+        }
         return { job_seeker_id: jobSeeker.job_seeker_id };
     }
     async validateLmsCredentials(email, password, jobSeekerId) {

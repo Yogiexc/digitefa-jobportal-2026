@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "status_code": 200,
+  "message": "Successfully retrieved completed courses.",
+  "data": [
+    {
+      "id_course": "3ec62b63-868e-40d1-9c04-c18bd984ffdc",
+      "title": "iOS Development with Swift & Xcode",
+      "description": "Pengembangan aplikasi iOS menggunakan Swift dan Xcode. Termasuk UI/UX design, App Store guidelines, dan best practices mobile development.",
+      "category": "Business"
+    },
+    {
+      "id_course": "e0688222-bcd1-4c36-9986-97fd0918874e",
+      "title": "Product Management & Development Strategy",
+      "description": "Manajemen produk dan strategi pengembangan. Termasuk product roadmap, user research, A/B testing, dan product analytics untuk growth.",
+      "category": "Marketing"
+    },
+    {
+      "id_course": "5a47cf09-2ffc-4f70-8e73-808e23138560",
+      "title": "UI Design and Prototyping with Figma",
+      "description": "Master Figma for designing user interfaces, creating interactive prototypes, and collaborating with teams on web and mobile app designs.",
+      "category": "Programming"
+    },
+    {
+      "id_course": "fabbc32a-55ef-4226-ac6e-b314c85555e7",
+      "title": "Pembelajaran Mendalam React Development",
+      "description": "Jadilah ahli React. Pelajari Hooks, Context API, Redux/Zustand untuk manajemen state, Next.js untuk server-side rendering, dan pengujian dengan Jest/React Testing Library.",
+      "category": "Programming"
+    },
+    {
+      "id_course": "d22cb36b-bf33-488a-80ad-7df222aa65ba",
+      "title": "Optimasi Kinerja Web dan Aksesibilitas (a11y)",
+      "description": "Pelajari cara membangun situs web yang cepat dan dapat diakses. Mencakup Core Web Vitals, lazy loading, code splitting, optimasi gambar, atribut ARIA, dan pedoman WCAG untuk pengalaman web yang inklusif.",
+      "category": "Programming"
+    }
+  ]
+}

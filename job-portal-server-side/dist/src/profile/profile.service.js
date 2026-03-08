@@ -421,35 +421,52 @@ let ProfileService = class ProfileService {
                     });
                 }
                 for (const edu of parsedData.education_structured) {
-                    await this.prisma.education.create({
-                        data: {
-                            job_seeker_detail_id: detail.job_seeker_detail_id,
-                            university_name: edu.university || 'From CV',
-                            degree: edu.degree || 'Auto-filled',
-                            major: edu.major || 'General',
-                            start_date: new Date(),
-                        },
-                    });
-                    break;
+                    if (edu.university && edu.university !== 'Extracted University' && edu.university !== 'From CV') {
+                        const validUniv = await this.prisma.university_details.findFirst({
+                            where: {
+                                university_name: {
+                                    contains: edu.university,
+                                }
+                            }
+                        });
+                        if (validUniv) {
+                            await this.prisma.education.create({
+                                data: {
+                                    job_seeker_detail_id: detail.job_seeker_detail_id,
+                                    university_name: validUniv.university_name,
+                                    degree: edu.degree || 'Auto-filled',
+                                    major: edu.major || 'General',
+                                    start_date: new Date(),
+                                },
+                            });
+                            break;
+                        }
+                    }
                 }
             }
             else if (parsedData.education) {
-                const existingEdu = await this.prisma.education.findUnique({
-                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
-                });
-                if (existingEdu) {
-                    await this.prisma.education.delete({
-                        where: { education_id: existingEdu.education_id },
-                    });
+            }
+            if (parsedData.address || parsedData.date_of_birth || parsedData.phone) {
+                let dobDate = null;
+                if (parsedData.date_of_birth) {
+                    const parsedDate = new Date(parsedData.date_of_birth);
+                    if (!isNaN(parsedDate.getTime())) {
+                        dobDate = parsedDate;
+                    }
                 }
-                await this.prisma.education.create({
-                    data: {
-                        job_seeker_detail_id: detail.job_seeker_detail_id,
-                        university_name: 'From CV',
-                        degree: 'Auto-filled',
-                        major: 'General',
-                        start_date: new Date(),
+                await this.prisma.personal_info.upsert({
+                    where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+                    update: {
+                        ...(parsedData.address && { address: parsedData.address }),
+                        ...(parsedData.phone && { phone_number: parsedData.phone.substring(0, 15) }),
+                        ...(dobDate && { date_of_birth: dobDate }),
                     },
+                    create: {
+                        job_seeker_detail_id: detail.job_seeker_detail_id,
+                        address: parsedData.address || null,
+                        phone_number: parsedData.phone ? parsedData.phone.substring(0, 15) : null,
+                        date_of_birth: dobDate,
+                    }
                 });
             }
             if (parsedData.personal_summary) {
