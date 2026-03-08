@@ -45,7 +45,7 @@ model job_seekers {
 model job_seeker_details {
   job_seeker_detail_id String           @id @default(uuid())
   job_seeker_id        String           @unique
-  job_seeker           job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id])
+  job_seeker           job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
   profile_picture_url  String?
   personal_summary     String?          @db.Text
   personal_info        personal_info?
@@ -62,7 +62,7 @@ model job_seeker_details {
 model personal_info {
   personal_info_id     String             @id @default(uuid())
   job_seeker_detail_id String             @unique
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   address              String?
   phone_number         String?            @db.VarChar(15)
   date_of_birth        DateTime?
@@ -73,7 +73,7 @@ model personal_info {
 model education {
   education_id         String             @id @default(uuid())
   job_seeker_detail_id String             @unique
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   university_id        String?
   university_name      String
   degree               String
@@ -89,7 +89,7 @@ model education {
 model experiences {
   experience_id        String             @id @default(uuid())
   job_seeker_detail_id String
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   experience_title     String
   employment_type      String?
   company_name         String
@@ -107,7 +107,7 @@ model languages {
   language_name        String
   created_at           DateTime            @default(now())
   updated_at           DateTime            @updatedAt
-  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   job_seeker_detail_id String?
 
   @@unique([job_seeker_detail_id, language_name])
@@ -118,7 +118,7 @@ model skills {
   skill_name           String
   created_at           DateTime            @default(now())
   updated_at           DateTime            @updatedAt
-  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   job_seeker_detail_id String?
 }
 
@@ -135,7 +135,7 @@ model skills_category {
 model projects {
   project_id           String             @id @default(uuid())
   job_seeker_detail_id String
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   project_name         String
   description          String?            @db.VarChar(255)
   start_date           DateTime?
@@ -147,7 +147,7 @@ model projects {
 model certifications {
   certification_id     String             @id @default(uuid())
   job_seeker_detail_id String
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id])
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   certification_name   String
   issuing_organization String?
   issue_date           DateTime?
@@ -318,7 +318,7 @@ model match_scores {
   certifications Float?
   created_at     DateTime     @default(now())
   updated_at     DateTime     @updatedAt
-  applications   applications @relation(fields: [application_id], references: [application_id])
+  applications   applications @relation(fields: [application_id], references: [application_id], onDelete: Cascade)
 }
 
 model applications {
@@ -331,7 +331,7 @@ model applications {
   experience_years String?
   applied_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
-  job_seeker       job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id])
+  job_seeker       job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
   job              jobs             @relation(fields: [job_id], references: [job_id])
   match_scores     match_scores?
 }
@@ -391,7 +391,7 @@ model saved_jobs {
   job_id        String
   created_at    DateTime    @default(now())
   updated_at    DateTime    @updatedAt
-  job_seeker    job_seekers @relation(fields: [job_seeker_id], references: [job_seeker_id])
+  job_seeker    job_seekers @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
   job           jobs        @relation(fields: [job_id], references: [job_id])
 
   @@unique([job_id, job_seeker_id])

@@ -66,9 +66,13 @@ let LmsService = class LmsService {
             },
         });
         console.log(`[LmsService] Job Portal account ${jobSeeker.job_seeker_id} linked with LMS user ${lmsUserId} successfully.`);
+        await this.syncCertificationsFromLms(jobSeeker.job_seeker_id, lmsUserId);
+        return { job_seeker_id: jobSeeker.job_seeker_id };
+    }
+    async syncCertificationsFromLms(jobSeekerId, lmsUserId) {
         try {
             const detail = await this.prisma.job_seeker_details.findUnique({
-                where: { job_seeker_id: jobSeeker.job_seeker_id }
+                where: { job_seeker_id: jobSeekerId }
             });
             if (detail) {
                 const lmsCoursesUrl = `${process.env.URL_API_LMS || 'http://localhost:8888/api'}/lms/students/${lmsUserId}/completed-courses`;
@@ -92,15 +96,14 @@ let LmsService = class LmsService {
                                 credential_url: `http://localhost:8000/certificate/${course.id_course}`
                             }
                         });
-                        console.log(`[LmsService] Synced retro certificate: ${course.title}`);
+                        console.log(`[LmsService] Synced certificate for ${jobSeekerId}: ${course.title}`);
                     }
                 }
             }
         }
         catch (e) {
-            console.error('[LmsService] Failed to sync retroactive certificates from LMS:', e.message);
+            console.error('[LmsService] Failed to sync certificates from LMS:', e.message);
         }
-        return { job_seeker_id: jobSeeker.job_seeker_id };
     }
     async validateLmsCredentials(email, password, jobSeekerId) {
         const lmsUrl = process.env.LMS_VALIDATE_CREDENTIALS_URL;
@@ -178,7 +181,8 @@ let LmsService = class LmsService {
                     lmsLinkedAt: new Date(),
                 },
             });
-            console.log(`[LmsService] Job seeker ${jobSeekerId} linked with LMS user ${lmsUserId} successfully.`);
+            await this.syncCertificationsFromLms(jobSeekerId, lmsUserId);
+            console.log(`[LmsService] Job seeker ${jobSeekerId} linked and synced with LMS user ${lmsUserId} successfully.`);
         }
         catch (prismaError) {
             console.error('[LmsService] Prisma error during linkLmsAccount:', prismaError);

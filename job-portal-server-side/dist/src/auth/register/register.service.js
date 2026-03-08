@@ -272,7 +272,7 @@ let RegisterService = class RegisterService {
         const transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: parseInt(process.env.EMAIL_PORT),
-            secure: false,
+            secure: process.env.EMAIL_PORT === '465',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -283,7 +283,7 @@ let RegisterService = class RegisterService {
         });
         const htmlContent = (0, otp_email_template_1.otpEmailTemplate)(otp, email);
         await transporter.sendMail({
-            from: '"Digitefa" <no-reply@zenify.my.id>',
+            from: `"Digitefa" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Digitefa OTP Verification Code',
             text: `Your OTP code is ${otp}`,

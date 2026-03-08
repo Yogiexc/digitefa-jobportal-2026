@@ -10,6 +10,7 @@ export declare class LmsService {
     validateAndLinkJobPortalAccount(dto: ValidateJobPortalAccountDto): Promise<{
         job_seeker_id: string;
     }>;
+    private syncCertificationsFromLms;
     validateLmsCredentials(email: string, password: string, jobSeekerId: string): Promise<any>;
     linkLmsAccount(jobSeekerId: string, lmsUserId: string): Promise<void>;
     unlinkLmsAccount(jobSeekerId: string): Promise<void>;

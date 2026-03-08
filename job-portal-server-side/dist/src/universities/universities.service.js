@@ -278,7 +278,7 @@ let UniversitiesService = class UniversitiesService {
         const transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: parseInt(process.env.EMAIL_PORT),
-            secure: false,
+            secure: process.env.EMAIL_PORT === '465',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -289,7 +289,7 @@ let UniversitiesService = class UniversitiesService {
         });
         const htmlContent = (0, approval_email_template_1.approvalEmailTemplate)(email, status, notes);
         await transporter.sendMail({
-            from: '"Digitefa" <no-reply@zenify.my.id>',
+            from: `"Digitefa" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Approval Notification Digitefa',
             text: `Approval Notification for ${email}`,

@@ -278,7 +278,7 @@ let ProfileService = class ProfileService {
         const transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: parseInt(process.env.EMAIL_PORT),
-            secure: false,
+            secure: process.env.EMAIL_PORT === '465',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -289,7 +289,7 @@ let ProfileService = class ProfileService {
         });
         const htmlContent = (0, otp_change_email_template_1.otpChangeEmailTemplate)(otp, email);
         await transporter.sendMail({
-            from: '"Digitefa" <no-reply@zenify.my.id>',
+            from: `"Digitefa" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Digitefa OTP Verification Code',
             text: `Your OTP code is ${otp}`,
@@ -389,6 +389,12 @@ let ProfileService = class ProfileService {
                     }
                 }
             }
+            const safeDate = (dateStr) => {
+                if (!dateStr || dateStr.toLowerCase() === 'present' || dateStr.toLowerCase() === 'sekarang')
+                    return null;
+                const d = new Date(dateStr);
+                return isNaN(d.getTime()) ? null : d;
+            };
             if (parsedData.experience_structured && parsedData.experience_structured.length > 0) {
                 for (const exp of parsedData.experience_structured) {
                     await this.prisma.experiences.create({
@@ -397,6 +403,8 @@ let ProfileService = class ProfileService {
                             experience_title: exp.title || 'Experience',
                             company_name: exp.company || 'Unknown',
                             description: (exp.description || '').substring(0, 250),
+                            start_date: safeDate(exp.start_date),
+                            end_date: safeDate(exp.end_date)
                         },
                     });
                 }
@@ -482,6 +490,8 @@ let ProfileService = class ProfileService {
                             job_seeker_detail_id: detail.job_seeker_detail_id,
                             project_name: proj.title || 'Project from CV',
                             description: (proj.description || '').substring(0, 250),
+                            start_date: safeDate(proj.start_date),
+                            end_date: safeDate(proj.end_date)
                         },
                     });
                 }
