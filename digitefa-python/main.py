@@ -426,8 +426,21 @@ async def parse_cv(file: UploadFile = File(...)):
                     sections[current_section].append(line.strip())
         
         # Clean up arrays
-        sections["skills"] = list(set([s for s in sections["skills"] if len(s) > 1 and len(s) < 30]))
-        sections["languages"] = list(set([s for s in sections["languages"] if len(s) > 1 and len(s) < 30]))
+        stop_words = ["dalam tim", "teknologi baru", "kerjasama", "komunikasi", "problem solving", "tanggung jawab"]
+        phone_pattern = re.compile(r"\+?\d[\d -]{8,15}")
+        
+        filtered_skills = []
+        for s in sections["skills"]:
+            s_clean = s.strip()
+            # Ignore if strictly numeric, matches phone, too short, too long, or is a stop word
+            if s_clean.isdigit(): continue
+            if phone_pattern.match(s_clean): continue
+            if len(s_clean) < 3 or len(s_clean) > 40: continue
+            if s_clean.lower() in stop_words: continue
+            filtered_skills.append(s_clean)
+            
+        sections["skills"] = list(set(filtered_skills))
+        sections["languages"] = list(set([s.strip() for s in sections["languages"] if len(s.strip()) > 1 and len(s.strip()) < 30]))
         sections["personal_summary"] = " ".join(sections["personal_summary"])
         
         # Filter projects and certs to ignore short junk lines
@@ -441,27 +454,65 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["certifications"] = " ".join(valid_certs)
 
         exp_list = []
-        current_exp = {"title": "Recent Experience", "company": "Unknown Company", "description": ""}
-        date_pattern = re.compile(r'\b(19|20)\d{2}\b|(Jan|Feb|Mar|Apr|May|Mei|Jun|Jul|Aug|Agu|Sep|Oct|Okt|Nov|Dec|Des)[a-z]*\s+(19|20)\d{2}', re.IGNORECASE)
+        date_pattern = re.compile(r'\b(?:19|20)\d{2}\b|(?:Jan|Feb|Mar|Apr|May|Mei|Jun|Jul|Aug|Agu|Sep|Oct|Okt|Nov|Dec|Des)[a-z]*\s+(?:19|20)\d{2}', re.IGNORECASE)
         
-        for idx, line in enumerate(sections["experience"]):
-            if date_pattern.search(line) and idx > 0:
-                if current_exp["description"]:
+        current_exp = None
+        for line in sections["experience"]:
+            line = line.strip()
+            if not line: continue
+            
+            # If line contains a date, it might be a new entry
+            dates = date_pattern.findall(line)
+            if dates or current_exp is None:
+                if current_exp:
                     exp_list.append(current_exp)
-                current_exp = {"title": line.strip()[:50], "company": "Extracted Company", "description": line.strip() + " "}
+                
+                # Try to separate title and company
+                parts = re.split(r' at | @ | - | – ', line, 1)
+                title = parts[0].strip()[:100]
+                company = parts[1].strip()[:100] if len(parts) > 1 else "Extracted Company"
+                
+                # Cleanup date from title if it's there
+                for d in dates:
+                    title = title.replace(d, "").strip()
+                
+                current_exp = {
+                    "title": title or "Experience",
+                    "company": company,
+                    "description": "",
+                    "start_date": dates[0] if len(dates) > 0 else "",
+                    "end_date": dates[1] if len(dates) > 1 else ("Present" if "present" in line.lower() or "sekarang" in line.lower() else "")
+                }
             else:
-                current_exp["description"] += line.strip() + " "
-                if idx == 0 and line.strip():
-                     current_exp["title"] = line.strip()[:50]
-        
-        if current_exp["description"].strip():
+                current_exp["description"] += line + " "
+
+        if current_exp:
             exp_list.append(current_exp)
             
-        if not exp_list and sections["experience"]:
-             exp_list.append({"title": "Experience from CV", "company": "Various", "description": " ".join(sections["experience"][:20])})
-             
         sections["experience_structured"] = exp_list
         sections["experience"] = " ".join(sections["experience"][:20])
+
+        # Handle Projects similarly
+        proj_list = []
+        for line in sections["projects"]:
+            line = line.strip()
+            if not line: continue
+            if len(line) < 10: continue
+            
+            dates = date_pattern.findall(line)
+            # Projects often don't have clear company, but let's try to extract title
+            title = line[:50]
+            for d in dates: title = title.replace(d, "").strip()
+            
+            proj_list.append({
+                "title": title or "Project",
+                "description": line,
+                "start_date": dates[0] if len(dates) > 0 else "",
+                "end_date": dates[1] if len(dates) > 1 else ""
+            })
+            
+        sections["projects_structured"] = proj_list[:5] # Limit to top 5
+        sections["projects"] = " ".join(sections["projects"][:20])
 
         edu_list = []
         current_edu = {"university": "Extracted University", "degree": "Degree", "major": "General", "description": ""}

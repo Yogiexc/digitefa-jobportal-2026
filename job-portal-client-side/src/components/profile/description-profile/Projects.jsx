@@ -7,7 +7,7 @@ dayjs.extend(customParseFormat);
 import ProjectsIcon from "../../../assets/svg/Projects.svg"
 
 const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) => {
-  const form = Form.useFormInstance();
+  const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState('');
 
   const closed = () => {
@@ -85,7 +85,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
             <Form.Item
               name="start_date"
               label="Start Date"
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'Start date cannot be empty' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />
@@ -95,7 +95,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
             <Form.Item
               name="end_date"
               label="End Date"
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'End date cannot be empty' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />
@@ -124,7 +124,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
           <Button onClick={handleCancel} style={{ width: 120, height: 40, borderRadius: 12, borderColor: "#BBB", marginRight: 8 }}>
             <span className='font-medium'> Cancel </span>
           </Button>
-          <Button type="primary" htmlType="submit" style={{width: 120, height: 40, borderRadius: 12}}>
+          <Button type="primary" htmlType="submit" style={{ width: 120, height: 40, borderRadius: 12 }}>
             <span className='font-medium'> Save </span>
           </Button>
         </div>

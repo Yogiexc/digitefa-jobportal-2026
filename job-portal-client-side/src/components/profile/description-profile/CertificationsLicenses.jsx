@@ -6,11 +6,11 @@ dayjs.extend(customParseFormat);
 import CertificationLicensesIcon from "../../../assets/svg/CertificationsLicenses.svg";
 
 const CertificationLicenses = ({ open, setOpen, section, initialValues, resetForm, action }) => {
-  const form = Form.useFormInstance();
+  const [form] = Form.useForm();
 
   const closed = () => {
     resetForm({})
-    setOpen(section, false)    
+    setOpen(section, false)
   }
 
   const handleFinish = async (values) => {
@@ -75,7 +75,7 @@ const CertificationLicenses = ({ open, setOpen, section, initialValues, resetFor
             <Form.Item
               name="issue_date"
               label="Issue Date"
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'Issues date cannot be empty' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />
@@ -85,7 +85,7 @@ const CertificationLicenses = ({ open, setOpen, section, initialValues, resetFor
             <Form.Item
               name="expiration_date"
               label="Expiration Date"
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'Expiration date cannot be empty' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />
@@ -120,10 +120,10 @@ const CertificationLicenses = ({ open, setOpen, section, initialValues, resetFor
         </Row>
 
         <div style={{ textAlign: 'center' }}>
-          <Button onClick={handleCancel} style={{ width: 120, height: 40, borderRadius: 12,  borderColor: "#BBB", marginRight: 8 }}>
+          <Button onClick={handleCancel} style={{ width: 120, height: 40, borderRadius: 12, borderColor: "#BBB", marginRight: 8 }}>
             <span className='font-medium'> Cancel </span>
           </Button>
-          <Button type="primary" htmlType="submit" style={{width: 120, height: 40, borderRadius: 12}}>
+          <Button type="primary" htmlType="submit" style={{ width: 120, height: 40, borderRadius: 12 }}>
             <span className='font-medium'> Save</span>
           </Button>
         </div>
