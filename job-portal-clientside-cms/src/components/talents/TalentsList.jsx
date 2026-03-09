@@ -39,8 +39,8 @@ const TalentsList = () => {
     setIsAILoading(true);
     try {
       const response = await Api.get(`/companies/search/ai-talents?job_description=${encodeURIComponent(aiJobDescription)}`);
-      setData(response.data.data);
-      setTotalData(response.data.totalData);
+      setData(response.data);
+      setTotalData(response.data?.length || 0);
       setIsAIModalOpen(false);
     } catch (error) {
       console.error(error);
@@ -115,7 +115,7 @@ const TalentsList = () => {
   const fetchData = (page, shouldFetchData) => {
     if (shouldFetchData) {
       setLoading(true);
-      const url = `/job-seekers/management/?page= ${page} & pageSize=${pageSize} & sortBy=${sortBy} & sortOrder=${sortOrder} & search=${search}`;
+      const url = `/job-seekers/management/?page=${page}&pageSize=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`;
       Api.get(url)
         .then((response) => {
           setData(response.data);

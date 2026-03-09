@@ -73,10 +73,10 @@ export declare class UniversitiesService {
     findOne(university_id: string): Promise<{
         status: string;
         data: {
-            university_id: string;
             email: string;
             full_name: string;
             status: import(".prisma/client").$Enums.status;
+            university_id: string;
             university_detail: {
                 university_detail_id: string;
                 university_id: string;
