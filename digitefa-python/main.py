@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sentence_transformers import SentenceTransformer, util
 import time 
@@ -10,8 +11,22 @@ import pdfplumber
 import re
 import io
 import os
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+from fastapi.responses import StreamingResponse
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
+# Configuration for wordcloud source
+JOBS_SEARCH_API_URL = os.getenv("JOBS_SEARCH_API_URL", "http://127.0.0.1:3000/api/jobs-search")
 
 # Changed model to MiniLM for faster inference and lightweight deployment
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
@@ -541,3 +556,57 @@ async def parse_cv(file: UploadFile = File(...)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/wordcloud")
+async def get_wordcloud():
+    """
+    Fetches all active jobs and generates a WordCloud image from their descriptions.
+    """
+    try:
+        # Fetch jobs from the NestJS backend
+        # We use a large pageSize to get a good sample of terms
+        response = requests.get(f"{JOBS_SEARCH_API_URL}?pageSize=100", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        jobs = data.get("data", [])
+        if not jobs:
+            # Fallback text if no jobs are available
+            text = "No jobs available for analysis. Digitefa Job Portal."
+        else:
+            # Combine all job titles and descriptions (if available in the list)
+            # Note: /jobs-search usually returns a summary, but let's take whatever text we have
+            text_parts = []
+            for job in jobs:
+                title = job.get("title", "")
+                location = job.get("location", "")
+                cat = job.get("category", "")
+                text_parts.append(f"{title} {location} {cat}")
+            
+            text = " ".join(text_parts)
+
+        # Generate WordCloud
+        wordcloud = WordCloud(
+            width=800, 
+            height=400, 
+            background_color='white',
+            colormap='viridis',
+            max_words=100
+        ).generate(text)
+
+        # Save to buffer
+        img_buffer = io.BytesIO()
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')
+        plt.tight_layout(pad=0)
+        plt.savefig(img_buffer, format='png')
+        plt.close()
+        
+        img_buffer.seek(0)
+        return StreamingResponse(img_buffer, media_type="image/png")
+
+    except Exception as e:
+        print(f"Error generating wordcloud: {str(e)}")
+        # Return a placeholder image or error
+        raise HTTPException(status_code=500, detail=f"Failed to generate wordcloud: {str(e)}")
