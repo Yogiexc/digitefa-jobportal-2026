@@ -16,9 +16,9 @@ class ChangeStatusApplicationsDto {
 }
 exports.ChangeStatusApplicationsDto = ChangeStatusApplicationsDto;
 __decorate([
-    (0, class_validator_1.IsEnum)(['accepted', 'rejected']),
+    (0, class_validator_1.IsEnum)(['accepted', 'rejected', 'waiting_interview']),
     (0, swagger_1.ApiProperty)({
-        enum: ['accepted', 'rejected'],
+        enum: ['accepted', 'rejected', 'waiting_interview'],
         description: 'This is a required property',
         default: 'accepted',
     }),

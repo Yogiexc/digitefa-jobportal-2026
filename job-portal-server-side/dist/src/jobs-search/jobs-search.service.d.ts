@@ -30,6 +30,7 @@ export declare class JobsSearchService {
             similarity_score: any;
             is_saved: boolean;
             is_applied: boolean;
+            application_status: any;
             applied_at: any;
             title: string;
             published_at: Date;
@@ -60,6 +61,7 @@ export declare class JobsSearchService {
             job_id: string;
             is_saved: boolean;
             is_applied: boolean;
+            application_status: any;
             title: string;
             published_at: Date;
             expired_at: Date;

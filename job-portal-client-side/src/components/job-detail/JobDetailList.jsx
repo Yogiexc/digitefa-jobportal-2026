@@ -305,6 +305,33 @@ const JobDetailList = ({ jobId }) => {
             </Button>
           </div>
 
+          {jobData?.is_applied && jobData?.application_status && (
+            <div className="mb-6 flex flex-col gap-2">
+              <h3 className="text-sm font-medium text-[#232323]">
+                Application Status
+              </h3>
+              <div 
+                className={`flex items-center justify-center p-2 rounded-xl text-xs font-semibold ${
+                  jobData.application_status === 'pending' ? 'bg-blue-100 text-blue-700' :
+                  jobData.application_status === 'waiting_interview' ? 'bg-yellow-100 text-yellow-700' :
+                  jobData.application_status === 'accepted' ? 'bg-green-100 text-green-700' :
+                  jobData.application_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {jobData.application_status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </div>
+              {jobData.application_status === 'waiting_interview' && (
+                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+                  <p className="text-xs text-yellow-800">
+                    <span className="font-semibold text-yellow-900">Note: </span> 
+                    Please check your email regularly. We have sent or will be sending you an interview invitation and further instructions.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {jobData?.recommendation?.matched_job === true && (
             <div className="items-center gap-2 p-3 mb-6 rounded-[12px] bg-[#E3FCEC] text-green-700">
               <div className="flex items-center justify-start gap-2">

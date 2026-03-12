@@ -302,6 +302,7 @@ model skills_requirement {
 
 enum applicant_status {
   pending
+  waiting_interview
   accepted
   rejected
 }

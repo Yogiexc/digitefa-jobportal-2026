@@ -2,12 +2,12 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum } from "class-validator";
 
 export class ChangeStatusApplicationsDto {
-    @IsEnum(['accepted', 'rejected'])
+    @IsEnum(['accepted', 'rejected', 'waiting_interview'])
     @ApiProperty({
-        enum: ['accepted', 'rejected'],
+        enum: ['accepted', 'rejected', 'waiting_interview'],
         description: 'This is a required property',
         default: 'accepted',
     })
-    status: "accepted" | "rejected";
+    status: "accepted" | "rejected" | "waiting_interview";
 
 }

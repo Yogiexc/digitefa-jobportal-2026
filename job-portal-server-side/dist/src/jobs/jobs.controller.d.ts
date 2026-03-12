@@ -44,8 +44,8 @@ export declare class JobsController {
         data: {
             status: string;
             total_applicants: number;
-            title: string;
             job_id: string;
+            title: string;
             published_at: Date;
             expired_at: Date;
         }[];
@@ -60,8 +60,8 @@ export declare class JobsController {
         data: {
             status: string;
             total_applicants: number;
-            title: string;
             job_id: string;
+            title: string;
             published_at: Date;
             expired_at: Date;
         }[];
@@ -202,6 +202,26 @@ export declare class JobsController {
         message: string;
         data: {
             jobSeeker: {
+                skills: {
+                    skill_id: string;
+                    skill_name: string;
+                    created_at: Date;
+                    updated_at: Date;
+                    job_seeker_detail_id: string | null;
+                }[];
+                job_seeker: {
+                    job_seeker_id: string;
+                    email: string;
+                    password: string;
+                    full_name: string;
+                    otp: string | null;
+                    otpExpires: Date | null;
+                    verified: import(".prisma/client").$Enums.verified;
+                    created_at: Date;
+                    updated_at: Date;
+                    lmsUserId: string | null;
+                    lmsLinkedAt: Date | null;
+                };
                 personal_info: {
                     personal_info_id: string;
                     job_seeker_detail_id: string;
@@ -238,20 +258,6 @@ export declare class JobsController {
                     created_at: Date;
                     updated_at: Date;
                 }[];
-                languages: {
-                    language_id: string;
-                    language_name: string;
-                    created_at: Date;
-                    updated_at: Date;
-                    job_seeker_detail_id: string | null;
-                }[];
-                skills: {
-                    skill_id: string;
-                    skill_name: string;
-                    created_at: Date;
-                    updated_at: Date;
-                    job_seeker_detail_id: string | null;
-                }[];
                 projects: {
                     project_id: string;
                     job_seeker_detail_id: string;
@@ -273,19 +279,13 @@ export declare class JobsController {
                     created_at: Date;
                     updated_at: Date;
                 }[];
-                job_seeker: {
-                    job_seeker_id: string;
-                    email: string;
-                    password: string;
-                    full_name: string;
-                    otp: string | null;
-                    otpExpires: Date | null;
-                    verified: import(".prisma/client").$Enums.verified;
+                languages: {
+                    language_id: string;
+                    language_name: string;
                     created_at: Date;
                     updated_at: Date;
-                    lmsUserId: string | null;
-                    lmsLinkedAt: Date | null;
-                };
+                    job_seeker_detail_id: string | null;
+                }[];
             } & {
                 job_seeker_detail_id: string;
                 job_seeker_id: string;
@@ -303,6 +303,7 @@ export declare class JobsController {
         message: string;
         totalData: number;
         totalPending: number;
+        totalWaitingInterview: number;
         totalAccepted: number;
         totalRejected: number;
         totalPages: number;
