@@ -5,11 +5,13 @@ import { Form, Button, message } from "antd";
 import { InputOTP } from "antd-input-otp";
 import Api from "../../services/Api";
 import LockIcon from "../../assets/svg/Lock.svg";
+import { useUserContext } from "../../UserContext";
 
 const VerificationAccount = () => {
   const [form] = Form.useForm();
   const [value, setValue] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { setUserData } = useUserContext();
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = location;
@@ -47,16 +49,18 @@ const VerificationAccount = () => {
         expiresAt: expiration.getTime(),
       };
       const userData = {
-        id: data.user.admin_id,
+        id: data.user.job_seeker_id || data.user.admin_id,
         name: data.user.full_name,
+        email: data.user.email || email,
         role: data.user.role,
         expiresAt: expiration.getTime(),
       };
 
       localStorage.setItem("token", JSON.stringify(tokenData));
       localStorage.setItem("userData", JSON.stringify(userData));
+      setUserData(userData);
       message.destroy();
-      message.success("Email verified successfully. Please login to continue.");
+      message.success("Email verified successfully. You are now logged in.");
       navigate("/verification-successfully", {
         state: { ...state, userData: state.userData },
       });

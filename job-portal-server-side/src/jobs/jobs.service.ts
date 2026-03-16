@@ -987,10 +987,10 @@ export class JobsService {
         orderBy: {
           ...(sortBy === 'match_scores'
             ? {
-                match_scores: {
-                  overall: sortOrder,
-                },
-              }
+              match_scores: {
+                overall: sortOrder,
+              },
+            }
             : { [sortBy]: sortOrder }),
         },
         select: {
@@ -1632,7 +1632,7 @@ export class JobsService {
           const existingInterview = await (tx as any).interviews.findUnique({
             where: { application_id }
           });
-          
+
           if (existingInterview) {
             await (tx as any).interviews.update({
               where: { application_id },
@@ -1691,10 +1691,8 @@ export class JobsService {
 
     if (search) {
       whereCondition.application.job_seeker = {
-        user: {
-          full_name: {
-            contains: search
-          }
+        full_name: {
+          contains: search
         }
       };
     }
@@ -1705,9 +1703,7 @@ export class JobsService {
         application: {
           include: {
             job: true,
-            job_seeker: {
-              include: { user: true }
-            }
+            job_seeker: true
           }
         }
       },

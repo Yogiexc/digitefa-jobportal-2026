@@ -38,6 +38,9 @@ let JobsController = class JobsController {
             status,
         });
     }
+    async getCompanyInterviews(req, page = '1', limit = '10', search) {
+        return this.jobsService.getCompanyInterviews(req.user, parseInt(page), parseInt(limit), search);
+    }
     findAllJobCompany(req, company_id, page, pageSize, search, sortBy, sortOrder, status) {
         return this.jobsService.findAllJobCompany(req.user, company_id, {
             page,
@@ -100,9 +103,6 @@ let JobsController = class JobsController {
     }
     async changeStatusApplicant(req, application_id, changeStatusApplicationsDto) {
         return this.jobsService.changeStatusApplicant(req.user, application_id, changeStatusApplicationsDto);
-    }
-    async getCompanyInterviews(req, page = '1', limit = '10', search) {
-        return this.jobsService.getCompanyInterviews(req.user, parseInt(page), parseInt(limit), search);
     }
     async inviteTalent(req, job_id, inviteTalentDto) {
         return this.jobsService.inviteTalent(req.user, job_id, inviteTalentDto.job_seeker_id);
@@ -191,6 +191,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number, Number, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], JobsController.prototype, "findAll", null);
+__decorate([
+    (0, swagger_1.ApiTags)('jobs-applicants'),
+    (0, common_1.Get)('jobs/company/interviews'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['company'])),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all interviews for a company' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('search')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:returntype", Promise)
+], JobsController.prototype, "getCompanyInterviews", null);
 __decorate([
     (0, swagger_1.ApiTags)('companies'),
     (0, common_1.Get)('jobs/company/:company_id'),
@@ -487,23 +504,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, change_status_applications_dto_1.ChangeStatusApplicationsDto]),
     __metadata("design:returntype", Promise)
 ], JobsController.prototype, "changeStatusApplicant", null);
-__decorate([
-    (0, swagger_1.ApiTags)('jobs-applicants'),
-    (0, common_1.Get)('jobs/company/interviews'),
-    (0, swagger_1.ApiBearerAuth)('access-token'),
-    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['company'])),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all interviews for a company' }),
-    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
-    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String }),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Query)('page')),
-    __param(2, (0, common_1.Query)('limit')),
-    __param(3, (0, common_1.Query)('search')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String]),
-    __metadata("design:returntype", Promise)
-], JobsController.prototype, "getCompanyInterviews", null);
 __decorate([
     (0, swagger_1.ApiTags)('jobs-invitations'),
     (0, common_1.Post)('jobs/:job_id/invite'),

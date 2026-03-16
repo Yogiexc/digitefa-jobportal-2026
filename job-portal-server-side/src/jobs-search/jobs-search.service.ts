@@ -385,8 +385,16 @@ export class JobsSearchService {
             select: {
               saved_jobs: true,
               applications: {
-                include: { interviews: true },
+                select: {
+                  application_id: true,
+                  job_id: true,
+                  status: true,
+                  applied_at: true,
+                  interviews: true,
+                } as any,
               },
+            },
+          },
         },
       });
     }

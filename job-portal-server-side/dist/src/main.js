@@ -7,6 +7,9 @@ const swagger_1 = require("@nestjs/swagger");
 const static_files_middleware_1 = require("./middleware/static-files.middleware");
 const config_1 = require("@nestjs/config");
 require("dotenv/config");
+BigInt.prototype.toJSON = function () {
+    return Number(this);
+};
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const configService = app.get(config_1.ConfigService);

@@ -51,6 +51,15 @@ export declare class JobsController {
             expired_at: Date;
         }[];
     }>;
+    getCompanyInterviews(req: any, page?: string, limit?: string, search?: string): Promise<{
+        status: string;
+        data: any;
+        meta: {
+            total: any;
+            page: number;
+            last_page: number;
+        };
+    }>;
     findAllJobCompany(req: any, company_id: string, page?: number, pageSize?: number, search?: string, sortBy?: string, sortOrder?: 'asc' | 'desc', status?: string): Promise<{
         status: string;
         message: string;
@@ -352,15 +361,6 @@ export declare class JobsController {
     changeStatusApplicant(req: any, application_id: string, changeStatusApplicationsDto: ChangeStatusApplicationsDto): Promise<{
         status: string;
         message: string;
-    }>;
-    getCompanyInterviews(req: any, page?: string, limit?: string, search?: string): Promise<{
-        status: string;
-        data: any;
-        meta: {
-            total: any;
-            page: number;
-            last_page: number;
-        };
     }>;
     inviteTalent(req: any, job_id: string, inviteTalentDto: InviteTalentDto): Promise<{
         status: string;

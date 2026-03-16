@@ -1394,10 +1394,8 @@ let JobsService = class JobsService {
         };
         if (search) {
             whereCondition.application.job_seeker = {
-                user: {
-                    full_name: {
-                        contains: search
-                    }
+                full_name: {
+                    contains: search
                 }
             };
         }
@@ -1407,9 +1405,7 @@ let JobsService = class JobsService {
                 application: {
                     include: {
                         job: true,
-                        job_seeker: {
-                            include: { user: true }
-                        }
+                        job_seeker: true
                     }
                 }
             },

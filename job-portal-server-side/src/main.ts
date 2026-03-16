@@ -6,6 +6,10 @@ import { StaticFilesMiddleware } from './middleware/static-files.middleware';
 import { ConfigService } from '@nestjs/config';
 import 'dotenv/config';
 
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);

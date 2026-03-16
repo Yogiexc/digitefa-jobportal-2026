@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { Table, Input, message } from "antd";
+import { Table, Input, App } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Api from "../../services/Api";
 import Pagination from "../Pagination";
 
 const InterviewListTable = () => {
+  const { message } = App.useApp();
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,7 +34,7 @@ const InterviewListTable = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [pageSize, searchQuery]);
+  }, [pageSize, searchQuery, message]);
 
   useEffect(() => {
     fetchInterviews(currentPage);
@@ -61,7 +62,7 @@ const InterviewListTable = () => {
       title: "Candidate Name",
       dataIndex: "candidate_name",
       key: "candidate_name",
-      render: (_, record) => record.application?.job_seeker?.user?.full_name || "N/A",
+      render: (_, record) => record.application?.job_seeker?.full_name || "N/A",
     },
     {
       title: "Interview Date",
