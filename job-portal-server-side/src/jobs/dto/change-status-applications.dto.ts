@@ -2,14 +2,13 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsOptional, IsString } from "class-validator";
 
 export class ChangeStatusApplicationsDto {
-    @IsEnum(['screening', 'interviewing', 'accepted', 'rejected'])
-    @ApiProperty({
-        enum: ['screening', 'interviewing', 'accepted', 'rejected'],
-        description: 'Status update for application',
-        default: 'screening',
-    })
-    status: "screening" | "interviewing" | "accepted" | "rejected";
-
+@IsEnum(['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected'])
+@ApiProperty({
+    enum: ['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected'],
+    description: 'Status update for application',
+    default: 'screening',
+})
+status: "screening" | "waiting_interview" | "interviewing" | "accepted" | "rejected";
     @IsOptional()
     @IsString()
     @ApiProperty({ required: false, description: 'Interview date if status is interviewing' })

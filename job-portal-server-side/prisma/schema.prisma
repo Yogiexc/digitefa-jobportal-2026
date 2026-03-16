@@ -306,6 +306,7 @@ enum applicant_status {
   pending
   screening
   interviewing
+  waiting_interview
   accepted
   rejected
 }

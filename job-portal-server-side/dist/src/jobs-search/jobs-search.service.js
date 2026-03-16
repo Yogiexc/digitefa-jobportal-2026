@@ -247,6 +247,7 @@ let JobsSearchService = class JobsSearchService {
                     similarity_score: job.similarity_score ?? undefined,
                     is_saved: savedJob ? true : false,
                     is_applied: appliedJob ? true : false,
+                    application_status: appliedJob ? appliedJob.status : null,
                     applied_at: appliedJob ? appliedJob.applied_at : null,
                     title: job.title,
                     published_at: job.published_at,

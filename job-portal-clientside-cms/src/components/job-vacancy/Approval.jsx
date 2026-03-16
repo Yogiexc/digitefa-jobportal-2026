@@ -124,6 +124,9 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
               <Select.Option value="accepted">
                 <span className="text-green-500"> Accepted </span>
               </Select.Option>
+              <Select.Option value="waiting_interview">
+                <span className="text-yellow-500"> Waiting Interview </span>
+              </Select.Option>
               <Select.Option value="rejected">
                 <span className="text-red-500"> Rejected </span>
               </Select.Option>

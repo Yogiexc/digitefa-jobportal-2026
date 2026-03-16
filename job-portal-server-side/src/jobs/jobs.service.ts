@@ -1266,6 +1266,49 @@ export class JobsService {
         },
       });
 
+      const totalWaitingInterview = await this.prisma.applications.count({
+        where: {
+          job_id,
+          status: 'waiting_interview',
+          ...(search && {
+            OR: [
+              {
+                job_seeker: {
+                  full_name: { contains: search },
+                },
+              },
+              {
+                job_seeker: {
+                  job_seeker_detail: {
+                    personal_info: {
+                      address: { contains: search },
+                    },
+                  },
+                },
+              },
+              {
+                job_seeker: {
+                  job_seeker_detail: {
+                    education: {
+                      major: { contains: search },
+                    },
+                  },
+                },
+              },
+            ],
+          }),
+          ...(location && {
+            job_seeker: {
+              job_seeker_detail: {
+                personal_info: {
+                  address: { contains: location },
+                },
+              },
+            },
+          }),
+        },
+      });
+
       const totalRejected = await this.prisma.applications.count({
         where: {
           job_id,
@@ -1316,6 +1359,7 @@ export class JobsService {
         message: 'Applicants retrieved successfully',
         totalData: +totalData,
         totalPending: +totalPending,
+        totalWaitingInterview: +totalWaitingInterview,
         totalAccepted: +totalAccepted,
         totalRejected: +totalRejected,
         totalPages: +totalPages,

@@ -16,9 +16,9 @@ class ChangeStatusApplicationsDto {
 }
 exports.ChangeStatusApplicationsDto = ChangeStatusApplicationsDto;
 __decorate([
-    (0, class_validator_1.IsEnum)(['screening', 'interviewing', 'accepted', 'rejected']),
+    (0, class_validator_1.IsEnum)(['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected']),
     (0, swagger_1.ApiProperty)({
-        enum: ['screening', 'interviewing', 'accepted', 'rejected'],
+        enum: ['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected'],
         description: 'Status update for application',
         default: 'screening',
     }),

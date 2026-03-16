@@ -309,16 +309,32 @@ const JobDetailList = ({ jobId }) => {
             </Button>
           </div>
 
-          {jobData?.application_status === 'interviewing' && jobData?.interview && (
-            <div className="p-4 mb-6 rounded-[12px] bg-[#EEF2FF] border border-[#C7D2FE] shadow-sm">
-              <h4 className="text-[#3730A3] font-semibold text-sm mb-2">Invitation to Interview</h4>
-              <div className="text-xs text-[#3730A3] space-y-2">
-                <p><strong>Date:</strong> {new Date(jobData.interview.interview_date).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                <p><strong>Location / Link:</strong> {jobData.interview.meeting_link ? (jobData.interview.meeting_link.startsWith('http') ? <a href={jobData.interview.meeting_link} target="_blank" rel="noopener noreferrer" className="underline font-medium">Join Meeting</a> : jobData.interview.meeting_link) : "TBD"}</p>
-                {jobData.interview.notes && (
-                  <p><strong>Notes:</strong> {jobData.interview.notes}</p>
-                )}
+
+          {jobData?.is_applied && jobData?.application_status && (
+            <div className="mb-6 flex flex-col gap-2">
+              <h3 className="text-sm font-medium text-[#232323]">
+                Application Status
+              </h3>
+              <div 
+                className={`flex items-center justify-center p-2 rounded-xl text-xs font-semibold ${
+                  jobData.application_status === 'pending' ? 'bg-blue-100 text-blue-700' :
+                  jobData.application_status === 'waiting_interview' ? 'bg-yellow-100 text-yellow-700' :
+                  jobData.application_status === 'accepted' ? 'bg-green-100 text-green-700' :
+                  jobData.application_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {jobData.application_status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </div>
+              {jobData.application_status === 'waiting_interview' && (
+                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+                  <p className="text-xs text-yellow-800">
+                    <span className="font-semibold text-yellow-900">Note: </span> 
+                    Please check your email regularly. We have sent or will be sending you an interview invitation and further instructions.
+                  </p>
+                </div>
+              )}
+
             </div>
           )}
 
