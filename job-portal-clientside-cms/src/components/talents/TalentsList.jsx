@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dropdown, Input, Layout, Menu, Select, Table, Button, Modal, message } from "antd";
-import { ClockIcon, EllipsisVerticalIcon, EyeIcon, MagnifyingGlassIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { ClockIcon, EllipsisVerticalIcon, EyeIcon, MagnifyingGlassIcon, SparklesIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import Show from "./Show";
 import HistoryApplicants from "./HistoryApplicants";
@@ -28,8 +28,44 @@ const TalentsList = () => {
   const [aiJobDescription, setAiJobDescription] = useState("");
   const [isAILoading, setIsAILoading] = useState(false);
 
-  const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+  const userData = JSON.parse(localStorage.getItem("userData") || "sessionStorage" in window ? sessionStorage.getItem("userData") || "{}" : "{}");
   const isCompany = userData?.role === "company";
+
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [activeJobs, setActiveJobs] = useState([]);
+  const [selectedJobToInvite, setSelectedJobToInvite] = useState(null);
+  const [isInviting, setIsInviting] = useState(false);
+
+  useEffect(() => {
+    if (isCompany && isInviteModalOpen) {
+      // Fetch company jobs
+      Api.get("/jobs")
+        .then(res => {
+          setActiveJobs(res.data || []);
+        })
+        .catch(err => console.error("Failed to fetch jobs for invitation", err));
+    }
+  }, [isCompany, isInviteModalOpen]);
+
+  const handleSendInvite = async () => {
+    if (!selectedJobToInvite) {
+      message.error("Please select a job to invite the talent to.");
+      return;
+    }
+    setIsInviting(true);
+    try {
+      await Api.post(`/jobs/${selectedJobToInvite}/invite`, {
+        job_seeker_id: selectedStudentData
+      });
+      message.success("Invitation sent successfully!");
+      setIsInviteModalOpen(false);
+      setSelectedJobToInvite(null);
+    } catch (error) {
+       message.error(error.response?.data?.message || "Failed to send invitation.");
+    } finally {
+      setIsInviting(false);
+    }
+  };
 
   const handleAISearch = async () => {
     if (!aiJobDescription.trim()) {
@@ -59,6 +95,8 @@ const TalentsList = () => {
     } else if (action === "history_applicants") {
       setOpenHistoryApplicants(true);
       setView('history_applicants');
+    } else if (action === "invite") {
+      setIsInviteModalOpen(true);
     }
   };
 
@@ -71,6 +109,11 @@ const TalentsList = () => {
       <Menu.Item key="history_applicants" icon={<ClockIcon className="size-5" />}>
         History Applicants
       </Menu.Item>
+      {isCompany && (
+        <Menu.Item key="invite" icon={<EnvelopeIcon className="size-5" />}>
+          Invite to Apply
+        </Menu.Item>
+      )}
     </Menu>
   );
 
@@ -250,6 +293,29 @@ const TalentsList = () => {
               value={aiJobDescription}
               onChange={(e) => setAiJobDescription(e.target.value)}
               style={{ borderRadius: 8 }}
+            />
+          </Modal>
+
+          <Modal
+            title={<><EnvelopeIcon className="w-5 h-5 inline-block mr-2 text-green-600"/> Invite Talent</>}
+            open={isInviteModalOpen}
+            onCancel={() => { setIsInviteModalOpen(false); setSelectedJobToInvite(null); }}
+            onOk={handleSendInvite}
+            okText="Send Invitation"
+            confirmLoading={isInviting}
+            okButtonProps={{ style: { backgroundColor: "#15BF64", borderRadius: 8 } }}
+            cancelButtonProps={{ style: { borderRadius: 8 } }}
+          >
+            <p className="mb-4 text-gray-600">Please select which of your active job vacancies you would like to invite this talent to apply for:</p>
+            <Select
+              placeholder="Select Job Vacancy"
+              style={{ width: '100%' }}
+              value={selectedJobToInvite}
+              onChange={setSelectedJobToInvite}
+              options={activeJobs.map(job => ({
+                value: job.job_id,
+                label: job.title
+              }))}
             />
           </Modal>
 

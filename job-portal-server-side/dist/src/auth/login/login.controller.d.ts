@@ -2,10 +2,21 @@ import { LoginService } from './login.service';
 import { LoginJobSeekerDto } from './dto/loginJobSeeker.dto';
 import { LoginCMSDto } from './dto/loginCMS.dto';
 import { LoginGoogleDto } from './dto/loginGoogle.dto';
+import { SsoLmsDto } from './dto/ssoLms.dto';
 export declare class LoginController {
     private loginService;
     constructor(loginService: LoginService);
     loginGoogle(loginGoogleDto: LoginGoogleDto): Promise<{
+        status: string;
+        message: string;
+        data: {
+            token: string;
+            user: {
+                [k: string]: string | Date;
+            };
+        };
+    }>;
+    ssoLms(ssoLmsDto: SsoLmsDto): Promise<{
         status: string;
         message: string;
         data: {

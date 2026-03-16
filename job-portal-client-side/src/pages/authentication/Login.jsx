@@ -101,22 +101,26 @@ const Login = () => {
       // navigateTo("/");
       window.location.href = "/";
     } catch (error) {
-      messageku(error);
       console.log(error);
-      if (error.data.statusCode) {
-        if (error.data.statusCode === 409) {
+      const statusCode = error?.response?.data?.statusCode || error?.data?.statusCode;
+      
+      if (statusCode) {
+        if (statusCode === 409) {
           message.destroy();
           message.error(
             "User not found. Please register to create an account."
           );
-        } else if (error.data.statusCode === 401) {
+        } else if (statusCode === 401) {
           message.destroy();
           message.error(
             "Incorrect password. Please check your password again."
           );
         } else {
-          message.error("Login failed. Please try again.");
+          messageku(error?.response?.data?.message || "Login failed.");
         }
+      } else {
+        message.destroy();
+        message.error("Network error. Could not connect to the server.");
       }
     } finally {
       setLoading(false);

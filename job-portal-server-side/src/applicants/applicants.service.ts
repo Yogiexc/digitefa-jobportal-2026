@@ -112,41 +112,58 @@ export class ApplicantsService {
         : '';
       const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
-      const jobsPayload = [
-        {
-          id: job.job_id,
-          job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
-        },
-      ];
+      const jobPayload = {
+        title: job.title || '',
+        description: job.description || '',
+        skills_requirement: job.skills_requirement.map((s) => s.skill).join(', ') || '',
+        education_requirement: job.education_requirement || '',
+        experience_requirement: job.experience_requirement || '',
+      };
+
+      const candidatePayload = {
+        skills: jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '',
+        experience: jobSeeker.experiences?.map((e) => `${e.experience_title} at ${e.company_name} - ${e.description}`).join('; ') || '',
+        summary: jobSeeker.personal_summary || '',
+        education: jobSeeker.education ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}` : '',
+        others: [
+          ...(jobSeeker.projects?.map(p => p.project_name) || []),
+          ...(jobSeeker.certifications?.map(c => c.certification_name) || [])
+        ].join(', ')
+      };
 
       try {
         const gpythonUrl = process.env.URL_SERVER_PYTHON;
-        const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
+        const res = await fetch(`${gpythonUrl}/calculate-match-score`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            talent_profile_text: profileText,
-            jobs: jobsPayload,
+            job: jobPayload,
+            candidate: candidatePayload,
           }),
         });
 
         if (res.ok) {
           const parsed = await res.json();
-          recommendedJobs = parsed.results.map((r: any) => ({
-            job_id: r.job_id,
-            similarity_score: r.score,
-            match_details: {
-              personal_summary_match: r.score,
-              skills_match: r.score,
-              education_match: r.score,
-              experience_match: r.score,
-              certifications_match: null,
-              projects_match: null,
-            },
-          }));
+          if (parsed.status === 'success') {
+            const scores = parsed.data;
+            recommendedJobs = [
+              {
+                job_id: job.job_id,
+                similarity_score: scores.overall,
+                match_details: {
+                  personal_summary_match: scores.summary,
+                  skills_match: scores.skills,
+                  education_match: scores.education,
+                  experience_match: scores.experience,
+                  certifications_match: scores.others,
+                  projects_match: scores.others,
+                },
+              }
+            ];
+          }
         }
       } catch (error) {
-        console.error('Error hitting Python API:', error);
+        console.error('Error hitting Python calculate-match-score API:', error);
       }
     }
 
@@ -182,12 +199,12 @@ export class ApplicantsService {
             overall: Number(
               (recommendedJobs[0].similarity_score * 100).toFixed(2),
             ),
-            summary: matchScores.personal_summary_match ?? null,
-            skills: matchScores.skills_match ?? null,
-            education: matchScores.education_match ?? null,
-            experience: matchScores.experience_match ?? null,
-            certifications: matchScores.certifications_match ?? null,
-            projects: matchScores.projects_match ?? null,
+            summary: matchScores.personal_summary_match !== undefined ? Number((matchScores.personal_summary_match * 100).toFixed(2)) : null,
+            skills: matchScores.skills_match !== undefined ? Number((matchScores.skills_match * 100).toFixed(2)) : null,
+            education: matchScores.education_match !== undefined ? Number((matchScores.education_match * 100).toFixed(2)) : null,
+            experience: matchScores.experience_match !== undefined ? Number((matchScores.experience_match * 100).toFixed(2)) : null,
+            certifications: matchScores.certifications_match !== undefined ? Number((matchScores.certifications_match * 100).toFixed(2)) : null,
+            projects: matchScores.projects_match !== undefined ? Number((matchScores.projects_match * 100).toFixed(2)) : null,
           },
         });
 

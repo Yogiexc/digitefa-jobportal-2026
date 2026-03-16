@@ -383,9 +383,9 @@ export class JobsSearchService {
           job_seeker: {
             select: {
               saved_jobs: true,
-              applications: true,
-            },
-          },
+              applications: {
+                include: { interviews: true },
+              },
         },
       });
     }
@@ -533,6 +533,8 @@ export class JobsSearchService {
         job_id: job.job_id,
         is_saved: savedJob ? true : false,
         is_applied: appliedJob ? true : false,
+        application_status: appliedJob ? appliedJob.status : null,
+        interview: (appliedJob && appliedJob.interviews) ? appliedJob.interviews : null,
         title: job.title,
         published_at: job.published_at,
         expired_at: job.expired_at,

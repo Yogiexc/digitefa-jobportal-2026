@@ -60,6 +60,8 @@ export declare class JobsSearchService {
             job_id: string;
             is_saved: boolean;
             is_applied: boolean;
+            application_status: any;
+            interview: any;
             title: string;
             published_at: Date;
             expired_at: Date;

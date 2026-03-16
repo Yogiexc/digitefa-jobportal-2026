@@ -284,7 +284,11 @@ const JobDetailList = ({ jobId }) => {
             >
               <span className="text-xs font-medium">
                 {" "}
-                {jobData?.is_applied ? "Applied" : "Apply"}{" "}
+                {jobData?.application_status === 'interviewing'
+                  ? 'Interview Scheduled'
+                  : jobData?.is_applied
+                  ? "Applied"
+                  : "Apply"}{" "}
               </span>
             </Button>
             <Button
@@ -304,6 +308,19 @@ const JobDetailList = ({ jobId }) => {
               />
             </Button>
           </div>
+
+          {jobData?.application_status === 'interviewing' && jobData?.interview && (
+            <div className="p-4 mb-6 rounded-[12px] bg-[#EEF2FF] border border-[#C7D2FE] shadow-sm">
+              <h4 className="text-[#3730A3] font-semibold text-sm mb-2">Invitation to Interview</h4>
+              <div className="text-xs text-[#3730A3] space-y-2">
+                <p><strong>Date:</strong> {new Date(jobData.interview.interview_date).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                <p><strong>Location / Link:</strong> {jobData.interview.meeting_link ? (jobData.interview.meeting_link.startsWith('http') ? <a href={jobData.interview.meeting_link} target="_blank" rel="noopener noreferrer" className="underline font-medium">Join Meeting</a> : jobData.interview.meeting_link) : "TBD"}</p>
+                {jobData.interview.notes && (
+                  <p><strong>Notes:</strong> {jobData.interview.notes}</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {jobData?.recommendation?.matched_job === true && (
             <div className="items-center gap-2 p-3 mb-6 rounded-[12px] bg-[#E3FCEC] text-green-700">

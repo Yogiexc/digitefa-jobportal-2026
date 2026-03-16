@@ -260,7 +260,67 @@ def compare_two_texts(request: TextComparisonRequest):
 # NEW ENHANCEMENT ENDPOINTS 
 # ---------------------------------------------------------
 
+class MatchScoreJobData(BaseModel):
+    title: str = ""
+    description: str = ""
+    skills_requirement: str = ""
+    education_requirement: str = ""
+    experience_requirement: str = ""
+
+class MatchScoreCandidateData(BaseModel):
+    skills: str = ""
+    experience: str = ""
+    summary: str = ""
+    education: str = ""
+    others: str = ""
+
+class MatchScoreRequest(BaseModel):
+    job: MatchScoreJobData
+    candidate: MatchScoreCandidateData
+
+@app.post("/calculate-match-score")
+def calculate_match_score(req: MatchScoreRequest):
+    """
+    Calculates weighted match score based on 5 parameters:
+    Skill (40%), Experience (25%), Summary (10%), Education (10%), Others (15%)
+    """
+    def get_sim(text1, text2):
+        if not text1.strip() or not text2.strip():
+            return 0.0
+        try:
+            emb1 = model.encode(text1, convert_to_tensor=True)
+            emb2 = model.encode(text2, convert_to_tensor=True)
+            score = float(util.cos_sim(emb1, emb2)[0][0].cpu().numpy())
+            return max(0.0, score) # Prevent negative cosine similarity
+        except:
+            return 0.0
+
+    skill_score = get_sim(req.job.skills_requirement, req.candidate.skills)
+    exp_score = get_sim(req.job.experience_requirement + " " + req.job.description, req.candidate.experience)
+    summary_score = get_sim(req.job.description, req.candidate.summary)
+    edu_score = get_sim(req.job.education_requirement, req.candidate.education)
+    others_score = get_sim(req.job.description, req.candidate.others)
+    
+    overall = (skill_score * 0.40) + \
+              (exp_score * 0.25) + \
+              (summary_score * 0.10) + \
+              (edu_score * 0.10) + \
+              (others_score * 0.15)
+
+    return {
+        "status": "success",
+        "data": {
+            "overall": round(overall, 4),
+            "skills": round(skill_score, 4),
+            "experience": round(exp_score, 4),
+            "summary": round(summary_score, 4),
+            "education": round(edu_score, 4),
+            "others": round(others_score, 4)
+        }
+    }
+
 class TalentProfile(BaseModel):
+
     id: str
     profile_text: str
 
@@ -565,11 +625,15 @@ async def get_wordcloud():
     try:
         # Fetch jobs from the NestJS backend
         # We use a large pageSize to get a good sample of terms
-        response = requests.get(f"{JOBS_SEARCH_API_URL}?pageSize=100", timeout=10)
-        response.raise_for_status()
-        data = response.json()
+        try:
+            response = requests.get(f"{JOBS_SEARCH_API_URL}?pageSize=100", timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            jobs = data.get("data", [])
+        except Exception as e:
+            print(f"Warning: Could not fetch jobs from backend for wordcloud: {str(e)}")
+            jobs = []
         
-        jobs = data.get("data", [])
         if not jobs:
             # Fallback text if no jobs are available
             text = "No jobs available for analysis. Digitefa Job Portal."

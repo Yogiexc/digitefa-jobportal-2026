@@ -16,12 +16,30 @@ class ChangeStatusApplicationsDto {
 }
 exports.ChangeStatusApplicationsDto = ChangeStatusApplicationsDto;
 __decorate([
-    (0, class_validator_1.IsEnum)(['accepted', 'rejected']),
+    (0, class_validator_1.IsEnum)(['screening', 'interviewing', 'accepted', 'rejected']),
     (0, swagger_1.ApiProperty)({
-        enum: ['accepted', 'rejected'],
-        description: 'This is a required property',
-        default: 'accepted',
+        enum: ['screening', 'interviewing', 'accepted', 'rejected'],
+        description: 'Status update for application',
+        default: 'screening',
     }),
     __metadata("design:type", String)
 ], ChangeStatusApplicationsDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Interview date if status is interviewing' }),
+    __metadata("design:type", String)
+], ChangeStatusApplicationsDto.prototype, "interview_date", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Meeting link if status is interviewing' }),
+    __metadata("design:type", String)
+], ChangeStatusApplicationsDto.prototype, "meeting_link", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Notes if status is interviewing' }),
+    __metadata("design:type", String)
+], ChangeStatusApplicationsDto.prototype, "notes", void 0);
 //# sourceMappingURL=change-status-applications.dto.js.map

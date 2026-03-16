@@ -37,6 +37,11 @@ export declare class ProfileService {
         message: string;
         data: any;
     }>;
+    cvAutofillConfirm(user: any, parsedData: any): Promise<{
+        status: string;
+        message: string;
+        data: any;
+    }>;
     deleteEducation(user: any): Promise<{
         status: string;
         message: string;

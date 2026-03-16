@@ -46,6 +46,12 @@ let ProfileController = class ProfileController {
         }
         return this.profileService.cvAutofill(req.user, file);
     }
+    async cvAutofillConfirm(req, body) {
+        if (!body || !body.parsedData) {
+            throw new common_1.BadRequestException('Parsed data is required');
+        }
+        return this.profileService.cvAutofillConfirm(req.user, body.parsedData);
+    }
     async deleteEducation(req) {
         return this.profileService.deleteEducation(req.user);
     }
@@ -123,6 +129,18 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "cvAutofill", null);
+__decorate([
+    (0, common_1.Post)('cv-autofill-confirm'),
+    (0, swagger_1.ApiConsumes)('application/json'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Confirm and save auto-filled profile data' }),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ProfileController.prototype, "cvAutofillConfirm", null);
 __decorate([
     (0, common_1.Delete)('education'),
     (0, swagger_1.ApiBearerAuth)('access-token'),

@@ -96,6 +96,18 @@ export class ProfileController {
     return this.profileService.cvAutofill(req.user, file);
   }
 
+  @Post('cv-autofill-confirm')
+  @ApiConsumes('application/json')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Confirm and save auto-filled profile data' })
+  @UseGuards(JwtAuthGuard)
+  async cvAutofillConfirm(@Request() req, @Body() body: any) {
+    if (!body || !body.parsedData) {
+      throw new BadRequestException('Parsed data is required');
+    }
+    return this.profileService.cvAutofillConfirm(req.user, body.parsedData);
+  }
+
   @Delete('education')
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Delete user education' })

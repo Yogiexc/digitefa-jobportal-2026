@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginJobSeekerDto } from './dto/loginJobSeeker.dto';
 import { LoginCMSDto } from './dto/loginCMS.dto';
+import { SsoLmsDto } from './dto/ssoLms.dto';
 export declare class LoginService {
     private prisma;
     private jwtService;
@@ -19,6 +20,16 @@ export declare class LoginService {
         };
     }>;
     loginGoogle(credential: any): Promise<{
+        status: string;
+        message: string;
+        data: {
+            token: string;
+            user: {
+                [k: string]: string | Date;
+            };
+        };
+    }>;
+    ssoLms(dto: SsoLmsDto): Promise<{
         status: string;
         message: string;
         data: {

@@ -2,6 +2,7 @@ import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { ChangeStatusApplicationsDto } from './dto/change-status-applications.dto';
+import { InviteTalentDto } from './dto/invite-talent.dto';
 export declare class JobsController {
     private readonly jobsService;
     constructor(jobsService: JobsService);
@@ -348,6 +349,19 @@ export declare class JobsController {
         data: string;
     }>;
     changeStatusApplicant(req: any, application_id: string, changeStatusApplicationsDto: ChangeStatusApplicationsDto): Promise<{
+        status: string;
+        message: string;
+    }>;
+    getCompanyInterviews(req: any, page?: string, limit?: string, search?: string): Promise<{
+        status: string;
+        data: any;
+        meta: {
+            total: any;
+            page: number;
+            last_page: number;
+        };
+    }>;
+    inviteTalent(req: any, job_id: string, inviteTalentDto: InviteTalentDto): Promise<{
         status: string;
         message: string;
     }>;

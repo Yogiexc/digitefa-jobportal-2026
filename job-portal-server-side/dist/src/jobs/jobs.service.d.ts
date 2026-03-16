@@ -386,7 +386,21 @@ export declare class JobsService {
         message: string;
         data: string;
     }>;
+    sendApplicationStatusEmail(email: string, status: string, jobTitle: string, companyName: string, interviewDetails?: any): Promise<void>;
     changeStatusApplicant(user: any, application_id: string, changeStatusApplicationsDto: ChangeStatusApplicationsDto): Promise<{
+        status: string;
+        message: string;
+    }>;
+    getCompanyInterviews(user: any, page: number, limit: number, search?: string): Promise<{
+        status: string;
+        data: any;
+        meta: {
+            total: any;
+            page: number;
+            last_page: number;
+        };
+    }>;
+    inviteTalent(user: any, job_id: string, job_seeker_id: string): Promise<{
         status: string;
         message: string;
     }>;

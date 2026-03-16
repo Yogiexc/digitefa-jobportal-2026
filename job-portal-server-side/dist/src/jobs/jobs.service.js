@@ -16,6 +16,7 @@ const lodash_1 = require("lodash");
 const ExcelJS = require("exceljs");
 const axios_1 = require("@nestjs/axios");
 const rxjs_1 = require("rxjs");
+const nodemailer = require("nodemailer");
 let JobsService = class JobsService {
     constructor(prisma, httpService) {
         this.prisma = prisma;
@@ -680,7 +681,7 @@ let JobsService = class JobsService {
         }
     }
     async findApplicants(job_id, user, params) {
-        const { page = 1, pageSize = 10, search, sortBy = 'updated_at', sortOrder = 'desc', status = 'all', location, startDate, endDate, startSalary, endSalary, startExperience, endExperience, } = params;
+        const { page = 1, pageSize = 10, search, sortBy = 'match_scores', sortOrder = 'desc', status = 'all', location, startDate, endDate, startSalary, endSalary, startExperience, endExperience, } = params;
         const skip = (page - 1) * pageSize;
         const take = +pageSize;
         let jobDescription = '';
@@ -1223,16 +1224,68 @@ let JobsService = class JobsService {
             throw new common_1.InternalServerErrorException('Failed to retrieve resume applicant');
         }
     }
+    async sendApplicationStatusEmail(email, status, jobTitle, companyName, interviewDetails) {
+        const transporter = nodemailer.createTransport({
+            host: process.env.MAIL_HOST,
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.MAIL_USERNAME,
+                pass: process.env.MAIL_PASSWORD,
+            },
+        });
+        let subject = '';
+        let html = '';
+        if (status === 'screening') {
+            subject = `[DigiTefa] Your application for ${jobTitle} is being reviewed`;
+            html = `<p>Hello,</p><p>Your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has moved to the Screening phase. The HR team is currently reviewing your profile.</p><p>We will notify you of any updates.</p>`;
+        }
+        else if (status === 'interviewing') {
+            subject = `[DigiTefa] Interview Invitation: ${jobTitle} at ${companyName}`;
+            html = `<p>Hello,</p><p>Congratulations! You have been invited for an interview for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p>
+      <ul>
+        <li><strong>Interview Date:</strong> ${interviewDetails?.interview_date || 'TBD'}</li>
+        <li><strong>Meeting Link/Location:</strong> ${interviewDetails?.meeting_link || 'TBD'}</li>
+        <li><strong>Notes:</strong> ${interviewDetails?.notes || 'None'}</li>
+      </ul>
+      <p>Please prepare well and join the meeting on time.</p>`;
+        }
+        else if (status === 'accepted') {
+            subject = `[DigiTefa] Job Offer: ${jobTitle} at ${companyName}`;
+            html = `<p>Hello,</p><p>Congratulations! We are pleased to inform you that you have been <strong>Accepted</strong> for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p><p>Expect an offering letter or further communication from the company shortly.</p>`;
+        }
+        else if (status === 'rejected') {
+            subject = `[DigiTefa] Update on your application for ${jobTitle}`;
+            html = `<p>Hello,</p><p>Thank you for applying to the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>. After careful consideration, we regret to inform you that we will not be moving forward with your application at this time.</p><p>We wish you the best in your future endeavors.</p>`;
+        }
+        else {
+            return;
+        }
+        try {
+            await transporter.sendMail({
+                from: `"${process.env.APP_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
+                to: email,
+                subject,
+                html,
+            });
+        }
+        catch (error) {
+            console.error('Failed to send status email:', error);
+        }
+    }
     async changeStatusApplicant(user, application_id, changeStatusApplicationsDto) {
-        const { status } = changeStatusApplicationsDto;
+        const { status, interview_date, meeting_link, notes } = changeStatusApplicationsDto;
         const application = await this.prisma.applications.findUnique({
             where: { application_id },
             include: {
                 job: {
                     include: {
-                        company: true,
+                        company: {
+                            include: { company_detail: true }
+                        },
                     },
                 },
+                job_seeker: true
             },
         });
         if (!application) {
@@ -1242,12 +1295,41 @@ let JobsService = class JobsService {
             throw new common_1.NotFoundException(`Application with ID ${application_id} not found`);
         }
         try {
-            await this.prisma.applications.update({
-                where: { application_id },
-                data: {
-                    status,
-                },
+            await this.prisma.$transaction(async (tx) => {
+                await tx.applications.update({
+                    where: { application_id },
+                    data: { status: status },
+                });
+                if (status === 'interviewing') {
+                    const existingInterview = await tx.interviews.findUnique({
+                        where: { application_id }
+                    });
+                    if (existingInterview) {
+                        await tx.interviews.update({
+                            where: { application_id },
+                            data: {
+                                interview_date: interview_date ? new Date(interview_date) : new Date(),
+                                meeting_link,
+                                notes
+                            }
+                        });
+                    }
+                    else {
+                        await tx.interviews.create({
+                            data: {
+                                application_id,
+                                interview_date: interview_date ? new Date(interview_date) : new Date(),
+                                meeting_link,
+                                notes
+                            }
+                        });
+                    }
+                }
             });
+            if (application.job_seeker?.email) {
+                const companyName = application.job.company?.company_detail?.market_name || 'DigiTefa Company';
+                await this.sendApplicationStatusEmail(application.job_seeker.email, status, application.job.title, companyName, { interview_date, meeting_link, notes });
+            }
             return {
                 status: 'success',
                 message: 'Application status updated successfully',
@@ -1257,6 +1339,112 @@ let JobsService = class JobsService {
             console.log(error);
             throw new common_1.InternalServerErrorException('Failed to update application status');
         }
+    }
+    async getCompanyInterviews(user, page, limit, search) {
+        const skip = (page - 1) * limit;
+        const whereCondition = {
+            application: {
+                job: {
+                    company_id: user.company_id
+                }
+            }
+        };
+        if (search) {
+            whereCondition.application.job_seeker = {
+                user: {
+                    full_name: {
+                        contains: search
+                    }
+                }
+            };
+        }
+        const interviews = await this.prisma.interviews.findMany({
+            where: whereCondition,
+            include: {
+                application: {
+                    include: {
+                        job: true,
+                        job_seeker: {
+                            include: { user: true }
+                        }
+                    }
+                }
+            },
+            skip,
+            take: limit,
+            orderBy: { interview_date: 'desc' }
+        });
+        const total = await this.prisma.interviews.count({ where: whereCondition });
+        return {
+            status: 'success',
+            data: interviews,
+            meta: {
+                total,
+                page,
+                last_page: Math.ceil(total / limit)
+            }
+        };
+    }
+    async inviteTalent(user, job_id, job_seeker_id) {
+        const job = await this.prisma.jobs.findUnique({
+            where: { job_id },
+            include: { company: { include: { company_detail: true } } }
+        });
+        if (!job || job.company_id !== user.company_id) {
+            throw new common_1.NotFoundException('Job not found or not owned by company');
+        }
+        const jobSeeker = await this.prisma.job_seekers.findUnique({
+            where: { job_seeker_id }
+        });
+        if (!jobSeeker) {
+            throw new common_1.NotFoundException('Job seeker not found');
+        }
+        const existing = await this.prisma.invitations.findUnique({
+            where: {
+                job_id_job_seeker_id: {
+                    job_id,
+                    job_seeker_id
+                }
+            }
+        });
+        if (existing) {
+            throw new common_1.InternalServerErrorException('Talent is already invited to this job');
+        }
+        await this.prisma.invitations.create({
+            data: {
+                job_id,
+                job_seeker_id,
+                status: 'pending'
+            }
+        });
+        if (jobSeeker.email) {
+            const companyName = job.company?.company_detail?.market_name || 'A Company';
+            const transporter = nodemailer.createTransport({
+                host: process.env.MAIL_HOST,
+                port: 465,
+                secure: true,
+                auth: {
+                    user: process.env.MAIL_USERNAME,
+                    pass: process.env.MAIL_PASSWORD,
+                },
+            });
+            const subject = `[DigiTefa] You have been invited to apply for ${job.title}`;
+            const html = `<p>Hello ${jobSeeker.full_name || 'Talent'},</p>
+      <p><strong>${companyName}</strong> has reviewed your profile and thinks you would be a great fit for their open <strong>${job.title}</strong> position.</p>
+      <p>Log in to your DigiTefa account to view the details and apply (or ignore the invitation if you aren't interested)!</p>`;
+            try {
+                await transporter.sendMail({
+                    from: `"${process.env.APP_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
+                    to: jobSeeker.email,
+                    subject,
+                    html,
+                });
+            }
+            catch (error) {
+                console.error('Failed to send invitation email:', error);
+            }
+        }
+        return { status: 'success', message: 'Invitation sent successfully' };
     }
     async generateCSVOrXLSX(job_id, user, start, end, format = 'xlsx', res) {
         const job = await this.prisma.jobs.findUnique({

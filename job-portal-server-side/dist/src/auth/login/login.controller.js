@@ -19,12 +19,16 @@ const swagger_1 = require("@nestjs/swagger");
 const loginJobSeeker_dto_1 = require("./dto/loginJobSeeker.dto");
 const loginCMS_dto_1 = require("./dto/loginCMS.dto");
 const loginGoogle_dto_1 = require("./dto/loginGoogle.dto");
+const ssoLms_dto_1 = require("./dto/ssoLms.dto");
 let LoginController = class LoginController {
     constructor(loginService) {
         this.loginService = loginService;
     }
     async loginGoogle(loginGoogleDto) {
         return this.loginService.loginGoogle(loginGoogleDto.credential);
+    }
+    async ssoLms(ssoLmsDto) {
+        return this.loginService.ssoLms(ssoLmsDto);
     }
     async loginJobSeeker(loginJobSeekerDto) {
         const user = await this.loginService.validateJobSeeker(loginJobSeekerDto);
@@ -53,6 +57,16 @@ __decorate([
     __metadata("design:paramtypes", [loginGoogle_dto_1.LoginGoogleDto]),
     __metadata("design:returntype", Promise)
 ], LoginController.prototype, "loginGoogle", null);
+__decorate([
+    (0, common_1.Post)('sso-lms'),
+    (0, swagger_1.ApiConsumes)('application/json'),
+    (0, swagger_1.ApiOperation)({ summary: 'Login or Auto-Register from LMS via SSO' }),
+    (0, common_1.HttpCode)(200),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [ssoLms_dto_1.SsoLmsDto]),
+    __metadata("design:returntype", Promise)
+], LoginController.prototype, "ssoLms", null);
 __decorate([
     (0, common_1.Post)('job-seeker'),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),

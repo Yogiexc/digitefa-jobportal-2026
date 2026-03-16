@@ -6,6 +6,7 @@ import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiTags, 
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ChangeStatusApplicationsDto } from './dto/change-status-applications.dto';
 import { ApiKeyGuard } from 'src/auth/guards/api-key.guard';
+import { InviteTalentDto } from './dto/invite-talent.dto';
 
 @Controller()
 export class JobsController {
@@ -402,6 +403,41 @@ export class JobsController {
       application_id,
       changeStatusApplicationsDto,
     );
+  }
+
+  @ApiTags('jobs-applicants')
+  @Get('jobs/company/interviews')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['company']))
+  @ApiOperation({ summary: 'Get all interviews for a company' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  async getCompanyInterviews(
+    @Request() req,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Query('search') search?: string,
+  ) {
+    return this.jobsService.getCompanyInterviews(
+      req.user,
+      parseInt(page),
+      parseInt(limit),
+      search
+    );
+  }
+
+  @ApiTags('jobs-invitations')
+  @Post('jobs/:job_id/invite')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['company']))
+  @ApiOperation({ summary: 'Invite a job seeker to a job' })
+  async inviteTalent(
+    @Request() req,
+    @Param('job_id') job_id: string,
+    @Body() inviteTalentDto: InviteTalentDto,
+  ) {
+    return this.jobsService.inviteTalent(req.user, job_id, inviteTalentDto.job_seeker_id);
   }
 
   @ApiTags('jobs-applicants')

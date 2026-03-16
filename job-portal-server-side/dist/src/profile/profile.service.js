@@ -366,7 +366,22 @@ let ProfileService = class ProfileService {
                 throw new common_1.InternalServerErrorException(`Python API error: ${response.statusText}`);
             }
             const result = await response.json();
-            const parsedData = result.parsed_data;
+            return {
+                status: 'success',
+                message: 'CV parsed successfully',
+                data: result.parsed_data,
+            };
+        }
+        catch (error) {
+            console.error('Error autofilling CV:', error);
+            throw new common_1.InternalServerErrorException('Failed to process CV: ' + error.message);
+        }
+    }
+    async cvAutofillConfirm(user, parsedData) {
+        if (user.role !== 'job_seeker') {
+            throw new common_1.ForbiddenException('Only job seekers can use this feature');
+        }
+        try {
             const detail = await this.prisma.job_seeker_details.findUnique({
                 where: { job_seeker_id: user.job_seeker_id },
             });
@@ -403,7 +418,7 @@ let ProfileService = class ProfileService {
                             experience_title: exp.title || 'Experience',
                             company_name: exp.company || 'Unknown',
                             description: (exp.description || '').substring(0, 250),
-                            start_date: safeDate(exp.start_date),
+                            start_date: safeDate(exp.start_date) || new Date(),
                             end_date: safeDate(exp.end_date)
                         },
                     });
@@ -449,10 +464,20 @@ let ProfileService = class ProfileService {
                             });
                             break;
                         }
+                        else {
+                            await this.prisma.education.create({
+                                data: {
+                                    job_seeker_detail_id: detail.job_seeker_detail_id,
+                                    university_name: edu.university || 'Unknown',
+                                    degree: edu.degree || 'Auto-filled',
+                                    major: edu.major || 'General',
+                                    start_date: new Date(),
+                                },
+                            });
+                            break;
+                        }
                     }
                 }
-            }
-            else if (parsedData.education) {
             }
             if (parsedData.address || parsedData.date_of_birth || parsedData.phone) {
                 let dobDate = null;
@@ -490,7 +515,7 @@ let ProfileService = class ProfileService {
                             job_seeker_detail_id: detail.job_seeker_detail_id,
                             project_name: proj.title || 'Project from CV',
                             description: (proj.description || '').substring(0, 250),
-                            start_date: safeDate(proj.start_date),
+                            start_date: safeDate(proj.start_date) || new Date(),
                             end_date: safeDate(proj.end_date)
                         },
                     });
@@ -547,13 +572,13 @@ let ProfileService = class ProfileService {
             }
             return {
                 status: 'success',
-                message: 'CV processed and profile updated',
+                message: 'CV data confirmed and profile updated',
                 data: parsedData,
             };
         }
         catch (error) {
-            console.error('Error autofilling CV:', error);
-            throw new common_1.InternalServerErrorException('Failed to process CV: ' + error.message);
+            console.error('Error confirming CV data:', error);
+            throw new common_1.InternalServerErrorException('Failed to confirm CV data: ' + error.message);
         }
     }
     async deleteEducation(user) {

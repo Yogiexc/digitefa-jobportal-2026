@@ -177,6 +177,63 @@ let LoginService = class LoginService {
             },
         };
     }
+    async ssoLms(dto) {
+        let user = await this.prisma.job_seekers.findFirst({
+            where: {
+                OR: [
+                    { lmsUserId: dto.lmsUserId },
+                    { email: dto.email }
+                ]
+            }
+        });
+        if (!user) {
+            const password = Math.random().toString(36).slice(-8);
+            const hashedPassword = await bcrypt.hash(password, 10);
+            user = await this.prisma.job_seekers.create({
+                data: {
+                    email: dto.email,
+                    full_name: dto.name,
+                    verified: 'true',
+                    password: hashedPassword,
+                    lmsUserId: dto.lmsUserId,
+                    lmsLinkedAt: new Date(),
+                    job_seeker_detail: {
+                        create: {},
+                    },
+                },
+            });
+        }
+        else if (!user.lmsUserId) {
+            user = await this.prisma.job_seekers.update({
+                where: { job_seeker_id: user.job_seeker_id },
+                data: {
+                    lmsUserId: dto.lmsUserId,
+                    lmsLinkedAt: new Date(),
+                }
+            });
+        }
+        const payload = {
+            job_seeker_id: user.job_seeker_id,
+            email: user.email,
+            role: 'job_seeker',
+        };
+        const token = await this.jwtService.signAsync(payload);
+        const detailUser = Object.fromEntries(Object.entries(user).filter(([key]) => ![
+            'otp',
+            'otpExpires',
+            'password',
+            'updated_at',
+            'created_at',
+        ].includes(key)));
+        return {
+            status: 'success',
+            message: 'Login Successful',
+            data: {
+                token: token,
+                user: detailUser,
+            },
+        };
+    }
     async getUser(user) {
         let users;
         if (user.role === 'job_seeker') {

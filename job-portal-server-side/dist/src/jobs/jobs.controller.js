@@ -20,6 +20,7 @@ const update_job_dto_1 = require("./dto/update-job.dto");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const change_status_applications_dto_1 = require("./dto/change-status-applications.dto");
+const invite_talent_dto_1 = require("./dto/invite-talent.dto");
 let JobsController = class JobsController {
     constructor(jobsService) {
         this.jobsService = jobsService;
@@ -99,6 +100,12 @@ let JobsController = class JobsController {
     }
     async changeStatusApplicant(req, application_id, changeStatusApplicationsDto) {
         return this.jobsService.changeStatusApplicant(req.user, application_id, changeStatusApplicationsDto);
+    }
+    async getCompanyInterviews(req, page = '1', limit = '10', search) {
+        return this.jobsService.getCompanyInterviews(req.user, parseInt(page), parseInt(limit), search);
+    }
+    async inviteTalent(req, job_id, inviteTalentDto) {
+        return this.jobsService.inviteTalent(req.user, job_id, inviteTalentDto.job_seeker_id);
     }
     async exportApplicants(req, job_id, format, start, end, res) {
         return this.jobsService.generateCSVOrXLSX(job_id, req.user, start, end, format, res);
@@ -480,6 +487,36 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, change_status_applications_dto_1.ChangeStatusApplicationsDto]),
     __metadata("design:returntype", Promise)
 ], JobsController.prototype, "changeStatusApplicant", null);
+__decorate([
+    (0, swagger_1.ApiTags)('jobs-applicants'),
+    (0, common_1.Get)('jobs/company/interviews'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['company'])),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all interviews for a company' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'search', required: false, type: String }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('search')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:returntype", Promise)
+], JobsController.prototype, "getCompanyInterviews", null);
+__decorate([
+    (0, swagger_1.ApiTags)('jobs-invitations'),
+    (0, common_1.Post)('jobs/:job_id/invite'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['company'])),
+    (0, swagger_1.ApiOperation)({ summary: 'Invite a job seeker to a job' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('job_id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, invite_talent_dto_1.InviteTalentDto]),
+    __metadata("design:returntype", Promise)
+], JobsController.prototype, "inviteTalent", null);
 __decorate([
     (0, swagger_1.ApiTags)('jobs-applicants'),
     (0, common_1.Post)('jobs/:job_id/applicants/export'),
