@@ -46,11 +46,23 @@ const ChooseDocument = ({ onNext }) => {
     multiple: false,
     listType: "picture",
     fileList,
+    accept: ".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg,",
+  
+    isImageUrl: () => false,
+  
     onChange(info) {
-      updateFormData("upload_resume", info.file.originFileObj);
+      const file = info.file.originFileObj;
+  
+      if (file) {
+        updateFormData("upload_resume", file);
+      } else {
+        updateFormData("upload_resume", null);
+      }
     },
-    onDrop() {
-    },
+  
+    onDrop(e) {
+      console.log("Dropped files:", e.dataTransfer.files);
+    }
   };
 
   const [personalInfo, setPersonalInfo] = useState();
