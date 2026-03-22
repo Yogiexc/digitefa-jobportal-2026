@@ -13,6 +13,7 @@ import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as nodemailer from 'nodemailer';
+import { interviewEmailTemplate } from './email-templates/interview-email-template';
 
 @Injectable()
 export class JobsService {
@@ -1544,7 +1545,7 @@ export class JobsService {
     }
   }
 
-  async sendApplicationStatusEmail(email: string, status: string, jobTitle: string, companyName: string, interviewDetails?: any) {
+  async sendApplicationStatusEmail(email: string, status: string, jobTitle: string, companyName: string, jobseekerName?: string, interviewDetails?: any) {
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
       port: 465,
@@ -1557,19 +1558,26 @@ export class JobsService {
 
     let subject = '';
     let html = '';
+    let attachments: any[] = [];
 
     if (status === 'screening') {
       subject = `[DigiTefa] Your application for ${jobTitle} is being reviewed`;
       html = `<p>Hello,</p><p>Your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has moved to the Screening phase. The HR team is currently reviewing your profile.</p><p>We will notify you of any updates.</p>`;
     } else if (status === 'interviewing') {
-      subject = `[DigiTefa] Interview Invitation: ${jobTitle} at ${companyName}`;
-      html = `<p>Hello,</p><p>Congratulations! You have been invited for an interview for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p>
-      <ul>
-        <li><strong>Interview Date:</strong> ${interviewDetails?.interview_date || 'TBD'}</li>
-        <li><strong>Meeting Link/Location:</strong> ${interviewDetails?.meeting_link || 'TBD'}</li>
-        <li><strong>Notes:</strong> ${interviewDetails?.notes || 'None'}</li>
-      </ul>
-      <p>Please prepare well and join the meeting on time.</p>`;
+      subject = `Invitation for Interview`;
+      attachments = [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }];
+      html = interviewEmailTemplate(
+        jobseekerName || 'Jobseeker',
+        jobTitle,
+        companyName,
+        interviewDetails?.interview_date ? new Date(interviewDetails.interview_date).toLocaleString() : 'TBD',
+        interviewDetails?.meeting_link || 'TBD',
+        interviewDetails?.notes || 'None'
+      );
     } else if (status === 'accepted') {
       subject = `[DigiTefa] Job Offer: ${jobTitle} at ${companyName}`;
       html = `<p>Hello,</p><p>Congratulations! We are pleased to inform you that you have been <strong>Accepted</strong> for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p><p>Expect an offering letter or further communication from the company shortly.</p>`;
@@ -1586,6 +1594,7 @@ export class JobsService {
         to: email,
         subject,
         html,
+        attachments: attachments.length > 0 ? attachments : undefined,
       });
     } catch (error) {
       console.error('Failed to send status email:', error);
@@ -1662,6 +1671,7 @@ export class JobsService {
           status,
           application.job.title,
           companyName,
+          application.job_seeker.full_name,
           { interview_date, meeting_link, notes }
         );
       }

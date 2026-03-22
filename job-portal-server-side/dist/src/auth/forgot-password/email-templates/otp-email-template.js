@@ -88,7 +88,7 @@ const otpEmailTemplate = (otp, email) => `
     <div class="container">
         <div class="header">
             <div class="logo">
-                <span class="logo-digi">DIGI</span><span class="logo-tefa">TEFA</span>
+                <img src="cid:digitefa-logo" alt="Digitefa Logo" style="max-height: 48px; width: auto;" />
             </div>
         </div>
         <div class="content">

@@ -147,6 +147,11 @@ export class ForgotPasswordService {
       subject: 'Digitefa OTP Reset Password',
       text: `Your Reset Password OTP code is ${otp}`,
       html: htmlContent,
+      attachments: [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }],
     });
   }
 

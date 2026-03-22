@@ -387,7 +387,7 @@ export declare class JobsService {
         message: string;
         data: string;
     }>;
-    sendApplicationStatusEmail(email: string, status: string, jobTitle: string, companyName: string, interviewDetails?: any): Promise<void>;
+    sendApplicationStatusEmail(email: string, status: string, jobTitle: string, companyName: string, jobseekerName?: string, interviewDetails?: any): Promise<void>;
     changeStatusApplicant(user: any, application_id: string, changeStatusApplicationsDto: ChangeStatusApplicationsDto): Promise<{
         status: string;
         message: string;

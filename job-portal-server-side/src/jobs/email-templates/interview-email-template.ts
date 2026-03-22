@@ -1,10 +1,17 @@
-export const otpEmailTemplate = (otp: string, email: string) => `
+export const interviewEmailTemplate = (
+  jobseekerName: string,
+  jobTitle: string,
+  companyName: string,
+  interviewDate: string,
+  meetingLink: string,
+  notes: string,
+) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Verification</title>
+    <title>Interview Invitation</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -29,47 +36,36 @@ export const otpEmailTemplate = (otp: string, email: string) => `
             border-bottom: 1px solid #f0f0f0;
         }
         .logo {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -1px;
+            display: inline-block;
         }
-        .logo-digi { color: #1890ff; }
-        .logo-tefa { color: #06A73B; }
         .content {
             padding: 40px 30px;
         }
-        .welcome-text {
-            font-size: 18px;
+        .greeting {
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             color: #1a1a1a;
         }
         .instruction {
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-        .otp-container {
+        .details-container {
             background-color: #f0f7ff;
             border: 2px dashed #1890ff;
             border-radius: 12px;
             padding: 30px;
-            text-align: center;
             margin: 30px 0;
         }
-        .otp-code {
-            font-size: 42px;
-            font-weight: 800;
-            letter-spacing: 8px;
-            color: #1890ff;
+        .details-container ul {
+            list-style-type: none;
+            padding: 0;
             margin: 0;
         }
-        .otp-label {
-            font-size: 13px;
-            color: #1890ff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .details-container li {
             margin-bottom: 10px;
-            font-weight: 600;
+            color: #333;
         }
         .footer {
             background-color: #fafafa;
@@ -78,21 +74,6 @@ export const otpEmailTemplate = (otp: string, email: string) => `
             font-size: 13px;
             color: #999;
             border-top: 1px solid #f0f0f0;
-        }
-        .disclaimer {
-            font-size: 12px;
-            color: #aaa;
-            margin-top: 20px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #1890ff;
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            margin-top: 20px;
         }
     </style>
 </head>
@@ -104,15 +85,24 @@ export const otpEmailTemplate = (otp: string, email: string) => `
             </div>
         </div>
         <div class="content">
-            <div class="welcome-text">Email Verification Required</div>
-            <p class="instruction">Hi <strong>${email}</strong>,<br>Thank you for joining Digitefa! Please use the following One-Time Password (OTP) to complete your account verification.</p>
+            <div class="greeting">Dear ${jobseekerName},</div>
+            <p class="instruction" style="font-weight: 600;">Congratulations!</p>
+            <p class="instruction">We are pleased to inform you that you have been shortlisted for an interview for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p>
             
-            <div class="otp-container">
-                <div class="otp-label">Verification Code</div>
-                <div class="otp-code">${otp}</div>
+            <p class="instruction">Please find the details of your interview below:</p>
+            
+            <div class="details-container">
+                <ul>
+                    <li><strong>Interview Date:</strong> ${interviewDate}</li>
+                    <li><strong>Meeting Link/Location:</strong> ${meetingLink}</li>
+                    <li><strong>Notes:</strong> ${notes}</li>
+                </ul>
             </div>
 
-            <p class="instruction">This code is valid for <strong>15 minutes</strong>. If you did not request this, please ignore this email or contact support if you have concerns.</p>
+            <p class="instruction">Kindly make sure to join the meeting on time. Should you have any questions or require further information, please do not hesitate to contact us.</p>
+            <p class="instruction">We look forward to speaking with you.</p>
+
+            <p class="instruction" style="margin-top: 30px;">Best regards,<br><strong>${companyName}</strong></p>
         </div>
         <div class="footer">
             <p>&copy; 2024 Digitefa Job Portal. All rights reserved.</p>

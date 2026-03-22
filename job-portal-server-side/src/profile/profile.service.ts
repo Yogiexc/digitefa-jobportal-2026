@@ -295,6 +295,11 @@ export class ProfileService {
       subject: 'Digitefa OTP Verification Code',
       text: `Your OTP code is ${otp}`,
       html: htmlContent,
+      attachments: [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }],
     });
   }
 

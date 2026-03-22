@@ -17,6 +17,7 @@ const ExcelJS = require("exceljs");
 const axios_1 = require("@nestjs/axios");
 const rxjs_1 = require("rxjs");
 const nodemailer = require("nodemailer");
+const interview_email_template_1 = require("./email-templates/interview-email-template");
 let JobsService = class JobsService {
     constructor(prisma, httpService) {
         this.prisma = prisma;
@@ -1267,7 +1268,7 @@ let JobsService = class JobsService {
             throw new common_1.InternalServerErrorException('Failed to retrieve resume applicant');
         }
     }
-    async sendApplicationStatusEmail(email, status, jobTitle, companyName, interviewDetails) {
+    async sendApplicationStatusEmail(email, status, jobTitle, companyName, jobseekerName, interviewDetails) {
         const transporter = nodemailer.createTransport({
             host: process.env.MAIL_HOST,
             port: 465,
@@ -1279,19 +1280,19 @@ let JobsService = class JobsService {
         });
         let subject = '';
         let html = '';
+        let attachments = [];
         if (status === 'screening') {
             subject = `[DigiTefa] Your application for ${jobTitle} is being reviewed`;
             html = `<p>Hello,</p><p>Your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has moved to the Screening phase. The HR team is currently reviewing your profile.</p><p>We will notify you of any updates.</p>`;
         }
         else if (status === 'interviewing') {
-            subject = `[DigiTefa] Interview Invitation: ${jobTitle} at ${companyName}`;
-            html = `<p>Hello,</p><p>Congratulations! You have been invited for an interview for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p>
-      <ul>
-        <li><strong>Interview Date:</strong> ${interviewDetails?.interview_date || 'TBD'}</li>
-        <li><strong>Meeting Link/Location:</strong> ${interviewDetails?.meeting_link || 'TBD'}</li>
-        <li><strong>Notes:</strong> ${interviewDetails?.notes || 'None'}</li>
-      </ul>
-      <p>Please prepare well and join the meeting on time.</p>`;
+            subject = `Invitation for Interview`;
+            attachments = [{
+                    filename: 'Digitefa.png',
+                    path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+                    cid: 'digitefa-logo'
+                }];
+            html = (0, interview_email_template_1.interviewEmailTemplate)(jobseekerName || 'Jobseeker', jobTitle, companyName, interviewDetails?.interview_date ? new Date(interviewDetails.interview_date).toLocaleString() : 'TBD', interviewDetails?.meeting_link || 'TBD', interviewDetails?.notes || 'None');
         }
         else if (status === 'accepted') {
             subject = `[DigiTefa] Job Offer: ${jobTitle} at ${companyName}`;
@@ -1310,6 +1311,7 @@ let JobsService = class JobsService {
                 to: email,
                 subject,
                 html,
+                attachments: attachments.length > 0 ? attachments : undefined,
             });
         }
         catch (error) {
@@ -1371,7 +1373,7 @@ let JobsService = class JobsService {
             });
             if (application.job_seeker?.email) {
                 const companyName = application.job.company?.company_detail?.market_name || 'DigiTefa Company';
-                await this.sendApplicationStatusEmail(application.job_seeker.email, status, application.job.title, companyName, { interview_date, meeting_link, notes });
+                await this.sendApplicationStatusEmail(application.job_seeker.email, status, application.job.title, companyName, application.job_seeker.full_name, { interview_date, meeting_link, notes });
             }
             return {
                 status: 'success',
