@@ -1,10 +1,10 @@
 export const interviewEmailTemplate = (
-  jobseekerName: string,
-  jobTitle: string,
-  companyName: string,
-  interviewDate: string,
-  meetingLink: string,
-  notes: string,
+    jobseekerName: string,
+    jobTitle: string,
+    companyName: string,
+    interviewDate: string,
+    meetingLink: string,
+    notes: string,
 ) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -102,7 +102,7 @@ export const interviewEmailTemplate = (
             <p class="instruction">Kindly make sure to join the meeting on time. Should you have any questions or require further information, please do not hesitate to contact us.</p>
             <p class="instruction">We look forward to speaking with you.</p>
 
-            <p class="instruction" style="margin-top: 30px;">Best regards,<br><strong>${companyName}</strong></p>
+            <p class="instruction" style="margin-top: 30px;">Best regards,<br><strong>${companyName} Recruitment Team</strong></p>
         </div>
         <div class="footer">
             <p>&copy; 2024 Digitefa Job Portal. All rights reserved.</p>

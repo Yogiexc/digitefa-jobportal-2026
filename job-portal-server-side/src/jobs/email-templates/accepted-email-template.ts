@@ -1,13 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.interviewEmailTemplate = void 0;
-const interviewEmailTemplate = (jobseekerName, jobTitle, companyName, interviewDate, meetingLink, notes) => `
+export const acceptedEmailTemplate = (
+  jobseekerName: string,
+  jobTitle: string,
+  companyName: string,
+) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interview Invitation</title>
+    <title>Application Accepted</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -47,22 +48,6 @@ const interviewEmailTemplate = (jobseekerName, jobTitle, companyName, interviewD
             color: #666;
             margin-bottom: 20px;
         }
-        .details-container {
-            background-color: #f0f7ff;
-            border: 2px dashed #1890ff;
-            border-radius: 12px;
-            padding: 30px;
-            margin: 30px 0;
-        }
-        .details-container ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        .details-container li {
-            margin-bottom: 10px;
-            color: #333;
-        }
         .footer {
             background-color: #fafafa;
             padding: 24px;
@@ -82,21 +67,11 @@ const interviewEmailTemplate = (jobseekerName, jobTitle, companyName, interviewD
         </div>
         <div class="content">
             <div class="greeting">Dear ${jobseekerName},</div>
-            <p class="instruction" style="font-weight: 600;">Congratulations!</p>
-            <p class="instruction">We are pleased to inform you that you have been shortlisted for an interview for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p>
+            <p class="instruction">We are pleased to inform you that your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has been <span style="font-weight: 600; color: #06A73B;">accepted</span>.</p>
             
-            <p class="instruction">Please find the details of your interview below:</p>
-            
-            <div class="details-container">
-                <ul>
-                    <li><strong>Interview Date:</strong> ${interviewDate}</li>
-                    <li><strong>Meeting Link/Location:</strong> ${meetingLink}</li>
-                    <li><strong>Notes:</strong> ${notes}</li>
-                </ul>
-            </div>
+            <p class="instruction">Our team will contact you shortly with further details regarding the next steps in the recruitment process.</p>
 
-            <p class="instruction">Kindly make sure to join the meeting on time. Should you have any questions or require further information, please do not hesitate to contact us.</p>
-            <p class="instruction">We look forward to speaking with you.</p>
+            <p class="instruction">Please ensure that you remain available and responsive for upcoming communications.</p>
 
             <p class="instruction" style="margin-top: 30px;">Best regards,<br><strong>${companyName} Recruitment Team</strong></p>
         </div>
@@ -108,5 +83,3 @@ const interviewEmailTemplate = (jobseekerName, jobTitle, companyName, interviewD
 </body>
 </html>
 `;
-exports.interviewEmailTemplate = interviewEmailTemplate;
-//# sourceMappingURL=interview-email-template.js.map

@@ -18,6 +18,8 @@ const axios_1 = require("@nestjs/axios");
 const rxjs_1 = require("rxjs");
 const nodemailer = require("nodemailer");
 const interview_email_template_1 = require("./email-templates/interview-email-template");
+const accepted_email_template_1 = require("./email-templates/accepted-email-template");
+const rejected_email_template_1 = require("./email-templates/rejected-email-template");
 let JobsService = class JobsService {
     constructor(prisma, httpService) {
         this.prisma = prisma;
@@ -1286,7 +1288,7 @@ let JobsService = class JobsService {
             html = `<p>Hello,</p><p>Your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has moved to the Screening phase. The HR team is currently reviewing your profile.</p><p>We will notify you of any updates.</p>`;
         }
         else if (status === 'interviewing') {
-            subject = `Invitation for Interview`;
+            subject = `Interview Invitation - ${jobTitle}`;
             attachments = [{
                     filename: 'Digitefa.png',
                     path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
@@ -1295,12 +1297,22 @@ let JobsService = class JobsService {
             html = (0, interview_email_template_1.interviewEmailTemplate)(jobseekerName || 'Jobseeker', jobTitle, companyName, interviewDetails?.interview_date ? new Date(interviewDetails.interview_date).toLocaleString() : 'TBD', interviewDetails?.meeting_link || 'TBD', interviewDetails?.notes || 'None');
         }
         else if (status === 'accepted') {
-            subject = `[DigiTefa] Job Offer: ${jobTitle} at ${companyName}`;
-            html = `<p>Hello,</p><p>Congratulations! We are pleased to inform you that you have been <strong>Accepted</strong> for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p><p>Expect an offering letter or further communication from the company shortly.</p>`;
+            subject = `Application Status - ${jobTitle}`;
+            attachments = [{
+                    filename: 'Digitefa.png',
+                    path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+                    cid: 'digitefa-logo'
+                }];
+            html = (0, accepted_email_template_1.acceptedEmailTemplate)(jobseekerName || 'Jobseeker', jobTitle, companyName);
         }
         else if (status === 'rejected') {
-            subject = `[DigiTefa] Update on your application for ${jobTitle}`;
-            html = `<p>Hello,</p><p>Thank you for applying to the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>. After careful consideration, we regret to inform you that we will not be moving forward with your application at this time.</p><p>We wish you the best in your future endeavors.</p>`;
+            subject = `Application Status - ${jobTitle}`;
+            attachments = [{
+                    filename: 'Digitefa.png',
+                    path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+                    cid: 'digitefa-logo'
+                }];
+            html = (0, rejected_email_template_1.rejectedEmailTemplate)(jobseekerName || 'Jobseeker', jobTitle, companyName);
         }
         else {
             return;

@@ -14,6 +14,8 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as nodemailer from 'nodemailer';
 import { interviewEmailTemplate } from './email-templates/interview-email-template';
+import { acceptedEmailTemplate } from './email-templates/accepted-email-template';
+import { rejectedEmailTemplate } from './email-templates/rejected-email-template';
 
 @Injectable()
 export class JobsService {
@@ -1564,7 +1566,7 @@ export class JobsService {
       subject = `[DigiTefa] Your application for ${jobTitle} is being reviewed`;
       html = `<p>Hello,</p><p>Your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has moved to the Screening phase. The HR team is currently reviewing your profile.</p><p>We will notify you of any updates.</p>`;
     } else if (status === 'interviewing') {
-      subject = `Invitation for Interview`;
+      subject = `Interview Invitation - ${jobTitle}`;
       attachments = [{
         filename: 'Digitefa.png',
         path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
@@ -1579,11 +1581,29 @@ export class JobsService {
         interviewDetails?.notes || 'None'
       );
     } else if (status === 'accepted') {
-      subject = `[DigiTefa] Job Offer: ${jobTitle} at ${companyName}`;
-      html = `<p>Hello,</p><p>Congratulations! We are pleased to inform you that you have been <strong>Accepted</strong> for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.</p><p>Expect an offering letter or further communication from the company shortly.</p>`;
+      subject = `Application Status - ${jobTitle}`;
+      attachments = [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }];
+      html = acceptedEmailTemplate(
+        jobseekerName || 'Jobseeker',
+        jobTitle,
+        companyName
+      );
     } else if (status === 'rejected') {
-      subject = `[DigiTefa] Update on your application for ${jobTitle}`;
-      html = `<p>Hello,</p><p>Thank you for applying to the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>. After careful consideration, we regret to inform you that we will not be moving forward with your application at this time.</p><p>We wish you the best in your future endeavors.</p>`;
+      subject = `Application Status - ${jobTitle}`;
+      attachments = [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }];
+      html = rejectedEmailTemplate(
+        jobseekerName || 'Jobseeker',
+        jobTitle,
+        companyName
+      );
     } else {
       return;
     }

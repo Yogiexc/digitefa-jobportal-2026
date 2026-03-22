@@ -385,6 +385,14 @@ const JobDetailList = ({ jobId }) => {
             </div>
           </div>
 
+          {jobData?.is_applied && (
+            <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+              <p className="text-xs text-yellow-800">
+                Note: All updates regarding your application will be sent via email. Please ensure that you regularly check your inbox.
+              </p>
+            </div>
+          )}
+
           <div className="mb-6">
             <h3 className="text-sm font-medium text-[#232323] mb-4">
               Job Requirement
