@@ -2,25 +2,25 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsOptional, IsString } from "class-validator";
 
 export class ChangeStatusApplicationsDto {
-@IsEnum(['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected'])
+@IsEnum(['waiting_interview', 'accepted', 'rejected'])
 @ApiProperty({
-    enum: ['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected'],
+    enum: ['waiting_interview', 'accepted', 'rejected'],
     description: 'Status update for application',
-    default: 'screening',
+    default: 'waiting_interview',
 })
-status: "screening" | "waiting_interview" | "interviewing" | "accepted" | "rejected";
+status: "waiting_interview" | "accepted" | "rejected";
     @IsOptional()
     @IsString()
-    @ApiProperty({ required: false, description: 'Interview date if status is interviewing' })
+    @ApiProperty({ required: false, description: 'Interview date if status is waiting_interview' })
     interview_date?: string;
 
     @IsOptional()
     @IsString()
-    @ApiProperty({ required: false, description: 'Meeting link if status is interviewing' })
+    @ApiProperty({ required: false, description: 'Meeting link if status is waiting_interview' })
     meeting_link?: string;
 
     @IsOptional()
     @IsString()
-    @ApiProperty({ required: false, description: 'Notes if status is interviewing' })
+    @ApiProperty({ required: false, description: 'Notes if status is waiting_interview' })
     notes?: string;
 }

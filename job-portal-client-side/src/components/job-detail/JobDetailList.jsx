@@ -284,7 +284,7 @@ const JobDetailList = ({ jobId }) => {
             >
               <span className="text-xs font-medium">
                 {" "}
-                {jobData?.application_status === 'interviewing'
+                {jobData?.application_status === 'waiting_interview'
                   ? 'Interview Scheduled'
                   : jobData?.is_applied
                   ? "Applied"

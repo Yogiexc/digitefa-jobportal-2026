@@ -16,30 +16,30 @@ class ChangeStatusApplicationsDto {
 }
 exports.ChangeStatusApplicationsDto = ChangeStatusApplicationsDto;
 __decorate([
-    (0, class_validator_1.IsEnum)(['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected']),
+    (0, class_validator_1.IsEnum)(['waiting_interview', 'accepted', 'rejected']),
     (0, swagger_1.ApiProperty)({
-        enum: ['screening', 'waiting_interview', 'interviewing', 'accepted', 'rejected'],
+        enum: ['waiting_interview', 'accepted', 'rejected'],
         description: 'Status update for application',
-        default: 'screening',
+        default: 'waiting_interview',
     }),
     __metadata("design:type", String)
 ], ChangeStatusApplicationsDto.prototype, "status", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, swagger_1.ApiProperty)({ required: false, description: 'Interview date if status is interviewing' }),
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Interview date if status is waiting_interview' }),
     __metadata("design:type", String)
 ], ChangeStatusApplicationsDto.prototype, "interview_date", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, swagger_1.ApiProperty)({ required: false, description: 'Meeting link if status is interviewing' }),
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Meeting link if status is waiting_interview' }),
     __metadata("design:type", String)
 ], ChangeStatusApplicationsDto.prototype, "meeting_link", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, swagger_1.ApiProperty)({ required: false, description: 'Notes if status is interviewing' }),
+    (0, swagger_1.ApiProperty)({ required: false, description: 'Notes if status is waiting_interview' }),
     __metadata("design:type", String)
 ], ChangeStatusApplicationsDto.prototype, "notes", void 0);
 //# sourceMappingURL=change-status-applications.dto.js.map

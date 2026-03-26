@@ -1283,11 +1283,7 @@ let JobsService = class JobsService {
         let subject = '';
         let html = '';
         let attachments = [];
-        if (status === 'screening') {
-            subject = `[DigiTefa] Your application for ${jobTitle} is being reviewed`;
-            html = `<p>Hello,</p><p>Your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has moved to the Screening phase. The HR team is currently reviewing your profile.</p><p>We will notify you of any updates.</p>`;
-        }
-        else if (status === 'interviewing') {
+        if (status === 'waiting_interview') {
             subject = `Interview Invitation - ${jobTitle}`;
             attachments = [{
                     filename: 'Digitefa.png',
@@ -1357,7 +1353,7 @@ let JobsService = class JobsService {
                     where: { application_id },
                     data: { status: status },
                 });
-                if (status === 'interviewing') {
+                if (status === 'waiting_interview') {
                     const existingInterview = await tx.interviews.findUnique({
                         where: { application_id }
                     });

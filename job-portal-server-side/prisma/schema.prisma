@@ -304,11 +304,9 @@ model skills_requirement {
 
 enum applicant_status {
   pending
-  screening
-  interviewing
-  waiting_interview
   accepted
   rejected
+  waiting_interview @map("waiting interview")
 }
 
 model match_scores {

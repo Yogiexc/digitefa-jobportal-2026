@@ -21,7 +21,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
       .validateFields()
       .then((values) => {
         const payload = { status: values.status };
-        if (values.status === 'interviewing') {
+        if (values.status === 'waiting_interview') {
           payload.interview_date = values.interview_date;
           payload.meeting_link = values.meeting_link;
           payload.notes = values.notes;
@@ -115,12 +115,6 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
             ]}
           >
             <Select style={{ height: 56 }} placeholder="Select Status Aprroval">
-              <Select.Option value="screening">
-                <span className="text-blue-500"> Screening </span>
-              </Select.Option>
-              <Select.Option value="interviewing">
-                <span className="text-purple-500"> Interviewing </span>
-              </Select.Option>
               <Select.Option value="accepted">
                 <span className="text-green-500"> Accepted </span>
               </Select.Option>
@@ -133,7 +127,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
             </Select>
           </Form.Item>
 
-          {statusValue === 'interviewing' && (
+          {statusValue === 'waiting_interview' && (
             <>
               <Form.Item
                 name="interview_date"
