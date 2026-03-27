@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { Link } from "react-router-dom";
-import { Button, Checkbox, Form, Input, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Checkbox, Form, Input, App } from "antd";
 import { EyeIcon, EyeSlashIcon, UserIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import Logo from "../../assets/svg/Digitefaa.svg";
@@ -9,18 +9,17 @@ import logoGoogle from "../../assets/images/google.png";
 import { useGoogleLogin, useGoogleOneTapLogin } from "@react-oauth/google";
 import axios from "axios";
 import sign from "jwt-encode";
+import { useUserContext } from "../../UserContext";
 
 const Login = () => {
+  const { message } = App.useApp();
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const navigateTo = useNavigate();
+  const { setUserData } = useUserContext();
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
-  };
-
-  const messageku = (val) => {
-    message.destroy();
-    message.error(val);
   };
 
   useGoogleOneTapLogin({
@@ -66,9 +65,9 @@ const Login = () => {
 
     localStorage.setItem("token", JSON.stringify(tokenData));
     localStorage.setItem("userData", JSON.stringify(userData));
+    setUserData(userData);
     message.success("Login successful!");
-    // navigateTo("/");
-    window.location.href = "/";
+    navigateTo("/");
   };
 
   const handleLogin = async (values) => {
@@ -97,29 +96,26 @@ const Login = () => {
 
       localStorage.setItem("token", JSON.stringify(tokenData));
       localStorage.setItem("userData", JSON.stringify(userData));
+      setUserData(userData);
       message.success("Login successful!");
-      // navigateTo("/");
-      window.location.href = "/";
+      navigateTo("/");
     } catch (error) {
       console.log(error);
       const statusCode = error?.response?.data?.statusCode || error?.data?.statusCode;
       
       if (statusCode) {
-        if (statusCode === 409) {
-          message.destroy();
+        if (statusCode === 404 || statusCode === 409) {
           message.error(
-            "User not found. Please register to create an account."
+            "Login failed! User not found. Please register to create an account."
           );
         } else if (statusCode === 401) {
-          message.destroy();
           message.error(
-            "Incorrect password. Please check your password again."
+            "Login failed! Password incorrect. Please check your password again."
           );
         } else {
-          messageku(error?.response?.data?.message || "Login failed.");
+          message.error(error?.response?.data?.message || "Login failed. Please try again.");
         }
       } else {
-        message.destroy();
         message.error("Network error. Could not connect to the server.");
       }
     } finally {

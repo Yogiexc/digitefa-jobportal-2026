@@ -1,5 +1,5 @@
 import RoutesIndex from "./routes/RoutesIndex";
-import { ConfigProvider, Spin } from "antd";
+import { ConfigProvider, Spin, App as AntdApp } from "antd";
 import useScrollToTop from "./hooks/useScrollToTop";
 import Api from "./services/Api";
 import { useEffect, useState } from "react";
@@ -102,7 +102,9 @@ function App() {
           },
         }}
       >
-        <RoutesIndex />
+        <AntdApp>
+          <RoutesIndex />
+        </AntdApp>
       </ConfigProvider>
     </UserProvider>
   );

@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Form, Button, message } from "antd";
+import { Form, Button, App } from "antd";
 import { InputOTP } from "antd-input-otp";
 import Api from "../../services/Api";
 import LockIcon from "../../assets/svg/Lock.svg";
 import { useUserContext } from "../../UserContext";
 
 const VerificationAccount = () => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [value, setValue] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,6 @@ const VerificationAccount = () => {
     const email = location.state?.email;
 
     if (!email) {
-      message.destroy();
       message.error("Email not provided. Please register again.");
       return;
     }
@@ -59,20 +59,17 @@ const VerificationAccount = () => {
       localStorage.setItem("token", JSON.stringify(tokenData));
       localStorage.setItem("userData", JSON.stringify(userData));
       setUserData(userData);
-      message.destroy();
       message.success("Email verified successfully. You are now logged in.");
       navigate("/verification-successfully", {
         state: { ...state, userData: state.userData },
       });
     } catch (error) {
       console.error("Verification failed:", error);
-      if (error.response && error.response.data) {
-        message.error(
-          error.response.data.message ||
-            "Verification failed. Please try again."
-        );
+      const statusCode = error?.response?.data?.statusCode || error?.data?.statusCode;
+      if (statusCode === 401 || statusCode === 400) {
+        message.error("Verification failed! OTP is incorrect or expired.");
       } else {
-        message.error("Verification failed. Please try again.");
+        message.error(error?.response?.data?.message || error?.data?.message || "Verification failed. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -90,7 +87,7 @@ const VerificationAccount = () => {
     try {
       setLoading(true);
       await Api.post("/auth/forgot-password", { email });
-      message.success("OTP has been resend to your email.");
+      message.success("OTP has been resent to your email.");
     } catch (error) {
       message.error("Failed to resend OTP. Please try again.");
       console.error("Failed to resend OTP:", error);
