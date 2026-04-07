@@ -41,6 +41,7 @@ model job_seekers {
   lmsUserId         String?
   lmsLinkedAt       DateTime?
   invitations       invitations[]
+  request_apply     request_apply[]
 }
 
 model job_seeker_details {
@@ -246,6 +247,7 @@ model jobs {
   applications           applications[]
   saved_jobs             saved_jobs[]
   invitations            invitations[]
+  request_apply          request_apply[]
 }
 
 enum work_type {
@@ -457,20 +459,39 @@ model interviews {
 }
 
 enum invitation_status {
-  pending
   accepted
-  declined
+  rejected
+  waiting_interview @map("waiting interview")
 }
 
 model invitations {
-  invitation_id String            @id @default(uuid())
-  job_id        String
-  job           jobs              @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
-  job_seeker_id String
-  job_seeker    job_seekers       @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
-  status        invitation_status @default(pending)
-  created_at    DateTime          @default(now())
-  updated_at    DateTime          @updatedAt
+  invitation_id   String            @id @default(uuid())
+  job_id          String
+  job             jobs              @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
+  job_seeker_id   String
+  job_seeker      job_seekers       @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
+  status          invitation_status @default(waiting_interview)
+  interview_dates DateTime?
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  @@unique([job_id, job_seeker_id])
+}
+
+enum request_apply_status {
+  not_applied @map("not applied")
+  applied
+}
+
+model request_apply {
+  request_apply_id String               @id @default(uuid())
+  job_id           String
+  job              jobs                 @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
+  job_seeker_id    String
+  job_seeker       job_seekers          @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
+  status           request_apply_status @default(not_applied)
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
 
   @@unique([job_id, job_seeker_id])
 }
