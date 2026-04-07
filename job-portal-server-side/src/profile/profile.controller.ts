@@ -17,11 +17,14 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiTags,
+  ApiResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
+import { ConfirmAutofillDto } from './dto/confirm-autofill.dto';
 
 @ApiTags('profile')
 @Controller('profile')
@@ -100,8 +103,12 @@ export class ProfileController {
   @ApiConsumes('application/json')
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Confirm and save auto-filled profile data' })
+  @ApiBody({ type: ConfirmAutofillDto })
+  @ApiResponse({ status: 200, description: 'Parsing data berhasil diterima dan profil diupdate.' })
+  @ApiResponse({ status: 400, description: 'Bad Request, Parsed data is required atau ada format yang salah.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized, Token JWT tidak valid atau tidak diberikan.' })
   @UseGuards(JwtAuthGuard)
-  async cvAutofillConfirm(@Request() req, @Body() body: any) {
+  async cvAutofillConfirm(@Request() req, @Body() body: ConfirmAutofillDto) {
     if (!body || !body.parsedData) {
       throw new BadRequestException('Parsed data is required');
     }

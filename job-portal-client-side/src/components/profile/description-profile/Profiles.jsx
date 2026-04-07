@@ -299,7 +299,7 @@ const Profiles = () => {
         okText="Confirm & Save"
         cancelText="Discard"
         width={700}
-        bodyStyle={{ maxHeight: '60vh', overflowY: 'auto' }}
+        styles={{ body: { maxHeight: '60vh', overflowY: 'auto' } }}
       >
         {parsedCvData && (
           <div className="space-y-4">

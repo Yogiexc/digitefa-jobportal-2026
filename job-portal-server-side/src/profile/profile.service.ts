@@ -446,7 +446,7 @@ export class ProfileService {
               experience_title: exp.title || 'Experience',
               company_name: exp.company || 'Unknown',
               description: (exp.description || '').substring(0, 250), // Prisma varchar 255
-              start_date: safeDate(exp.start_date) || new Date(),
+              start_date: safeDate(exp.start_date),
               end_date: safeDate(exp.end_date)
             },
           });
@@ -490,7 +490,8 @@ export class ProfileService {
                   university_name: validUniv.university_name,
                   degree: edu.degree || 'Auto-filled',
                   major: edu.major || 'General',
-                  start_date: new Date(),
+                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
+                  end_date: safeDate(edu.end_date),
                 },
               });
               break; // education is 1-to-1
@@ -501,7 +502,8 @@ export class ProfileService {
                   university_name: edu.university || 'Unknown',
                   degree: edu.degree || 'Auto-filled',
                   major: edu.major || 'General',
-                  start_date: new Date(),
+                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
+                  end_date: safeDate(edu.end_date),
                 },
               });
               break;
@@ -551,7 +553,7 @@ export class ProfileService {
               job_seeker_detail_id: detail.job_seeker_detail_id,
               project_name: proj.title || 'Project from CV',
               description: (proj.description || '').substring(0, 250),
-              start_date: safeDate(proj.start_date) || new Date(),
+              start_date: safeDate(proj.start_date),
               end_date: safeDate(proj.end_date)
             },
           });

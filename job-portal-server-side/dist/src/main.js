@@ -192,7 +192,11 @@ async function bootstrap() {
                 description: 'Content - Event & News',
             },
         ];
-        swagger_1.SwaggerModule.setup('api', app, document);
+        swagger_1.SwaggerModule.setup('docs', app, document, {
+            swaggerOptions: {
+                persistAuthorization: true,
+            },
+        });
     }
     await app.listen(port);
     console.log(`Application is running on: ${await app.getUrl()}`);

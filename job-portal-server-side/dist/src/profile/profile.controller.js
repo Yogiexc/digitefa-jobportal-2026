@@ -21,6 +21,7 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const change_password_dto_1 = require("./dto/change-password.dto");
 const change_email_dto_1 = require("./dto/change-email.dto");
 const verify_change_email_dto_1 = require("./dto/verify-change-email.dto");
+const confirm_autofill_dto_1 = require("./dto/confirm-autofill.dto");
 let ProfileController = class ProfileController {
     constructor(profileService) {
         this.profileService = profileService;
@@ -134,11 +135,15 @@ __decorate([
     (0, swagger_1.ApiConsumes)('application/json'),
     (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, swagger_1.ApiOperation)({ summary: 'Confirm and save auto-filled profile data' }),
+    (0, swagger_1.ApiBody)({ type: confirm_autofill_dto_1.ConfirmAutofillDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Parsing data berhasil diterima dan profil diupdate.' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request, Parsed data is required atau ada format yang salah.' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized, Token JWT tidak valid atau tidak diberikan.' }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, confirm_autofill_dto_1.ConfirmAutofillDto]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "cvAutofillConfirm", null);
 __decorate([
