@@ -1,4 +1,4 @@
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
 import { ValidateJobPortalAccountDto } from './dto/validate-job-portal-account.dto';
 import { UnlinkJobPortalAccountDto } from './dto/unlink-job-portal-account.dto';

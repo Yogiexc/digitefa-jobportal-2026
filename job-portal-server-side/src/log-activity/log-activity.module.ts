@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LogActivityService } from './log-activity.service';
 import { LogActivityController } from './log-activity.controller';
-import { PrismaModule } from 'prisma/prisma.module';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule],
@@ -9,4 +9,4 @@ import { PrismaModule } from 'prisma/prisma.module';
   controllers: [LogActivityController],
   providers: [LogActivityService],
 })
-export class LogActivityModule {}
+export class LogActivityModule { }

@@ -34,6 +34,9 @@ let JobSeekerProfileController = class JobSeekerProfileController {
     async updateProfilePicture(req, uploadProfilePictureDto, profile_picture) {
         return this.jobSeekerProfileService.updateProfilePicture(req.user, profile_picture);
     }
+    async deleteProfilePicture(req) {
+        return this.jobSeekerProfileService.deleteProfilePicture(req.user);
+    }
     async updatePersonalInfo(req, updatePersonalInfoDto) {
         return this.jobSeekerProfileService.updatePersonalInfo(req.user, updatePersonalInfoDto);
     }
@@ -96,6 +99,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, update_profile_picture_dto_1.UpdateProfilePictureDto, Object]),
     __metadata("design:returntype", Promise)
 ], JobSeekerProfileController.prototype, "updateProfilePicture", null);
+__decorate([
+    (0, swagger_1.ApiTags)('job-seeker-profile'),
+    (0, common_1.Delete)('profile-picture'),
+    (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, common_1.UseGuards)(new jwt_auth_guard_1.JwtAuthGuard(['job_seeker'])),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a job seeker profile picture' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], JobSeekerProfileController.prototype, "deleteProfilePicture", null);
 __decorate([
     (0, swagger_1.ApiTags)('job-seeker-profile'),
     (0, common_1.Put)('personal-info'),

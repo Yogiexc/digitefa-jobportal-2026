@@ -21,6 +21,10 @@ export declare class JobSeekerProfileController {
         status: string;
         message: string;
     }>;
+    deleteProfilePicture(req: any): Promise<{
+        status: string;
+        message: string;
+    }>;
     updatePersonalInfo(req: any, updatePersonalInfoDto: UpdatePersonalInfoDto): Promise<{
         status: string;
         message: string;

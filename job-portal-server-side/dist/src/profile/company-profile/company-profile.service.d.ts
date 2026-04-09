@@ -1,5 +1,5 @@
 import { UpdateCompanyProfileDto } from './dto/update-company-profile.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 export declare class CompanyProfileService {
     private prisma;
     constructor(prisma: PrismaService);

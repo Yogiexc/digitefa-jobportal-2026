@@ -2,7 +2,7 @@ import { Layout } from "antd";
 import Navbar from "../../components/Navbar";
 import Banners from "../../components/find-jobs/Banners";
 import Filter from "../../components/find-jobs/Filter";
-import JobList from "../../components/find-jobs/JobList";
+import JobListing from "../../components/find-jobs/JobList";
 import Footers from "../../components/Footers";
 import { useEffect, useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
@@ -55,7 +55,7 @@ const FindJobs = () => {
               </div>
             </div>
             <div className="lg:w-3/4 w-full" id="job-list">
-              <JobList filters={filters} />
+              <JobListing filters={filters} />
             </div>
           </div>
           <Footers />

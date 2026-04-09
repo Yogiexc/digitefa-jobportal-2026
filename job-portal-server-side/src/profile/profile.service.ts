@@ -7,7 +7,7 @@ import {
   ForbiddenException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcryptjs';
 import { otpChangeEmailTemplate } from './email-templates/otp-change-email-template';
@@ -372,9 +372,9 @@ export class ProfileService {
       const response = await axios.post(`${gpythonUrl}/parse-cv`, formData, {
         headers: formData.getHeaders(),
       });
-      
+
       const parsedData = response.data.parsed_data;
-      
+
       // Auto-save data immediately without needing frontend confirmation step
       await this.cvAutofillConfirm(user, parsedData);
 
@@ -386,10 +386,10 @@ export class ProfileService {
     } catch (error) {
       console.error('Error autofilling CV:', error);
       const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
-      
+
       const fs = require('fs');
-      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\python_error.log', errDetail); } catch(e) {}
-      
+      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\python_error.log', errDetail); } catch (e) { }
+
       throw new InternalServerErrorException(
         'Failed to process CV: Python API error: ' + errDetail,
       );

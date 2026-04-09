@@ -1,4 +1,4 @@
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { UpdatePersonalInfoDto } from './dto/update-personal-info.dto';
 import { UpdatePersonalSummaryDto } from './dto/update-personal-summary.dto';
 import { UpdateEducationDto } from './dto/update-education.dto';
@@ -46,6 +46,10 @@ export declare class JobSeekerProfileService {
         };
     }>;
     updateEducation(user: any, updateEducationDto: UpdateEducationDto): Promise<{
+        status: string;
+        message: string;
+    }>;
+    deleteProfilePicture(user: any): Promise<{
         status: string;
         message: string;
     }>;

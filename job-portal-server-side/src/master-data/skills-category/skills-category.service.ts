@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, InternalServerError
 import { CreateSkillsCategoryDto } from './dto/create-skills-category.dto';
 import { UpdateSkillsCategoryDto } from './dto/update-skills-category.dto';
 import { validate } from 'class-validator';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

@@ -1,5 +1,5 @@
 <?php
-$mysqli = new mysqli("127.0.0.1", "root", "", "digitefa_job_portal", 3306);
+$mysqli = new mysqli("127.0.0.1", "root", "root", "digitefa_job_portal", 3306);
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }

@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, InternalServerError
 import { CreateExperienceLevelDto } from './dto/create-experience-level.dto';
 import { UpdateExperienceLevelDto } from './dto/update-experience-level.dto';
 import { validate } from 'class-validator';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

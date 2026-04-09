@@ -1,6 +1,6 @@
 import { CreateSkillsCategoryDto } from './dto/create-skills-category.dto';
 import { UpdateSkillsCategoryDto } from './dto/update-skills-category.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 export declare class SkillsCategoryService {
     private prisma;
     constructor(prisma: PrismaService);

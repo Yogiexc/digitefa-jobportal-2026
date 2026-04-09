@@ -17,6 +17,7 @@ import InstagramIcon from "../../assets/svg/Instagram.svg";
 import YoutubeIcon from "../../assets/svg/Youtube.svg";
 import FacebookIcon from "../../assets/svg/Facebook.svg";
 import TwitterIcon from "../../assets/svg/Twitter.svg";
+import JobFallback from "../../assets/images/job.jpg";
 import Api from "../../services/Api";
 import PagesNotFound from "../../pages/PagesNotFound";
 
@@ -150,8 +151,9 @@ const CompanyDetailList = ({ companyId }) => {
             <Col xs={24} md={8} className="flex flex-col">
               <div className="ml-6">
                 <img
-                  src={`${API_URL}/${companyData.logo_url}`}
+                  src={companyData.logo_url ? `${API_URL}/${companyData.logo_url}` : JobFallback}
                   alt="Company Logo"
+                  onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
                   className="w-24 h-24 mb-4 border border-[#BBBBBB] rounded-[20px] p-4 "
                 />
                 <h3 className="text-xl font-semibold">
@@ -257,8 +259,9 @@ const CompanyDetailList = ({ companyId }) => {
                   <Card className="relative rounded-2xl border-[#D8D8D8]">
                     <div className="flex justify-between items-start">
                       <img
-                        src={`${API_URL}/${companyData.logo_url}`}
+                        src={companyData.logo_url ? `${API_URL}/${companyData.logo_url}` : JobFallback}
                         alt="Company Logo"
+                        onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
                         className="w-24"
                       />
                       <div className="flex flex-col">
@@ -292,22 +295,22 @@ const CompanyDetailList = ({ companyId }) => {
 
                     <div className="mt-4">
                       <div className="flex flex-wrap gap-3 mt-4">
-                        <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           {getEmploymentTypeIcon(job.employment_type)}
                           {job.employment_type}
-                        </badge>
-                        <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        </span>
+                        <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           {getWorkTypeIcon(job.work_type)}
                           {job.work_type}
-                        </badge>
-                        <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        </span>
+                        <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           <PresentationChartBarIcon
                             className="size-[14px] mr-2"
                             style={{ color: "#2E7D32" }}
                           />
                           {job.experience_requirement}
-                        </badge>
-                        <badge className="bg-[#E0F7FA] text-[#00796B] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        </span>
+                        <span className="bg-[#E0F7FA] text-[#00796B] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           <CurrencyDollarIcon
                             className="size-[14px] mr-2"
                             style={{ color: "#00796B" }}
@@ -315,7 +318,7 @@ const CompanyDetailList = ({ companyId }) => {
                           {job.minimum_salary > 0
                             ? `Rp ${job.minimum_salary.toLocaleString()} - Rp ${job.maximum_salary.toLocaleString()}`
                             : "Salary Undisclosed"}
-                        </badge>
+                        </span>
                       </div>
                       <div className="flex justify-between items-center mt-4">
                         <span className="text-xs text-[#232323]">

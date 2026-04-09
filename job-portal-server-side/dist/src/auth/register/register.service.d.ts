@@ -1,5 +1,5 @@
 import { RegisterJobSeekerDto } from './dto/register-job-seeker.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { RegisterUniversityDto } from './dto/register-university.dto';
 import { JwtService } from '@nestjs/jwt';

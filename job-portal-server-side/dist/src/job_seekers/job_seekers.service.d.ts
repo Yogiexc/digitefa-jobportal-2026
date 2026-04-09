@@ -1,6 +1,6 @@
 import { CreateJobSeekerDto } from './dto/create-job_seeker.dto';
 import { UpdateJobSeekerDto } from './dto/update-job_seeker.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 export declare class JobSeekersService {
     private prisma;
     constructor(prisma: PrismaService);

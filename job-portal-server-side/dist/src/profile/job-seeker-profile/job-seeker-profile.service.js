@@ -258,6 +258,43 @@ let JobSeekerProfileService = class JobSeekerProfileService {
             throw new common_1.InternalServerErrorException('Failed to update job seeker education');
         }
     }
+    async deleteProfilePicture(user) {
+        const existingJobSeeker = await this.prisma.job_seekers.findUnique({
+            where: { job_seeker_id: user.job_seeker_id },
+            include: { job_seeker_detail: true },
+        });
+        if (!existingJobSeeker || !existingJobSeeker.job_seeker_detail) {
+            throw new common_1.NotFoundException('Job seeker details not found');
+        }
+        const currentProfilePictureUrl = existingJobSeeker.job_seeker_detail.profile_picture_url;
+        try {
+            await this.prisma.job_seeker_details.update({
+                where: { job_seeker_detail_id: existingJobSeeker.job_seeker_detail.job_seeker_detail_id },
+                data: {
+                    profile_picture_url: null,
+                },
+            });
+            if (currentProfilePictureUrl) {
+                const filePath = (0, path_1.join)(currentProfilePictureUrl);
+                if (fs.existsSync(filePath)) {
+                    try {
+                        await fs.promises.unlink(filePath);
+                    }
+                    catch (error) {
+                        console.error('Failed to delete profile picture file:', error);
+                    }
+                }
+            }
+            return {
+                status: 'success',
+                message: 'Job Seeker profile picture deleted successfully',
+            };
+        }
+        catch (error) {
+            console.log(error);
+            throw new common_1.InternalServerErrorException('Failed to delete job seeker profile picture');
+        }
+    }
 };
 exports.JobSeekerProfileService = JobSeekerProfileService;
 exports.JobSeekerProfileService = JobSeekerProfileService = __decorate([

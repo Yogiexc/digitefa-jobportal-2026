@@ -1,6 +1,6 @@
 import { CreatePositionLevelDto } from './dto/create-position-level.dto';
 import { UpdatePositionLevelDto } from './dto/update-position-level.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 export declare class PositionLevelsService {
     private prisma;
     constructor(prisma: PrismaService);

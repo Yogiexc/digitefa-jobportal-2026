@@ -2,7 +2,8 @@ import { BadRequestException, ConflictException, Injectable, InternalServerError
 import { CreatePositionLevelDto } from './dto/create-position-level.dto';
 import { UpdatePositionLevelDto } from './dto/update-position-level.dto';
 import { validate } from 'class-validator';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaModule } from '../../../prisma/prisma.module';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

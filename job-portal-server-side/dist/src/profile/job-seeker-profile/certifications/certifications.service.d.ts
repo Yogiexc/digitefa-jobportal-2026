@@ -1,4 +1,4 @@
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { CreateCertificationDto } from './dto/create-certification.dto';
 import { LmsCertificateDto } from './certifications.controller';
 export declare class CertificationsService {

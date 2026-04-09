@@ -1,4 +1,4 @@
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 export declare class V3Service {
     private prisma;
     constructor(prisma: PrismaService);

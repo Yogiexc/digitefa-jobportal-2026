@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import * as nodemailer from 'nodemailer';
 import * as crypto from 'crypto';

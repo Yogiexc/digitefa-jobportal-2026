@@ -17,4 +17,4 @@ import { HttpModule } from '@nestjs/axios';
   controllers: [JobsController],
   providers: [JobsService],
 })
-export class JobsModule {}
+export class JobsModule { }

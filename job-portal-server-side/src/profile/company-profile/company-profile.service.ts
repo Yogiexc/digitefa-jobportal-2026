@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UpdateCompanyProfileDto } from './dto/update-company-profile.dto';
 import { validate } from 'class-validator';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import * as fs from 'fs';
 import { join } from 'path';
 

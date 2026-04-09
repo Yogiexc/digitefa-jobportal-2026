@@ -6,7 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { RegisterJobSeekerDto } from './dto/register-job-seeker.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';

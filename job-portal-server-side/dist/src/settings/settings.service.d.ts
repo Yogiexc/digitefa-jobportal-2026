@@ -1,4 +1,4 @@
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ChangeSecureLog } from './dto/changeSecureLog.dto';
 export declare class SettingsService {
     private prisma;

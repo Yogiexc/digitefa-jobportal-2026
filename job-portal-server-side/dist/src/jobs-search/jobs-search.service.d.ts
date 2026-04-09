@@ -1,4 +1,4 @@
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
 export declare class JobsSearchService {
     private prisma;

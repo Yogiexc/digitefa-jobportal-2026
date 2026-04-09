@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { validate } from 'class-validator';
 import * as fs from 'fs';
 import { join } from 'path';
@@ -280,11 +280,50 @@ export class JobSeekerProfileService {
         status: 'success',
         message: 'Job Seeker Education updated successfully',
       };
-
-
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('Failed to update job seeker education');
+    }
+  }
+
+  async deleteProfilePicture(user: any) {
+    const existingJobSeeker = await this.prisma.job_seekers.findUnique({
+      where: { job_seeker_id: user.job_seeker_id },
+      include: { job_seeker_detail: true },
+    });
+
+    if (!existingJobSeeker || !existingJobSeeker.job_seeker_detail) {
+      throw new NotFoundException('Job seeker details not found');
+    }
+
+    const currentProfilePictureUrl = existingJobSeeker.job_seeker_detail.profile_picture_url;
+
+    try {
+      await this.prisma.job_seeker_details.update({
+        where: { job_seeker_detail_id: existingJobSeeker.job_seeker_detail.job_seeker_detail_id },
+        data: {
+          profile_picture_url: null,
+        },
+      });
+
+      if (currentProfilePictureUrl) {
+        const filePath = join(currentProfilePictureUrl);
+        if (fs.existsSync(filePath)) {
+          try {
+            await fs.promises.unlink(filePath);
+          } catch (error) {
+            console.error('Failed to delete profile picture file:', error);
+          }
+        }
+      }
+
+      return {
+        status: 'success',
+        message: 'Job Seeker profile picture deleted successfully',
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Failed to delete job seeker profile picture');
     }
   }
 }

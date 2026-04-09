@@ -14,6 +14,7 @@ import {
     SparklesIcon
 } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
+import JobFallback from "../../assets/images/job.jpg";
 
 const getEmploymentTypeIcon = (employmentType) => {
     switch (employmentType) {
@@ -120,8 +121,9 @@ const RecommendedJobs = () => {
                                 <div className="flex justify-between items-start pt-2">
                                     <div className="flex gap-4">
                                         <img
-                                            src={`${API_URL}/${job.company.logo_url}`}
+                                            src={job.company.logo_url ? `${API_URL}/${job.company.logo_url}` : JobFallback}
                                             alt="Job Icon"
+                                            onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
                                             className="w-14 h-14 object-contain rounded-lg border p-1 border-gray-100"
                                         />
                                         <div className="flex flex-col flex-1">

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { LoginJobSeekerDto } from './dto/loginJobSeeker.dto';
 import { LoginCMSDto } from './dto/loginCMS.dto';
 import { SsoLmsDto } from './dto/ssoLms.dto';
@@ -16,7 +16,7 @@ export class LoginService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateJobSeeker(loginJobSeekerDto: LoginJobSeekerDto): Promise<any> {
     const [job_seeker, university, admin, company] = await Promise.all([
@@ -239,14 +239,14 @@ export class LoginService {
         },
       });
     } else if (!user.lmsUserId) {
-       // user exists by email but lmsUserId not linked yet
-       user = await this.prisma.job_seekers.update({
-         where: { job_seeker_id: user.job_seeker_id },
-         data: {
-           lmsUserId: dto.lmsUserId,
-           lmsLinkedAt: new Date(),
-         }
-       });
+      // user exists by email but lmsUserId not linked yet
+      user = await this.prisma.job_seekers.update({
+        where: { job_seeker_id: user.job_seeker_id },
+        data: {
+          lmsUserId: dto.lmsUserId,
+          lmsLinkedAt: new Date(),
+        }
+      });
     }
 
     const payload = {

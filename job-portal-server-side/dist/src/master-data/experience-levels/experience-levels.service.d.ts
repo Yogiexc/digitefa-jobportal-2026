@@ -1,6 +1,6 @@
 import { CreateExperienceLevelDto } from './dto/create-experience-level.dto';
 import { UpdateExperienceLevelDto } from './dto/update-experience-level.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 export declare class ExperienceLevelsService {
     private prisma;
     constructor(prisma: PrismaService);

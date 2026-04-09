@@ -1,6 +1,6 @@
 import { CreateLanguageDto } from './dto/create-language.dto';
 import { UpdateLanguageDto } from './dto/update-language.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class LanguagesService {
     private prisma;
     constructor(prisma: PrismaService);

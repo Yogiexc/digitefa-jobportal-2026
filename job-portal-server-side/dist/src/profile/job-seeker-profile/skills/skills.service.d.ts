@@ -1,4 +1,4 @@
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 export declare class SkillsService {
     private prisma;
     constructor(prisma: PrismaService);

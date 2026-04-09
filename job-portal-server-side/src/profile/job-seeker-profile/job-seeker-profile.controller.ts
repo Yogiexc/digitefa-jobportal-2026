@@ -1,4 +1,4 @@
-import { Controller, Get, Put, UseInterceptors, UploadedFile, BadRequestException, UseGuards, Request, Body, Post } from '@nestjs/common';
+import { Controller, Get, Put, UseInterceptors, UploadedFile, BadRequestException, UseGuards, Request, Body, Post, Delete } from '@nestjs/common';
 import { JobSeekerProfileService } from './job-seeker-profile.service';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -50,6 +50,15 @@ export class JobSeekerProfileController {
   }))
   async updateProfilePicture(@Request() req, @Body() uploadProfilePictureDto: UpdateProfilePictureDto, @UploadedFile() profile_picture?: Express.Multer.File) {
     return this.jobSeekerProfileService.updateProfilePicture(req.user, profile_picture);
+  }
+
+  @ApiTags('job-seeker-profile')
+  @Delete('profile-picture')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['job_seeker']))
+  @ApiOperation({ summary: 'Delete a job seeker profile picture' })
+  async deleteProfilePicture(@Request() req) {
+    return this.jobSeekerProfileService.deleteProfilePicture(req.user);
   }
 
   @ApiTags('job-seeker-profile')
