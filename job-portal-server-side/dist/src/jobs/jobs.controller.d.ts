@@ -45,8 +45,8 @@ export declare class JobsController {
         data: {
             status: string;
             total_applicants: number;
-            title: string;
             job_id: string;
+            title: string;
             published_at: Date;
             expired_at: Date;
         }[];
@@ -70,8 +70,8 @@ export declare class JobsController {
         data: {
             status: string;
             total_applicants: number;
-            title: string;
             job_id: string;
+            title: string;
             published_at: Date;
             expired_at: Date;
         }[];
@@ -248,13 +248,6 @@ export declare class JobsController {
                     created_at: Date;
                     updated_at: Date;
                 }[];
-                languages: {
-                    language_id: string;
-                    language_name: string;
-                    created_at: Date;
-                    updated_at: Date;
-                    job_seeker_detail_id: string | null;
-                }[];
                 skills: {
                     skill_id: string;
                     skill_name: string;
@@ -282,6 +275,13 @@ export declare class JobsController {
                     credential_url: string | null;
                     created_at: Date;
                     updated_at: Date;
+                }[];
+                languages: {
+                    language_id: string;
+                    language_name: string;
+                    created_at: Date;
+                    updated_at: Date;
+                    job_seeker_detail_id: string | null;
                 }[];
                 job_seeker: {
                     job_seeker_id: string;
