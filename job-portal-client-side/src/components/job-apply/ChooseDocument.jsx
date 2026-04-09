@@ -9,6 +9,8 @@ import Api from "../../services/Api";
 import { useOnMountUnsafe } from "../../hooks/useMountUnsave";
 import { UserOutlined } from "@ant-design/icons";
 
+import jobIcon from "../../assets/images/job.jpg";
+
 const { Dragger } = Upload;
 
 const ChooseDocument = ({ onNext }) => {
@@ -99,7 +101,7 @@ const ChooseDocument = ({ onNext }) => {
     try {
       const formData = new FormData();
       formData.append("profile_picture", file);
-
+ 
       await Api.post("/profile/job-seeker/profile-picture", formData, {
         headers: { "content-type": "multipart/form-data" },
       });
@@ -136,9 +138,13 @@ const ChooseDocument = ({ onNext }) => {
               description={
                 <div className="flex justify-between items-center w-full">
                   <img
-                    src={imageUrl || UserOutlined}
+                    src={imageUrl || jobIcon}
                     alt="Profile"
                     className="w-[110px] h-[110px] rounded-full mr-5 ml-1 border border-[#BBBBBB] p-2"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = jobIcon;
+                    }}
                   />
 
                   <div className="w-4/5" style={{ fontSize: "0.8rem" }}>

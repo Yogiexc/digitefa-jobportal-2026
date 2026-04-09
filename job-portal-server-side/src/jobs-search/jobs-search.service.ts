@@ -433,6 +433,10 @@ export class JobsSearchService {
       },
     });
 
+    if (!job) {
+      throw new NotFoundException(`Job with id ${job_id} is no longer active or has expired`);
+    }
+
     console.log('job', job);
 
     let recommendedJobs = [];
