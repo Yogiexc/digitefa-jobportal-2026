@@ -2,7 +2,6 @@ import { ProfileService } from './profile.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
-import { ConfirmAutofillDto } from './dto/confirm-autofill.dto';
 export declare class ProfileController {
     private readonly profileService;
     constructor(profileService: ProfileService);
@@ -37,7 +36,7 @@ export declare class ProfileController {
         message: string;
         data: any;
     }>;
-    cvAutofillConfirm(req: any, body: ConfirmAutofillDto): Promise<{
+    cvAutofillConfirm(req: any, body: any): Promise<{
         status: string;
         message: string;
         data: any;

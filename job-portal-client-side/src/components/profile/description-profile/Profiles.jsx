@@ -143,35 +143,17 @@ const Profiles = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      message.loading({ content: 'Parsing CV with AI...', key: 'cvupload' });
+      message.loading({ content: 'Uploading and extracting CV via AI...', key: 'cvupload' });
       const response = await Api.post("/profile/cv-autofill", formData, {
         headers: { "content-type": "multipart/form-data" },
       });
-      message.destroy('cvupload');
-      setParsedCvData(response.data.data);
-      setCvPreviewVisible(true);
+      message.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
+      getAllSectionData();
       onSuccess();
     } catch (error) {
       console.error(error);
       message.error({ content: 'Failed to process CV', key: 'cvupload' });
       onError(error);
-    }
-  };
-
-  const onConfirmCv = async () => {
-    try {
-      setIsConfirmingCv(true);
-      message.loading({ content: 'Saving profile data...', key: 'cvconfirm' });
-      await Api.post("/profile/cv-autofill-confirm", { parsedData: parsedCvData });
-      message.success({ content: 'Profile successfully updated from CV!', key: 'cvconfirm' });
-      setCvPreviewVisible(false);
-      setParsedCvData(null);
-      getAllSectionData();
-    } catch (error) {
-      console.error(error);
-      message.error({ content: 'Failed to save CV data', key: 'cvconfirm' });
-    } finally {
-      setIsConfirmingCv(false);
     }
   };
 
@@ -287,75 +269,7 @@ const Profiles = () => {
         </div>
       </div>
 
-      <Modal
-        title="Review Extracted CV Data"
-        open={cvPreviewVisible}
-        onOk={onConfirmCv}
-        onCancel={() => {
-          setCvPreviewVisible(false);
-          setParsedCvData(null);
-        }}
-        confirmLoading={isConfirmingCv}
-        okText="Confirm & Save"
-        cancelText="Discard"
-        width={700}
-        styles={{ body: { maxHeight: '60vh', overflowY: 'auto' } }}
-      >
-        {parsedCvData && (
-          <div className="space-y-4">
-            <Text type="secondary">
-              Please review the data extracted from your CV. You can edit these details individually from your profile page after saving.
-            </Text>
-            
-            {(parsedCvData.skills?.length > 0 || parsedCvData.languages?.length > 0) && (
-              <div>
-                <Title level={5} className="mt-4 mb-2">Skills & Languages</Title>
-                {parsedCvData.skills?.length > 0 && <p><strong>Skills:</strong> {parsedCvData.skills.join(', ')}</p>}
-                {parsedCvData.languages?.length > 0 && <p><strong>Languages:</strong> {parsedCvData.languages.join(', ')}</p>}
-                <Divider className="my-2" />
-              </div>
-            )}
 
-            {parsedCvData.experience_structured?.length > 0 && (
-              <div>
-                <Title level={5} className="mt-4 mb-2">Experience</Title>
-                <List
-                  size="small"
-                  dataSource={parsedCvData.experience_structured}
-                  renderItem={item => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={`${item.title} at ${item.company}`}
-                        description={item.start_date ? `${item.start_date} - ${item.end_date || 'Present'}` : null}
-                      />
-                    </List.Item>
-                  )}
-                />
-                <Divider className="my-2" />
-              </div>
-            )}
-
-            {parsedCvData.education_structured?.length > 0 && (
-              <div>
-                <Title level={5} className="mt-4 mb-2">Education</Title>
-                <List
-                  size="small"
-                  dataSource={parsedCvData.education_structured}
-                  renderItem={item => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={item.university}
-                        description={`${item.degree} in ${item.major}`}
-                      />
-                    </List.Item>
-                  )}
-                />
-                <Divider className="my-2" />
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
 
       <LinkAccount open={linkAccountOpen} setOpen={setLinkAccountOpen} />
 

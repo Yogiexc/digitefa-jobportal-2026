@@ -16,6 +16,8 @@ const bcrypt = require("bcryptjs");
 const otp_change_email_template_1 = require("./email-templates/otp-change-email-template");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const axios_1 = require("axios");
+const FormDataNode = require("form-data");
 let ProfileService = class ProfileService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -359,27 +361,29 @@ let ProfileService = class ProfileService {
         if (!gpythonUrl) {
             throw new common_1.InternalServerErrorException('Python microservice URL not configured');
         }
-        const formData = new FormData();
-        const blob = new Blob([file.buffer], { type: file.mimetype });
-        formData.append('file', blob, file.originalname);
+        const formData = new FormDataNode();
+        formData.append('file', file.buffer, { filename: file.originalname });
         try {
-            const response = await fetch(`${gpythonUrl}/parse-cv`, {
-                method: 'POST',
-                body: formData,
+            const response = await axios_1.default.post(`${gpythonUrl}/parse-cv`, formData, {
+                headers: formData.getHeaders(),
             });
-            if (!response.ok) {
-                throw new common_1.InternalServerErrorException(`Python API error: ${response.statusText}`);
-            }
-            const result = await response.json();
+            const parsedData = response.data.parsed_data;
+            await this.cvAutofillConfirm(user, parsedData);
             return {
                 status: 'success',
-                message: 'CV parsed successfully',
-                data: result.parsed_data,
+                message: 'CV parsed and profile updated successfully',
+                data: parsedData,
             };
         }
         catch (error) {
             console.error('Error autofilling CV:', error);
-            throw new common_1.InternalServerErrorException('Failed to process CV: ' + error.message);
+            const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+            const fs = require('fs');
+            try {
+                fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\python_error.log', errDetail);
+            }
+            catch (e) { }
+            throw new common_1.InternalServerErrorException('Failed to process CV: Python API error: ' + errDetail);
         }
     }
     async cvAutofillConfirm(user, parsedData) {

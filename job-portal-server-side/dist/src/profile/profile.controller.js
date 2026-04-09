@@ -48,10 +48,22 @@ let ProfileController = class ProfileController {
         return this.profileService.cvAutofill(req.user, file);
     }
     async cvAutofillConfirm(req, body) {
-        if (!body || !body.parsedData) {
-            throw new common_1.BadRequestException('Parsed data is required');
+        const fs = require('fs');
+        try {
+            if (!body)
+                throw new common_1.BadRequestException('Body is required');
+            if (!body.parsedData)
+                throw new common_1.BadRequestException('Parsed data is required: ' + JSON.stringify(body));
+            return await this.profileService.cvAutofillConfirm(req.user, body.parsedData);
         }
-        return this.profileService.cvAutofillConfirm(req.user, body.parsedData);
+        catch (e) {
+            const err = e.response ? e.response : e.message;
+            try {
+                fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\confirm_error.log', JSON.stringify({ err, body }, null, 2));
+            }
+            catch (fsErr) { }
+            throw e;
+        }
     }
     async deleteEducation(req) {
         return this.profileService.deleteEducation(req.user);
@@ -143,7 +155,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, confirm_autofill_dto_1.ConfirmAutofillDto]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "cvAutofillConfirm", null);
 __decorate([

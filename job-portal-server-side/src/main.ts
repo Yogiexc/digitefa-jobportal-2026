@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { StaticFilesMiddleware } from './middleware/static-files.middleware';
 import { ConfigService } from '@nestjs/config';
+import { apiReference } from '@scalar/nestjs-api-reference';
 import 'dotenv/config';
 
 (BigInt.prototype as any).toJSON = function () {
@@ -210,11 +211,15 @@ async function bootstrap() {
     // const yamlString = yaml.stringify(document);
     // fs.writeFileSync('./swagger.yaml', yamlString);
 
-    SwaggerModule.setup('docs', app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-    });
+    app.use(
+      '/docs',
+      apiReference({
+        theme: 'default',
+        spec: {
+          content: document,
+        },
+      }),
+    );
   }
 
   await app.listen(port);

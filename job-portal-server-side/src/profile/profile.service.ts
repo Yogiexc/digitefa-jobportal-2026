@@ -15,6 +15,8 @@ import * as nodemailer from 'nodemailer';
 import * as crypto from 'crypto';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
+import axios from 'axios';
+import * as FormDataNode from 'form-data';
 
 @Injectable()
 export class ProfileService {
@@ -363,35 +365,33 @@ export class ProfileService {
       );
     }
 
-    // @ts-ignore
-    const formData = new FormData();
-    // @ts-ignore
-    const blob = new Blob([file.buffer], { type: file.mimetype });
-    formData.append('file', blob, file.originalname);
+    const formData = new FormDataNode();
+    formData.append('file', file.buffer, { filename: file.originalname });
 
     try {
-      // @ts-ignore
-      const response = await fetch(`${gpythonUrl}/parse-cv`, {
-        method: 'POST',
-        body: formData,
+      const response = await axios.post(`${gpythonUrl}/parse-cv`, formData, {
+        headers: formData.getHeaders(),
       });
+      
+      const parsedData = response.data.parsed_data;
+      
+      // Auto-save data immediately without needing frontend confirmation step
+      await this.cvAutofillConfirm(user, parsedData);
 
-      if (!response.ok) {
-        throw new InternalServerErrorException(
-          `Python API error: ${response.statusText}`,
-        );
-      }
-
-      const result = await response.json();
       return {
         status: 'success',
-        message: 'CV parsed successfully',
-        data: result.parsed_data,
+        message: 'CV parsed and profile updated successfully',
+        data: parsedData,
       };
     } catch (error) {
       console.error('Error autofilling CV:', error);
+      const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+      
+      const fs = require('fs');
+      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\python_error.log', errDetail); } catch(e) {}
+      
       throw new InternalServerErrorException(
-        'Failed to process CV: ' + error.message,
+        'Failed to process CV: Python API error: ' + errDetail,
       );
     }
   }

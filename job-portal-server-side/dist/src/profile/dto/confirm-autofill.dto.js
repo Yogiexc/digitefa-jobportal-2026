@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConfirmAutofillDto = void 0;
-const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class ConfirmAutofillDto {
 }
@@ -23,7 +22,6 @@ __decorate([
             educations: [{ degree: 'S1 Computer Science', year: '2022' }],
         },
     }),
-    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Object)
 ], ConfirmAutofillDto.prototype, "parsedData", void 0);
 //# sourceMappingURL=confirm-autofill.dto.js.map

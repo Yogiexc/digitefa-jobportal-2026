@@ -108,11 +108,17 @@ export class ProfileController {
   @ApiResponse({ status: 400, description: 'Bad Request, Parsed data is required atau ada format yang salah.' })
   @ApiResponse({ status: 401, description: 'Unauthorized, Token JWT tidak valid atau tidak diberikan.' })
   @UseGuards(JwtAuthGuard)
-  async cvAutofillConfirm(@Request() req, @Body() body: ConfirmAutofillDto) {
-    if (!body || !body.parsedData) {
-      throw new BadRequestException('Parsed data is required');
+  async cvAutofillConfirm(@Request() req, @Body() body: any) {
+    const fs = require('fs');
+    try {
+      if (!body) throw new BadRequestException('Body is required');
+      if (!body.parsedData) throw new BadRequestException('Parsed data is required: ' + JSON.stringify(body));
+      return await this.profileService.cvAutofillConfirm(req.user, body.parsedData);
+    } catch (e) {
+      const err = e.response ? e.response : e.message;
+      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\confirm_error.log', JSON.stringify({err, body}, null, 2)); } catch(fsErr) {}
+      throw e;
     }
-    return this.profileService.cvAutofillConfirm(req.user, body.parsedData);
   }
 
   @Delete('education')

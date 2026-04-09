@@ -1,4 +1,3 @@
-import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ConfirmAutofillDto {
@@ -9,6 +8,5 @@ export class ConfirmAutofillDto {
       educations: [{ degree: 'S1 Computer Science', year: '2022' }],
     },
   })
-  @IsNotEmpty()
   parsedData: any;
 }

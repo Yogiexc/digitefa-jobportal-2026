@@ -491,8 +491,7 @@ async def parse_cv(file: UploadFile = File(...)):
         
         valid_projects = [p for p in sections["projects"] if len(p.strip()) > 10]
         valid_certs = [c for c in sections["certifications"] if len(c.strip()) > 10]
-
-        date_pattern = re.compile(r'\b(?:19|20)\d{2}\b|(?i)(?:jan|feb|mar|apr|may|mei|jun|jul|aug|agu|sep|oct|okt|nov|dec|des)[a-z]*[\s,-]+\d{2,4}')
+        date_pattern = re.compile(r'(?i)\b(?:19|20)\d{2}\b|(?:jan|feb|mar|apr|may|mei|jun|jul|aug|agu|sep|oct|okt|nov|dec|des)[a-z]*[\s,-]+\d{2,4}')
         
         def extract_dates(text):
             return date_pattern.findall(text)

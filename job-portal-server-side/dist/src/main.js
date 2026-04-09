@@ -6,6 +6,7 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const static_files_middleware_1 = require("./middleware/static-files.middleware");
 const config_1 = require("@nestjs/config");
+const nestjs_api_reference_1 = require("@scalar/nestjs-api-reference");
 require("dotenv/config");
 BigInt.prototype.toJSON = function () {
     return Number(this);
@@ -192,11 +193,12 @@ async function bootstrap() {
                 description: 'Content - Event & News',
             },
         ];
-        swagger_1.SwaggerModule.setup('docs', app, document, {
-            swaggerOptions: {
-                persistAuthorization: true,
+        app.use('/docs', (0, nestjs_api_reference_1.apiReference)({
+            theme: 'default',
+            spec: {
+                content: document,
             },
-        });
+        }));
     }
     await app.listen(port);
     console.log(`Application is running on: ${await app.getUrl()}`);
