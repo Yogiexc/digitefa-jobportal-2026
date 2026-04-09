@@ -93,6 +93,9 @@ const Navbar = () => {
       <Menu.Item key="saved-jobs" icon={<BriefcaseIcon className="size-5" />}>
         <Link to="/saved-jobs">Saved Jobs</Link>
       </Menu.Item>
+      <Menu.Item key="invited-jobs" icon={<BriefcaseIcon className="size-5" />}>
+        <Link to="/invited-jobs">My Invitations (DEMO)</Link>
+      </Menu.Item>
       <Menu.Item
         key="job-history"
         icon={<DocumentDuplicateIcon className="size-5" />}
@@ -131,6 +134,9 @@ const Navbar = () => {
       </Menu.Item>
       <Menu.Item key="saved-jobs" icon={<BriefcaseIcon className="size-5" />}>
         <Link to="/saved-jobs">Saved Jobs</Link>
+      </Menu.Item>
+      <Menu.Item key="invited-jobs" icon={<BriefcaseIcon className="size-5" />}>
+        <Link to="/invited-jobs">My Invitations (DEMO)</Link>
       </Menu.Item>
       <Menu.Item
         key="job-history"
