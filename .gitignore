@@ -12,6 +12,7 @@
 **/storage/framework/sessions/*
 **/storage/framework/views/*
 **/.env
+job-portal-server-side/dist/
 
 # OS junk
 .DS_Store
