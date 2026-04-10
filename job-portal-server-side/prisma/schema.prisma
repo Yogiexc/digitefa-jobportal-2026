@@ -38,8 +38,9 @@ model job_seekers {
   job_seeker_detail job_seeker_details?
   applications      applications[]
   saved_jobs        saved_jobs[]
-  lmsUserId         String?     
-  lmsLinkedAt       DateTime? 
+  lmsUserId         String?
+  lmsLinkedAt       DateTime?
+  invitations       invitations[]
 }
 
 model job_seeker_details {
@@ -244,6 +245,7 @@ model jobs {
   updated_at             DateTime             @updatedAt
   applications           applications[]
   saved_jobs             saved_jobs[]
+  invitations            invitations[]
 }
 
 enum work_type {
@@ -304,6 +306,7 @@ enum applicant_status {
   pending
   accepted
   rejected
+  waiting_interview @map("waiting interview")
 }
 
 model match_scores {
@@ -334,6 +337,7 @@ model applications {
   job_seeker       job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
   job              jobs             @relation(fields: [job_id], references: [job_id])
   match_scores     match_scores?
+  interviews       interviews?
 }
 
 model universities {
@@ -439,4 +443,34 @@ model settings {
   value      String   @db.Text
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model interviews {
+  interview_id   String       @id @default(uuid())
+  application_id String       @unique
+  application    applications @relation(fields: [application_id], references: [application_id], onDelete: Cascade)
+  interview_date DateTime
+  meeting_link   String?
+  notes          String?      @db.Text
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+}
+
+enum invitation_status {
+  pending
+  accepted
+  declined
+}
+
+model invitations {
+  invitation_id String            @id @default(uuid())
+  job_id        String
+  job           jobs              @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
+  job_seeker_id String
+  job_seeker    job_seekers       @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
+  status        invitation_status @default(pending)
+  created_at    DateTime          @default(now())
+  updated_at    DateTime          @updatedAt
+
+  @@unique([job_id, job_seeker_id])
 }

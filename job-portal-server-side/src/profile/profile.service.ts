@@ -15,6 +15,8 @@ import * as nodemailer from 'nodemailer';
 import * as crypto from 'crypto';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
+import axios from 'axios';
+import * as FormDataNode from 'form-data';
 
 @Injectable()
 export class ProfileService {
@@ -295,6 +297,11 @@ export class ProfileService {
       subject: 'Digitefa OTP Verification Code',
       text: `Your OTP code is ${otp}`,
       html: htmlContent,
+      attachments: [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }],
     });
   }
 
@@ -358,28 +365,43 @@ export class ProfileService {
       );
     }
 
-    // @ts-ignore
-    const formData = new FormData();
-    // @ts-ignore
-    const blob = new Blob([file.buffer], { type: file.mimetype });
-    formData.append('file', blob, file.originalname);
+    const formData = new FormDataNode();
+    formData.append('file', file.buffer, { filename: file.originalname });
 
     try {
-      // @ts-ignore
-      const response = await fetch(`${gpythonUrl}/parse-cv`, {
-        method: 'POST',
-        body: formData,
+      const response = await axios.post(`${gpythonUrl}/parse-cv`, formData, {
+        headers: formData.getHeaders(),
       });
+      
+      const parsedData = response.data.parsed_data;
+      
+      // Auto-save data immediately without needing frontend confirmation step
+      await this.cvAutofillConfirm(user, parsedData);
 
-      if (!response.ok) {
-        throw new InternalServerErrorException(
-          `Python API error: ${response.statusText}`,
-        );
-      }
+      return {
+        status: 'success',
+        message: 'CV parsed and profile updated successfully',
+        data: parsedData,
+      };
+    } catch (error) {
+      console.error('Error autofilling CV:', error);
+      const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+      
+      const fs = require('fs');
+      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\python_error.log', errDetail); } catch(e) {}
+      
+      throw new InternalServerErrorException(
+        'Failed to process CV: Python API error: ' + errDetail,
+      );
+    }
+  }
 
-      const result = await response.json();
-      const parsedData = result.parsed_data;
+  async cvAutofillConfirm(user: any, parsedData: any) {
+    if (user.role !== 'job_seeker') {
+      throw new ForbiddenException('Only job seekers can use this feature');
+    }
 
+    try {
       const detail = await this.prisma.job_seeker_details.findUnique({
         where: { job_seeker_id: user.job_seeker_id },
       });
@@ -388,7 +410,7 @@ export class ProfileService {
         throw new BadRequestException('Job seeker profile details not found');
       }
 
-      // Auto-fill extracted info (saving to DB to make it true autofill)
+      // Auto-fill extracted info
       if (parsedData.skills && parsedData.skills.length > 0) {
         const existingSkills = await this.prisma.skills.findMany({
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
@@ -453,7 +475,6 @@ export class ProfileService {
 
         for (const edu of parsedData.education_structured) {
           if (edu.university && edu.university !== 'Extracted University' && edu.university !== 'From CV') {
-            // Validate against existing university details to ensure accuracy (as requested by user)
             const validUniv = await this.prisma.university_details.findFirst({
               where: {
                 university_name: {
@@ -469,17 +490,26 @@ export class ProfileService {
                   university_name: validUniv.university_name,
                   degree: edu.degree || 'Auto-filled',
                   major: edu.major || 'General',
-                  start_date: new Date(),
+                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
+                  end_date: safeDate(edu.end_date),
                 },
               });
               break; // education is 1-to-1
+            } else {
+              await this.prisma.education.create({
+                data: {
+                  job_seeker_detail_id: detail.job_seeker_detail_id,
+                  university_name: edu.university || 'Unknown',
+                  degree: edu.degree || 'Auto-filled',
+                  major: edu.major || 'General',
+                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
+                  end_date: safeDate(edu.end_date),
+                },
+              });
+              break;
             }
           }
         }
-      } else if (parsedData.education) {
-        // Skip messy strings that don't pass the heuristic validation in python
-        // If they don't have structured data, it's safer not to insert random 'Auto-filled' records
-        // This strictly fulfills the user's request: "kalo gak ada di database gausah di masukkin"
       }
 
       // 3.5 PERSONAL_INFO
@@ -583,13 +613,13 @@ export class ProfileService {
 
       return {
         status: 'success',
-        message: 'CV processed and profile updated',
+        message: 'CV data confirmed and profile updated',
         data: parsedData,
       };
     } catch (error) {
-      console.error('Error autofilling CV:', error);
+      console.error('Error confirming CV data:', error);
       throw new InternalServerErrorException(
-        'Failed to process CV: ' + error.message,
+        'Failed to confirm CV data: ' + error.message,
       );
     }
   }

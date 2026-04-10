@@ -1,0 +1,8 @@
+{
+  "err": {
+    "message": "Parsed data is required: {}",
+    "error": "Bad Request",
+    "statusCode": 400
+  },
+  "body": {}
+}

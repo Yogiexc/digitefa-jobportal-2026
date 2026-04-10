@@ -12,6 +12,10 @@ import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import * as nodemailer from 'nodemailer';
+import { interviewEmailTemplate } from './email-templates/interview-email-template';
+import { acceptedEmailTemplate } from './email-templates/accepted-email-template';
+import { rejectedEmailTemplate } from './email-templates/rejected-email-template';
 
 @Injectable()
 export class JobsService {
@@ -856,7 +860,7 @@ export class JobsService {
       page = 1,
       pageSize = 10,
       search,
-      sortBy = 'updated_at',
+      sortBy = 'match_scores',
       sortOrder = 'desc',
       status = 'all',
       location,
@@ -986,10 +990,10 @@ export class JobsService {
         orderBy: {
           ...(sortBy === 'match_scores'
             ? {
-                match_scores: {
-                  overall: sortOrder,
-                },
-              }
+              match_scores: {
+                overall: sortOrder,
+              },
+            }
             : { [sortBy]: sortOrder }),
         },
         select: {
@@ -1265,6 +1269,49 @@ export class JobsService {
         },
       });
 
+      const totalWaitingInterview = await this.prisma.applications.count({
+        where: {
+          job_id,
+          status: 'waiting_interview',
+          ...(search && {
+            OR: [
+              {
+                job_seeker: {
+                  full_name: { contains: search },
+                },
+              },
+              {
+                job_seeker: {
+                  job_seeker_detail: {
+                    personal_info: {
+                      address: { contains: search },
+                    },
+                  },
+                },
+              },
+              {
+                job_seeker: {
+                  job_seeker_detail: {
+                    education: {
+                      major: { contains: search },
+                    },
+                  },
+                },
+              },
+            ],
+          }),
+          ...(location && {
+            job_seeker: {
+              job_seeker_detail: {
+                personal_info: {
+                  address: { contains: location },
+                },
+              },
+            },
+          }),
+        },
+      });
+
       const totalRejected = await this.prisma.applications.count({
         where: {
           job_id,
@@ -1315,6 +1362,7 @@ export class JobsService {
         message: 'Applicants retrieved successfully',
         totalData: +totalData,
         totalPending: +totalPending,
+        totalWaitingInterview: +totalWaitingInterview,
         totalAccepted: +totalAccepted,
         totalRejected: +totalRejected,
         totalPages: +totalPages,
@@ -1499,20 +1547,94 @@ export class JobsService {
     }
   }
 
+  async sendApplicationStatusEmail(email: string, status: string, jobTitle: string, companyName: string, jobseekerName?: string, interviewDetails?: any) {
+    const transporter = nodemailer.createTransport({
+      host: process.env.MAIL_HOST,
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    });
+
+    let subject = '';
+    let html = '';
+    let attachments: any[] = [];
+
+    if (status === 'waiting_interview') {
+      subject = `Interview Invitation - ${jobTitle}`;
+      attachments = [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }];
+      html = interviewEmailTemplate(
+        jobseekerName || 'Jobseeker',
+        jobTitle,
+        companyName,
+        interviewDetails?.interview_date ? new Date(interviewDetails.interview_date).toLocaleString() : 'TBD',
+        interviewDetails?.meeting_link || 'TBD',
+        interviewDetails?.notes || 'None'
+      );
+    } else if (status === 'accepted') {
+      subject = `Application Status - ${jobTitle}`;
+      attachments = [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }];
+      html = acceptedEmailTemplate(
+        jobseekerName || 'Jobseeker',
+        jobTitle,
+        companyName
+      );
+    } else if (status === 'rejected') {
+      subject = `Application Status - ${jobTitle}`;
+      attachments = [{
+        filename: 'Digitefa.png',
+        path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+        cid: 'digitefa-logo'
+      }];
+      html = rejectedEmailTemplate(
+        jobseekerName || 'Jobseeker',
+        jobTitle,
+        companyName
+      );
+    } else {
+      return;
+    }
+
+    try {
+      await transporter.sendMail({
+        from: `"${process.env.APP_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
+        to: email,
+        subject,
+        html,
+        attachments: attachments.length > 0 ? attachments : undefined,
+      });
+    } catch (error) {
+      console.error('Failed to send status email:', error);
+    }
+  }
+
   async changeStatusApplicant(
     user: any,
     application_id: string,
     changeStatusApplicationsDto: ChangeStatusApplicationsDto,
   ) {
-    const { status } = changeStatusApplicationsDto;
+    const { status, interview_date, meeting_link, notes } = changeStatusApplicationsDto;
     const application = await this.prisma.applications.findUnique({
       where: { application_id },
       include: {
         job: {
           include: {
-            company: true,
+            company: {
+              include: { company_detail: true }
+            },
           },
         },
+        job_seeker: true
       },
     });
     if (!application) {
@@ -1526,12 +1648,50 @@ export class JobsService {
       );
     }
     try {
-      await this.prisma.applications.update({
-        where: { application_id },
-        data: {
-          status,
-        },
+      await this.prisma.$transaction(async (tx) => {
+        await tx.applications.update({
+          where: { application_id },
+          data: { status: status as any },
+        });
+
+        if (status === 'waiting_interview') {
+          const existingInterview = await (tx as any).interviews.findUnique({
+            where: { application_id }
+          });
+
+          if (existingInterview) {
+            await (tx as any).interviews.update({
+              where: { application_id },
+              data: {
+                interview_date: interview_date ? new Date(interview_date) : new Date(),
+                meeting_link,
+                notes
+              }
+            });
+          } else {
+            await (tx as any).interviews.create({
+              data: {
+                application_id,
+                interview_date: interview_date ? new Date(interview_date) : new Date(),
+                meeting_link,
+                notes
+              }
+            });
+          }
+        }
       });
+
+      if (application.job_seeker?.email) {
+        const companyName = application.job.company?.company_detail?.market_name || 'DigiTefa Company';
+        await this.sendApplicationStatusEmail(
+          application.job_seeker.email,
+          status,
+          application.job.title,
+          companyName,
+          application.job_seeker.full_name,
+          { interview_date, meeting_link, notes }
+        );
+      }
 
       return {
         status: 'success',
@@ -1543,6 +1703,122 @@ export class JobsService {
         'Failed to update application status',
       );
     }
+  }
+
+  async getCompanyInterviews(user: any, page: number, limit: number, search?: string) {
+    const skip = (page - 1) * limit;
+
+    const whereCondition: any = {
+      application: {
+        job: {
+          company_id: user.company_id
+        }
+      }
+    };
+
+    if (search) {
+      whereCondition.application.job_seeker = {
+        full_name: {
+          contains: search
+        }
+      };
+    }
+
+    const interviews = await (this.prisma as any).interviews.findMany({
+      where: whereCondition,
+      include: {
+        application: {
+          include: {
+            job: true,
+            job_seeker: true
+          }
+        }
+      },
+      skip,
+      take: limit,
+      orderBy: { interview_date: 'desc' }
+    });
+
+    const total = await (this.prisma as any).interviews.count({ where: whereCondition });
+
+    return {
+      status: 'success',
+      data: interviews,
+      meta: {
+        total,
+        page,
+        last_page: Math.ceil(total / limit)
+      }
+    };
+  }
+
+  async inviteTalent(user: any, job_id: string, job_seeker_id: string) {
+    const job = await this.prisma.jobs.findUnique({
+      where: { job_id },
+      include: { company: { include: { company_detail: true } } }
+    });
+    if (!job || job.company_id !== user.company_id) {
+      throw new NotFoundException('Job not found or not owned by company');
+    }
+
+    const jobSeeker = await this.prisma.job_seekers.findUnique({
+      where: { job_seeker_id }
+    });
+    if (!jobSeeker) {
+      throw new NotFoundException('Job seeker not found');
+    }
+
+    const existing = await (this.prisma as any).invitations.findUnique({
+      where: {
+        job_id_job_seeker_id: {
+          job_id,
+          job_seeker_id
+        }
+      }
+    });
+
+    if (existing) {
+      throw new InternalServerErrorException('Talent is already invited to this job');
+    }
+
+    await (this.prisma as any).invitations.create({
+      data: {
+        job_id,
+        job_seeker_id,
+        status: 'pending'
+      }
+    });
+
+    if (jobSeeker.email) {
+      const companyName = job.company?.company_detail?.market_name || 'A Company';
+      const transporter = nodemailer.createTransport({
+        host: process.env.MAIL_HOST,
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.MAIL_USERNAME,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      });
+
+      const subject = `[DigiTefa] You have been invited to apply for ${job.title}`;
+      const html = `<p>Hello ${jobSeeker.full_name || 'Talent'},</p>
+      <p><strong>${companyName}</strong> has reviewed your profile and thinks you would be a great fit for their open <strong>${job.title}</strong> position.</p>
+      <p>Log in to your DigiTefa account to view the details and apply (or ignore the invitation if you aren't interested)!</p>`;
+
+      try {
+        await transporter.sendMail({
+          from: `"${process.env.APP_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
+          to: jobSeeker.email,
+          subject,
+          html,
+        });
+      } catch (error) {
+        console.error('Failed to send invitation email:', error);
+      }
+    }
+
+    return { status: 'success', message: 'Invitation sent successfully' };
   }
 
   async generateCSVOrXLSX(

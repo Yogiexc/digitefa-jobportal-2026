@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Modal, Select } from "antd";
+import { Button, Form, Modal, Select, Input } from "antd";
 import Api from "../../services/Api";
 import StatusModal from "../StatusModal";
 import ApprovalIcon from "../../assets/svg/Status.svg";
@@ -9,6 +9,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
   const [modalMessage, setModalMessage] = useState("");
   const [modalStatus, setModalStatus] = useState("");
   const [openStatusModal, setOpenStatusModal] = useState(false);
+  const statusValue = Form.useWatch('status', form);
 
   const handleCancel = () => {
     form.resetFields();
@@ -19,9 +20,13 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
     form
       .validateFields()
       .then((values) => {
-        Api.put(`/jobs/applicants/change-status/${applicantsData}`, {
-          status: values.status,
-        })
+        const payload = { status: values.status };
+        if (values.status === 'waiting_interview') {
+          payload.interview_date = values.interview_date;
+          payload.meeting_link = values.meeting_link;
+          payload.notes = values.notes;
+        }
+        Api.put(`/jobs/applicants/change-status/${applicantsData}`, payload)
           .then((res) => {
             const { message, status } = res;
             form.resetFields();
@@ -113,11 +118,40 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
               <Select.Option value="accepted">
                 <span className="text-green-500"> Accepted </span>
               </Select.Option>
+              <Select.Option value="waiting_interview">
+                <span className="text-yellow-500"> Waiting Interview </span>
+              </Select.Option>
               <Select.Option value="rejected">
                 <span className="text-red-500"> Rejected </span>
               </Select.Option>
             </Select>
           </Form.Item>
+
+          {statusValue === 'waiting_interview' && (
+            <>
+              <Form.Item
+                name="interview_date"
+                label="Interview Date & Time"
+                rules={[{ required: true, message: "Please enter interview date" }]}
+              >
+                <Input type="datetime-local" style={{ height: 40 }} />
+              </Form.Item>
+              <Form.Item
+                name="meeting_link"
+                label="Meeting Link / Location"
+                rules={[{ required: true, message: "Please enter meeting link or location" }]}
+              >
+                <Input placeholder="e.g. Zoom Link or Office Address" style={{ height: 40 }} />
+              </Form.Item>
+              <Form.Item
+                name="notes"
+                label="Additional Notes"
+                style={{ marginBottom: 10 }}
+              >
+                <Input.TextArea rows={3} placeholder="Any notes for the candidate" />
+              </Form.Item>
+            </>
+          )}
 
           <div className="mt-7" style={{ textAlign: "center" }}>
             <Button

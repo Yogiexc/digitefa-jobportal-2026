@@ -138,7 +138,19 @@ const JobApplicationHistoryList = () => {
                         </Button>
                       </div>
 
-                      <div className="relative flex justify-end items-start mt-8">
+                      <div className="relative flex justify-end items-start mt-8 space-x-2">
+                        <div
+                          style={{
+                            padding: "0 12px",
+                            height: "35px",
+                            backgroundColor: job.status === 'Accepted' ? '#dcfce7' : job.status === 'Rejected' ? '#fee2e2' : job.status === 'Interviewing' ? '#f3e8ff' : job.status === 'Screening' ? '#dbeafe' : '#fef3c7',
+                            color: job.status === 'Accepted' ? '#166534' : job.status === 'Rejected' ? '#991b1b' : job.status === 'Interviewing' ? '#6b21a8' : job.status === 'Screening' ? '#1e40af' : '#92400e',
+                            borderRadius: "12px",
+                          }}
+                          className="flex items-center justify-center font-medium text-xs whitespace-nowrap"
+                        >
+                          {job.status}
+                        </div>
                         <div
                           style={{
                             width: "210px",

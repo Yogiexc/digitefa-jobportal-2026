@@ -224,14 +224,18 @@ const LatestJobsOpen = () => {
                           borderRadius: 12,
                           height: 40,
                           width: 100,
-                          backgroundColor: "#06A73B",
-                          color: "white",
+                          backgroundColor: job.is_applied ? "#BBBBBB" : "#06A73B",
+                          color: job.is_applied ? "black" : "white",
                         }}
                         onClick={() => {
-                          handleApplyJob(job.job_id);
+                          if (!job.is_applied) {
+                            handleApplyJob(job.job_id);
+                          }
                         }}
                       >
-                        <span className="text-xs font-medium">Apply</span>
+                        <span className="text-xs font-medium">
+                          {job.is_applied ? "Applied" : "Apply"}
+                        </span>
                       </Button>
                     </div>
                   </div>

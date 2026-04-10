@@ -36,6 +36,7 @@ const ViewApplicants = ({ jobId }) => {
   const [pageSize, setPageSize] = useState(10);
   const [totalData, setTotalData] = useState(0);
   const [totalPending, setTotalPending] = useState(0);
+  const [totalWaitingInterview, setTotalWaitingInterview] = useState(0);
   const [totalAccepted, setTotalAccepted] = useState(0);
   const [totalRejected, setTotalRejected] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -204,6 +205,7 @@ const ViewApplicants = ({ jobId }) => {
           setData(response.data);
           setTotalData(response.totalData);
           setTotalPending(response.totalPending);
+          setTotalWaitingInterview(response.totalWaitingInterview);
           setTotalAccepted(response.totalAccepted);
           setTotalRejected(response.totalRejected);
           setLoading(false);
@@ -280,6 +282,7 @@ const ViewApplicants = ({ jobId }) => {
               options={[
                 { label: `All ${totalData}`, value: "all" },
                 { label: `Pending ${totalPending}`, value: "pending" },
+                { label: `Waiting Interview ${totalWaitingInterview}`, value: "waiting_interview" },
                 { label: `Accepted ${totalAccepted}`, value: "accepted" },
                 { label: `Rejected ${totalRejected}`, value: "rejected" },
               ]}

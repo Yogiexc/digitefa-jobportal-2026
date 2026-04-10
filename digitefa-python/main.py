@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sentence_transformers import SentenceTransformer, util
 import time 
@@ -10,8 +11,22 @@ import pdfplumber
 import re
 import io
 import os
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+from fastapi.responses import StreamingResponse
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
+# Configuration for wordcloud source
+JOBS_SEARCH_API_URL = os.getenv("JOBS_SEARCH_API_URL", "http://127.0.0.1:3000/api/jobs-search")
 
 # Changed model to MiniLM for faster inference and lightweight deployment
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
@@ -245,7 +260,67 @@ def compare_two_texts(request: TextComparisonRequest):
 # NEW ENHANCEMENT ENDPOINTS 
 # ---------------------------------------------------------
 
+class MatchScoreJobData(BaseModel):
+    title: str = ""
+    description: str = ""
+    skills_requirement: str = ""
+    education_requirement: str = ""
+    experience_requirement: str = ""
+
+class MatchScoreCandidateData(BaseModel):
+    skills: str = ""
+    experience: str = ""
+    summary: str = ""
+    education: str = ""
+    others: str = ""
+
+class MatchScoreRequest(BaseModel):
+    job: MatchScoreJobData
+    candidate: MatchScoreCandidateData
+
+@app.post("/calculate-match-score")
+def calculate_match_score(req: MatchScoreRequest):
+    """
+    Calculates weighted match score based on 5 parameters:
+    Skill (40%), Experience (25%), Summary (10%), Education (10%), Others (15%)
+    """
+    def get_sim(text1, text2):
+        if not text1.strip() or not text2.strip():
+            return 0.0
+        try:
+            emb1 = model.encode(text1, convert_to_tensor=True)
+            emb2 = model.encode(text2, convert_to_tensor=True)
+            score = float(util.cos_sim(emb1, emb2)[0][0].cpu().numpy())
+            return max(0.0, score) # Prevent negative cosine similarity
+        except:
+            return 0.0
+
+    skill_score = get_sim(req.job.skills_requirement, req.candidate.skills)
+    exp_score = get_sim(req.job.experience_requirement + " " + req.job.description, req.candidate.experience)
+    summary_score = get_sim(req.job.description, req.candidate.summary)
+    edu_score = get_sim(req.job.education_requirement, req.candidate.education)
+    others_score = get_sim(req.job.description, req.candidate.others)
+    
+    overall = (skill_score * 0.40) + \
+              (exp_score * 0.25) + \
+              (summary_score * 0.10) + \
+              (edu_score * 0.10) + \
+              (others_score * 0.15)
+
+    return {
+        "status": "success",
+        "data": {
+            "overall": round(overall, 4),
+            "skills": round(skill_score, 4),
+            "experience": round(exp_score, 4),
+            "summary": round(summary_score, 4),
+            "education": round(edu_score, 4),
+            "others": round(others_score, 4)
+        }
+    }
+
 class TalentProfile(BaseModel):
+
     id: str
     profile_text: str
 
@@ -339,200 +414,162 @@ async def parse_cv(file: UploadFile = File(...)):
                 text = page.extract_text()
                 if text:
                     full_text += text + "\n"
-        
-        # Extremely basic heuristic sectioning. 
-        # For production use with a proper LLM API, you would send `full_text` to the LLM.
-        lines = full_text.split('\n')
-        
+                    
+        cv_lines = full_text.split('\n')
         sections = {
-            "name": "",
-            "email": "",
-            "phone": "",
-            "address": "",
-            "date_of_birth": "",
-            "personal_summary": [],
-            "skills": [],
-            "experience": [],
-            "education": [],
-            "projects": [],
-            "certifications": [],
-            "languages": []
+            "name": "", "email": "", "phone": "", "address": "", "date_of_birth": "",
+            "personal_summary": [], "skills": [], "experience": [], 
+            "education": [], "projects": [], "certifications": [], "languages": []
         }
         
-        # Regex Extractors
         email_regex = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
-        phone_regex = re.compile(r"(\+?\d[\d -]{8,12}\d)")
-        dob_regex = re.compile(r"(?i)(?:ttl|lahir|dob|date of birth)[:\s]*([0-9]{1,2}[\s\-/]+[a-zA-Z0-9]{2,10}[\s\-/]+[0-9]{2,4})")
+        phone_regex = re.compile(r"(\+?\d[\d -]{8,15})")
+        dob_regex = re.compile(r"(?i)(?:ttl|lahir|dob|date of birth)[:\s]*(\d{1,2}[\s\-/]+[a-zA-Z0-9]{2,10}[\s\-/]+\d{2,4})")
         address_regex = re.compile(r"(?i)(?:alamat|address|domisili)[:\s]+([^=\n]{5,50})")
-
-        # Attempt to find Email and Phone 
+        
         emails = email_regex.findall(full_text)
-        if emails:
-            sections["email"] = emails[0]
+        if emails: sections["email"] = emails[0]
             
         phones = phone_regex.findall(full_text)
-        if phones:
-            sections["phone"] = phones[0]
+        if phones: sections["phone"] = phones[0]
             
         dobs = dob_regex.findall(full_text)
-        if dobs:
-            sections["date_of_birth"] = dobs[0].strip()
+        if dobs: sections["date_of_birth"] = dobs[0].strip()
             
         addresses = address_regex.findall(full_text)
-        if addresses:
-            sections["address"] = addresses[0].strip()
+        if addresses: sections["address"] = addresses[0].strip()
 
-        # Use the first line as a putative name if it looks like one, ignoring empty ones
-        for line in lines:
+        for line in cv_lines:
             line_clean = line.strip()
-            if line_clean and len(line_clean) < 40 and "resume" not in line_clean.lower() and "cv" not in line_clean.lower():
-                sections["name"] = line_clean
-                break
-                
-        # Heuristic section finding
+            if line_clean and len(line_clean) < 40:
+                l_lower = line_clean.lower()
+                if not any(bw in l_lower for bw in ['resume', 'cv', 'curriculum vitae', 'profil', 'data pribadi', 'contact']):
+                    sections["name"] = line_clean
+                    break
+                    
         current_section = None
-        for line in lines:
+        header_patterns = {
+            "experience": r"^(pengalaman|experience|work history|employment|riwayat kerja)",
+            "education": r"^(pendidikan|education|academic|riwayat pendidikan)",
+            "skills": r"^(keahlian|skills|keterampilan|kemampuan)",
+            "personal_summary": r"^(summary|profile|profil|tentang saya|about me|ringkasan)",
+            "projects": r"^(projects|proyek|portfolio|portofolio)",
+            "certifications": r"^(certifications|sertifikat|lisensi|licenses|sertifikasi)",
+            "languages": r"^(languages|bahasa)"
+        }
+        
+        for line in cv_lines:
             lline = line.lower().strip()
+            matched_section = False
             
-            # Identify section transitions
-            if "experience" in lline or "employment" in lline or "work history" in lline or "pengalaman" in lline or "riwayat kerja" in lline:
-                current_section = "experience"
-                continue
-            elif "education" in lline or "academic" in lline or "pendidikan" in lline or "edukasi" in lline:
-                current_section = "education"
-                continue
-            elif "skill" in lline or "technolog" in lline or "tool" in lline or "keahlian" in lline or "kemampuan" in lline or "keterampilan" in lline:
-                current_section = "skills"
-                continue
-            elif "summary" in lline or "profile" in lline or "about me" in lline or "profil" in lline or "tentang saya" in lline or "ringkasan" in lline:
-                current_section = "personal_summary"
-                continue
-            elif "project" in lline or "proyek" in lline or "portfolio" in lline or "portofolio" in lline:
-                current_section = "projects"
-                continue
-            elif "certificat" in lline or "license" in lline or "sertifikat" in lline or "lisensi" in lline or "sertifikasi" in lline:
-                current_section = "certifications"
-                continue
-            elif "language" in lline or "bahasa" in lline:
-                current_section = "languages"
-                continue
-                
-            if current_section and lline:
+            if len(lline) < 50 and lline:
+                for sec, pattern in header_patterns.items():
+                    if re.search(pattern, lline):
+                        current_section = sec
+                        matched_section = True
+                        break
+            
+            if not matched_section and current_section and line.strip():
                 if current_section in ["skills", "languages"]:
-                    # Split comma separated items
-                    parts = [p.strip() for p in re.split(r'[,|•]', line) if p.strip()]
+                    parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]
                     sections[current_section].extend(parts)
                 else:
                     sections[current_section].append(line.strip())
         
-        # Clean up arrays
-        stop_words = ["dalam tim", "teknologi baru", "kerjasama", "komunikasi", "problem solving", "tanggung jawab"]
-        phone_pattern = re.compile(r"\+?\d[\d -]{8,15}")
+        stop_words = ["dalam tim", "teknologi baru", "kerjasama", "komunikasi", "problem solving", "tanggung jawab", "dan", "lainnya"]
         
         filtered_skills = []
         for s in sections["skills"]:
             s_clean = s.strip()
-            # Ignore if strictly numeric, matches phone, too short, too long, or is a stop word
-            if s_clean.isdigit(): continue
-            if phone_pattern.match(s_clean): continue
-            if len(s_clean) < 3 or len(s_clean) > 40: continue
-            if s_clean.lower() in stop_words: continue
+            if s_clean.isdigit() or len(s_clean) < 2 or len(s_clean) > 40: continue
+            if phone_regex.match(s_clean) or s_clean.lower() in stop_words: continue
             filtered_skills.append(s_clean)
             
         sections["skills"] = list(set(filtered_skills))
-        sections["languages"] = list(set([s.strip() for s in sections["languages"] if len(s.strip()) > 1 and len(s.strip()) < 30]))
+        sections["languages"] = list(set([s.strip() for s in sections["languages"] if 1 < len(s.strip()) < 30]))
         sections["personal_summary"] = " ".join(sections["personal_summary"])
         
-        # Filter projects and certs to ignore short junk lines
         valid_projects = [p for p in sections["projects"] if len(p.strip()) > 10]
         valid_certs = [c for c in sections["certifications"] if len(c.strip()) > 10]
+        date_pattern = re.compile(r'(?i)\b(?:19|20)\d{2}\b|(?:jan|feb|mar|apr|may|mei|jun|jul|aug|agu|sep|oct|okt|nov|dec|des)[a-z]*[\s,-]+\d{2,4}')
+        
+        def extract_dates(text):
+            return date_pattern.findall(text)
+            
+        def clean_title(title, dates):
+            for d in dates: title = title.replace(d, "").strip()
+            return re.sub(r'^[\W_]+|[\W_]+$', '', title).strip()
 
-        # Build structured fields
-        sections["projects_structured"] = [{"title": "Projects", "description": " ".join(valid_projects)}] if valid_projects else []
+        sections["projects_structured"] = []
+        for line in valid_projects[:5]:
+            dates = extract_dates(line)
+            title = clean_title(line[:50], dates)
+            sections["projects_structured"].append({
+                "title": title or "Project",
+                "description": line,
+                "start_date": dates[0] if len(dates) > 0 else "",
+                "end_date": dates[-1] if len(dates) > 1 else ""
+            })
         sections["projects"] = " ".join(valid_projects)
-        sections["certifications_structured"] = [{"title": "Certifications", "description": " ".join(valid_certs)}] if valid_certs else []
+        
+        sections["certifications_structured"] = [{"title": "Cert", "description": c} for c in valid_certs[:5]]
         sections["certifications"] = " ".join(valid_certs)
 
         exp_list = []
-        date_pattern = re.compile(r'\b(?:19|20)\d{2}\b|(?:Jan|Feb|Mar|Apr|May|Mei|Jun|Jul|Aug|Agu|Sep|Oct|Okt|Nov|Dec|Des)[a-z]*\s+(?:19|20)\d{2}', re.IGNORECASE)
-        
         current_exp = None
         for line in sections["experience"]:
             line = line.strip()
             if not line: continue
             
-            # If line contains a date, it might be a new entry
-            dates = date_pattern.findall(line)
-            if dates or current_exp is None:
-                if current_exp:
+            dates = extract_dates(line)
+            if dates or current_exp is None or re.search(r' at | - | – ', line):
+                if current_exp and current_exp["description"]:
                     exp_list.append(current_exp)
                 
-                # Try to separate title and company
                 parts = re.split(r' at | @ | - | – ', line, 1)
-                title = parts[0].strip()[:100]
-                company = parts[1].strip()[:100] if len(parts) > 1 else "Extracted Company"
-                
-                # Cleanup date from title if it's there
-                for d in dates:
-                    title = title.replace(d, "").strip()
+                title = clean_title(parts[0][:100], dates)
+                company = clean_title(parts[1][:100], dates) if len(parts) > 1 else "Extracted Company"
                 
                 current_exp = {
                     "title": title or "Experience",
                     "company": company,
                     "description": "",
                     "start_date": dates[0] if len(dates) > 0 else "",
-                    "end_date": dates[1] if len(dates) > 1 else ("Present" if "present" in line.lower() or "sekarang" in line.lower() else "")
+                    "end_date": dates[-1] if len(dates) > 1 else ("Present" if re.search(r'(?i)present|sekarang', line) else "")
                 }
             else:
                 current_exp["description"] += line + " "
 
-        if current_exp:
-            exp_list.append(current_exp)
-            
-        sections["experience_structured"] = exp_list
+        if current_exp: exp_list.append(current_exp)
+        sections["experience_structured"] = exp_list[:10]
         sections["experience"] = " ".join(sections["experience"][:20])
 
-        # Handle Projects similarly
-        proj_list = []
-        for line in sections["projects"]:
+        edu_list = []
+        current_edu = None
+        for line in sections["education"]:
             line = line.strip()
             if not line: continue
-            if len(line) < 10: continue
-            
-            dates = date_pattern.findall(line)
-            # Projects often don't have clear company, but let's try to extract title
-            title = line[:50]
-            for d in dates: title = title.replace(d, "").strip()
-            
-            proj_list.append({
-                "title": title or "Project",
-                "description": line,
-                "start_date": dates[0] if len(dates) > 0 else "",
-                "end_date": dates[1] if len(dates) > 1 else ""
-            })
-            
-        sections["projects_structured"] = proj_list[:5] # Limit to top 5
-        sections["projects"] = " ".join(sections["projects"][:20])
-
-        edu_list = []
-        current_edu = {"university": "Extracted University", "degree": "Degree", "major": "General", "description": ""}
-        for idx, line in enumerate(sections["education"]):
-            if date_pattern.search(line) and idx > 0:
-                if current_edu["description"]:
+            dates = extract_dates(line)
+            if dates or current_edu is None or "univ" in line.lower() or "institut" in line.lower() or "school" in line.lower() or "sekolah" in line.lower():
+                if current_edu and current_edu["university"]:
                     edu_list.append(current_edu)
-                current_edu = {"university": line.strip()[:50], "degree": "Degree", "major": "General", "description": line.strip() + " "}
+                univ = clean_title(line[:50], dates)
+                current_edu = {
+                    "university": univ or "Education from CV",
+                    "degree": "",
+                    "major": "",
+                    "description": line + " ",
+                    "start_date": dates[0] if len(dates) > 0 else "",
+                    "end_date": dates[-1] if len(dates) > 1 else ""
+                }
             else:
-                current_edu["description"] += line.strip() + " "
-                if idx == 0 and line.strip():
-                     current_edu["university"] = line.strip()[:50]
-                     
-        if current_edu["description"].strip():
-            edu_list.append(current_edu)
-            
+                current_edu["description"] += line + " "
+                
+        if current_edu: edu_list.append(current_edu)
         if not edu_list and sections["education"]:
-            edu_list.append({"university": "From CV", "degree": "Auto-filled", "major": "General", "description": " ".join(sections["education"][:10])})
+            edu_list.append({"university": "From CV", "degree": "", "major": "", "description": " ".join(sections["education"][:10]), "start_date": "", "end_date": ""})
             
-        sections["education_structured"] = edu_list
+        sections["education_structured"] = edu_list[:5]
         sections["education"] = " ".join(sections["education"][:10])
         
         return {
@@ -541,3 +578,60 @@ async def parse_cv(file: UploadFile = File(...)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+@app.get("/wordcloud")
+async def get_wordcloud():
+    """
+    Fetches all active jobs and generates a WordCloud image from their descriptions.
+    """
+    try:
+        # Fetch jobs from the NestJS backend
+        # We use a large pageSize to get a good sample of terms
+        try:
+            response = requests.get(f"{JOBS_SEARCH_API_URL}?pageSize=100", timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            jobs = data.get("data", [])
+        except Exception as e:
+            print(f"Warning: Could not fetch jobs from backend for wordcloud: {str(e)}")
+            jobs = []
+        
+        if not jobs:
+            # Fallback text if no jobs are available
+            text = "No jobs available for analysis. Digitefa Job Portal."
+        else:
+            # Combine all job titles and descriptions (if available in the list)
+            # Note: /jobs-search usually returns a summary, but let's take whatever text we have
+            text_parts = []
+            for job in jobs:
+                title = job.get("title", "")
+                location = job.get("location", "")
+                cat = job.get("category", "")
+                text_parts.append(f"{title} {location} {cat}")
+            
+            text = " ".join(text_parts)
+
+        # Generate WordCloud
+        wordcloud = WordCloud(
+            width=800, 
+            height=400, 
+            background_color='white',
+            colormap='viridis',
+            max_words=100
+        ).generate(text)
+
+        # Save to buffer
+        img_buffer = io.BytesIO()
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')
+        plt.tight_layout(pad=0)
+        plt.savefig(img_buffer, format='png')
+        plt.close()
+        
+        img_buffer.seek(0)
+        return StreamingResponse(img_buffer, media_type="image/png")
+
+    except Exception as e:
+        print(f"Error generating wordcloud: {str(e)}")
+        # Return a placeholder image or error
+        raise HTTPException(status_code=500, detail=f"Failed to generate wordcloud: {str(e)}")

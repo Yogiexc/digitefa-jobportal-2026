@@ -212,7 +212,7 @@ const RecommendedJobList = () => {
                           }}
                         >
                           <span className="text-[12px] font-medium">
-                            Apply
+                            {job.is_applied ? "Applied" : "Apply"}
                           </span>
                         </Button>
                       </div>

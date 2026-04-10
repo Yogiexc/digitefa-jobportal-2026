@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, List, Progress } from "antd";
+import { Button, Card, List, Progress, Modal, Typography, Divider } from "antd";
 import PersonalSummary from "./PersonalSummary";
 import Education from "./Education";
 import Experience from "./Experience";
@@ -45,6 +45,11 @@ const Profiles = () => {
     getAllSectionData,
     action,
   } = useProfile({ defaultPercentage: 30 });
+
+  const { Title, Text } = Typography;
+  const [cvPreviewVisible, setCvPreviewVisible] = useState(false);
+  const [parsedCvData, setParsedCvData] = useState(null);
+  const [isConfirmingCv, setIsConfirmingCv] = useState(false);
 
   const [popup, setPopUp] = useState(defaultPopUp);
   const [linkAccountOpen, setLinkAccountOpen] = useState(false);
@@ -138,14 +143,13 @@ const Profiles = () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      message.loading({ content: 'Parsing CV with AI...', key: 'cvupload' });
-      await Api.post("/profile/cv-autofill", formData, {
+      message.loading({ content: 'Uploading and extracting CV via AI...', key: 'cvupload' });
+      const response = await Api.post("/profile/cv-autofill", formData, {
         headers: { "content-type": "multipart/form-data" },
       });
       message.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
-      onSuccess();
-      // Reload the data gracefully instead of full page reload if possible
       getAllSectionData();
+      onSuccess();
     } catch (error) {
       console.error(error);
       message.error({ content: 'Failed to process CV', key: 'cvupload' });
@@ -264,6 +268,8 @@ const Profiles = () => {
           </Card>
         </div>
       </div>
+
+
 
       <LinkAccount open={linkAccountOpen} setOpen={setLinkAccountOpen} />
 

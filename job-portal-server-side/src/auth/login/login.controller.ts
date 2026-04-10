@@ -11,6 +11,7 @@ import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginJobSeekerDto } from './dto/loginJobSeeker.dto';
 import { LoginCMSDto } from './dto/loginCMS.dto';
 import { LoginGoogleDto } from './dto/loginGoogle.dto';
+import { SsoLmsDto } from './dto/ssoLms.dto';
 
 @ApiTags('auth-login')
 @Controller('auth/login')
@@ -24,6 +25,14 @@ export class LoginController {
   @HttpCode(200)
   async loginGoogle(@Body() loginGoogleDto: LoginGoogleDto) {
     return this.loginService.loginGoogle(loginGoogleDto.credential);
+  }
+
+  @Post('sso-lms')
+  @ApiConsumes('application/json')
+  @ApiOperation({ summary: 'Login or Auto-Register from LMS via SSO' })
+  @HttpCode(200)
+  async ssoLms(@Body() ssoLmsDto: SsoLmsDto) {
+    return this.loginService.ssoLms(ssoLmsDto);
   }
 
   @Post('job-seeker')

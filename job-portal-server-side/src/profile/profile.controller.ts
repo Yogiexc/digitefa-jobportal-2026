@@ -17,11 +17,14 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiTags,
+  ApiResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { VerifyChangeEmailDto } from './dto/verify-change-email.dto';
+import { ConfirmAutofillDto } from './dto/confirm-autofill.dto';
 
 @ApiTags('profile')
 @Controller('profile')
@@ -94,6 +97,28 @@ export class ProfileController {
       throw new BadRequestException('CV file is required');
     }
     return this.profileService.cvAutofill(req.user, file);
+  }
+
+  @Post('cv-autofill-confirm')
+  @ApiConsumes('application/json')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Confirm and save auto-filled profile data' })
+  @ApiBody({ type: ConfirmAutofillDto })
+  @ApiResponse({ status: 200, description: 'Parsing data berhasil diterima dan profil diupdate.' })
+  @ApiResponse({ status: 400, description: 'Bad Request, Parsed data is required atau ada format yang salah.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized, Token JWT tidak valid atau tidak diberikan.' })
+  @UseGuards(JwtAuthGuard)
+  async cvAutofillConfirm(@Request() req, @Body() body: any) {
+    const fs = require('fs');
+    try {
+      if (!body) throw new BadRequestException('Body is required');
+      if (!body.parsedData) throw new BadRequestException('Parsed data is required: ' + JSON.stringify(body));
+      return await this.profileService.cvAutofillConfirm(req.user, body.parsedData);
+    } catch (e) {
+      const err = e.response ? e.response : e.message;
+      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\confirm_error.log', JSON.stringify({err, body}, null, 2)); } catch(fsErr) {}
+      throw e;
+    }
   }
 
   @Delete('education')
