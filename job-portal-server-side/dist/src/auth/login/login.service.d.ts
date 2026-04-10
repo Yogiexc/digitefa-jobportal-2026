@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { LoginJobSeekerDto } from './dto/loginJobSeeker.dto';
 import { LoginCMSDto } from './dto/loginCMS.dto';
 import { SsoLmsDto } from './dto/ssoLms.dto';

@@ -13,6 +13,7 @@ import {
   ComputerDesktopIcon,
 } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
+import JobFallback from "../../assets/images/job.jpg";
 
 const getEmploymentTypeIcon = (employmentType) => {
   switch (employmentType) {
@@ -142,8 +143,9 @@ const LatestJobsOpen = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex gap-6">
                     <img
-                      src={`${API_URL}/${job.company.logo_url}`}
+                      src={job.company.logo_url ? `${API_URL}/${job.company.logo_url}` : JobFallback}
                       alt="Job Icon"
+                      onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
                       className="w-16 h-16 object-cover rounded-full"
                     />
                     <div className="flex flex-col">
@@ -173,32 +175,32 @@ const LatestJobsOpen = () => {
                 </div>
 
                 <div className="mt-4">
-                  <div className="flex flex-wrap gap-3 mt-4">
-                    <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
-                      {getEmploymentTypeIcon(job.employment_type)}
-                      {job.employment_type}
-                    </badge>
-                    <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
-                      {getWorkTypeIcon(job.work_type)}
-                      {job.work_type}
-                    </badge>
-                    <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
-                      <PresentationChartBarIcon
-                        className="size-[14px] mr-2"
-                        style={{ color: "#2E7D32" }}
-                      />
-                      {job.experience_requirement}
-                    </badge>
-                    <badge className="bg-[#E0F7FA] text-[#00796B] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
-                      <CurrencyDollarIcon
-                        className="size-[14px] mr-2"
-                        style={{ color: "#00796B" }}
-                      />
-                      {job.minimum_salary > 0
-                        ? `Rp ${job.minimum_salary.toLocaleString()} - Rp ${job.maximum_salary.toLocaleString()}`
-                        : "Salary Undisclosed"}
-                    </badge>
-                  </div>
+                    <div className="flex flex-wrap gap-3 mt-4">
+                      <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        {getEmploymentTypeIcon(job.employment_type)}
+                        {job.employment_type}
+                      </span>
+                      <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        {getWorkTypeIcon(job.work_type)}
+                        {job.work_type}
+                      </span>
+                      <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        <PresentationChartBarIcon
+                          className="size-[14px] mr-2"
+                          style={{ color: "#2E7D32" }}
+                        />
+                        {job.experience_requirement}
+                      </span>
+                      <span className="bg-[#E0F7FA] text-[#00796B] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        <CurrencyDollarIcon
+                          className="size-[14px] mr-2"
+                          style={{ color: "#00796B" }}
+                        />
+                        {job.minimum_salary > 0
+                          ? `Rp ${job.minimum_salary.toLocaleString()} - Rp ${job.maximum_salary.toLocaleString()}`
+                          : "Salary Undisclosed"}
+                      </span>
+                    </div>
                   <div className="flex justify-between items-center mt-4">
                     <span className="text-xs text-[#232323]">
                       {calculateDaysAgo(job.published_at) === 0

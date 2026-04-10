@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { StaticFilesMiddleware } from './middleware/static-files.middleware';
 import { ConfigService } from '@nestjs/config';
+// @ts-ignore
 import { apiReference } from '@scalar/nestjs-api-reference';
 import 'dotenv/config';
 

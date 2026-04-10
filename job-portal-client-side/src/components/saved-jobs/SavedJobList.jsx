@@ -3,6 +3,7 @@ import { Card, Button, Col, Row, message } from "antd";
 import { BookmarkIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import { useNavigate } from "react-router-dom";
+import JobFallback from "../../assets/images/job.jpg";
 import NotFoundIcon from "../../assets/images/404.png";
 
 const calculateDaysAgo = (published_at) => {
@@ -72,9 +73,10 @@ const SavedJobList = () => {
                       <div className="flex justify-between items-start">
                         <div className="flex space-x-6">
                           <img
-                            src={`${API_URL}/${job.company.logo_url}`}
+                            src={job.company.logo_url ? `${API_URL}/${job.company.logo_url}` : JobFallback}
                             alt="Job Icon"
-                            className="w-16"
+                            onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
+                            className="w-16 h-16 object-cover rounded-full"
                           />
                           <div className="flex flex-col">
                             <h3 className="text-[15px] font-semibold">

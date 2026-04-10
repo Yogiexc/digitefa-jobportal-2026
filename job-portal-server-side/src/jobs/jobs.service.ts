@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { omit } from 'lodash';
 import { ChangeStatusApplicationsDto } from './dto/change-status-applications.dto';
 import * as ExcelJS from 'exceljs';

@@ -362,6 +362,9 @@ let JobsSearchService = class JobsSearchService {
                 },
             },
         });
+        if (!job) {
+            throw new common_1.NotFoundException(`Job with id ${job_id} is no longer active or has expired`);
+        }
         console.log('job', job);
         let recommendedJobs = [];
         if (jobSeeker) {

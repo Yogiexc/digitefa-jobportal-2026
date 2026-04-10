@@ -6,12 +6,14 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import PersonalInformationIcon from "../../assets/svg/Personal.svg";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 
+import BrokenImage from "../../assets/images/broken.jpg";
+
 dayjs.extend(customParseFormat);
 
 const PersonalInformation = ({ open, setOpen, initialValues, onSubmit, onUploadImage }) => {
   const [form] = Form.useForm();
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState(initialValues?.profile_picture_url ?? "");
+  const [previewImage, setPreviewImage] = useState(initialValues?.imageUrl ?? BrokenImage);
   const [fileList, setFileList] = useState([]);
 
   const handleFinish = (values) => {
@@ -44,20 +46,15 @@ const PersonalInformation = ({ open, setOpen, initialValues, onSubmit, onUploadI
   const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
   const uploadButton = (
-    <button
-      style={{
-        border: 0,
-        background: "none",
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      type="button"
-    >
-      <DocumentArrowUpIcon className="size-7 ml-3" />
-      <span className="font-medium text-xs mr-3"> Upload Image</span>
-    </button>
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <img
+        src={BrokenImage}
+        alt="Default"
+        className="absolute inset-0 w-full h-full object-cover rounded-full opacity-30"
+      />
+      <DocumentArrowUpIcon className="size-7 z-10" />
+      <span className="font-medium text-[10px] z-10"> Upload Image</span>
+    </div>
   );
 
   const handleRemove = () => {
@@ -81,17 +78,26 @@ const PersonalInformation = ({ open, setOpen, initialValues, onSubmit, onUploadI
   };
 
   useEffect(() => {
-    if (initialValues?.imageUrl) {
-      setFileList([
-        {
-          uid: "-1",
-          name: initialValues?.profile_picture_url,
-          status: "done",
-          url: initialValues?.imageUrl,
-        },
-      ]);
+    if (open && initialValues) {
+      form.setFieldsValue({
+        ...initialValues,
+      });
+      if (initialValues?.imageUrl) {
+        setPreviewImage(initialValues.imageUrl);
+        setFileList([
+          {
+            uid: "-1",
+            name: initialValues?.profile_picture_url,
+            status: "done",
+            url: initialValues?.imageUrl,
+          },
+        ]);
+      } else {
+        setPreviewImage(BrokenImage);
+        setFileList([]);
+      }
     }
-  }, [initialValues?.imageUrl]);
+  }, [open, initialValues, form]);
 
   return (
     <Modal
@@ -107,7 +113,7 @@ const PersonalInformation = ({ open, setOpen, initialValues, onSubmit, onUploadI
         </div>
       }
       centered
-      visible={open}
+      open={open}
       onCancel={handleCancel}
       width={700}
       maskClosable={false}
@@ -145,13 +151,18 @@ const PersonalInformation = ({ open, setOpen, initialValues, onSubmit, onUploadI
         </ImgCrop>
         {previewImage && (
           <Image
-            wrapperStyle={{ display: "none" }}
+            wrapperStyle={{ 
+              display: "none",
+              backgroundImage: `url(${BrokenImage})`,
+              backgroundSize: "cover",
+            }}
             preview={{
               visible: previewOpen,
               onVisibleChange: (visible) => setPreviewOpen(visible),
               afterOpenChange: (visible) => !visible && setPreviewImage(""),
             }}
             src={previewImage}
+            fallback={BrokenImage}
           />
         )}
         <div className="ml-8 mt-4">

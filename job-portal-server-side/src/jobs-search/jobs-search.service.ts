@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
 
 import { firstValueFrom } from 'rxjs';
@@ -10,7 +10,7 @@ export class JobsSearchService {
   constructor(
     private prisma: PrismaService,
     private httpService: HttpService,
-  ) {}
+  ) { }
 
   async findJobs(
     user: any,
@@ -432,6 +432,10 @@ export class JobsSearchService {
         },
       },
     });
+
+    if (!job) {
+      throw new NotFoundException(`Job with id ${job_id} is no longer active or has expired`);
+    }
 
     console.log('job', job);
 

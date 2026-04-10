@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LmsService } from './lms.service';
 import { LmsController } from './lms.controller';
-import { PrismaModule } from 'prisma/prisma.module';
+import { PrismaModule } from '../../prisma/prisma.module';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
@@ -9,4 +9,4 @@ import { HttpModule } from '@nestjs/axios';
   controllers: [LmsController],
   providers: [LmsService],
 })
-export class LmsModule {}
+export class LmsModule { }

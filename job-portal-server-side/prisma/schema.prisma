@@ -307,6 +307,7 @@ enum applicant_status {
   accepted
   rejected
   waiting_interview @map("waiting interview")
+  interviewing
 }
 
 model match_scores {

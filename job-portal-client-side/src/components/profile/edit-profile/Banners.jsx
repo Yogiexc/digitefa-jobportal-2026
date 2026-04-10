@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "antd";
 import {
   PhoneIcon,
@@ -10,15 +10,21 @@ import {
 import { previewImageUrl } from "../../../utils";
 import PersonalInformation from "../../profile/edit-profile/PersonalInformation";
 import Background from "../../../assets/images/Background.jpg";
-import { UserOutlined } from "@ant-design/icons";
+import NoImageAvailable from "../../../assets/images/broken.jpg";
 
-const Banners = ({ user, profile, onSubmit, onUploadImage }) => {
+const Banners = ({ user, profile, onSubmit, onUploadImage, onRemoveImage }) => {
   const [openPersonalInformation, setOpenPersonalInformation] = useState(false);
 
   const imageUrl = previewImageUrl({
     patch: "LOGO",
-    url_image: profile?.profile_picture_url,
+    url_image: profile?.profile_picture_url || user?.profile_picture_url,
   });
+
+  const [imgSrc, setImgSrc] = useState(imageUrl || NoImageAvailable);
+
+  useEffect(() => {
+    setImgSrc(imageUrl || NoImageAvailable);
+  }, [imageUrl]);
 
   const formatDateOfBirth = (dateString) => {
     const date = new Date(dateString);
@@ -34,22 +40,16 @@ const Banners = ({ user, profile, onSubmit, onUploadImage }) => {
   return (
     <>
       <div
-        className="px-4 sm:px-10 md:px-[160px] h-[295px] flex flex-col md:flex-row items-center justify-between p-6 bg-cover bg-center h-full"
+        className="px-4 sm:px-10 md:px-[160px] h-[295px] flex flex-col md:flex-row items-center justify-between p-6 bg-cover bg-center"
         style={{ backgroundImage: `url(${Background})` }}
       >
         <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt="Profile"
-              className="w-[150px] h-[150px] md:w-[195px] md:h-[195px] rounded-full bg-gray-200 flex items-center justify-center"
-            />
-          ) : (
-            <UserOutlined
-              style={{ fontSize: "65px", color: "#999" }}
-              className="w-[150px] h-[150px] md:w-[195px] md:h-[195px] rounded-full bg-gray-200 flex items-center justify-center"
-            />
-          )}
+          <img
+            src={imgSrc}
+            alt="Profile"
+            onError={() => setImgSrc(NoImageAvailable)}
+            className="w-[150px] h-[150px] md:w-[195px] md:h-[195px] rounded-full bg-gray-200 object-cover flex items-center justify-center"
+          />
 
           <div className="space-y-1 md:space-y-2">
             <h1 className="text-[24px] md:text-[32px] font-medium">{profile?.full_name}</h1>
@@ -89,6 +89,7 @@ const Banners = ({ user, profile, onSubmit, onUploadImage }) => {
       <PersonalInformation
         onSubmit={onSubmit}
         onUploadImage={onUploadImage}
+        onRemoveImage={onRemoveImage}
         open={openPersonalInformation}
         setOpen={setOpenPersonalInformation}
         initialValues={{ ...user, ...profile, imageUrl }}

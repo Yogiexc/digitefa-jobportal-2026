@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateJobSeekerDto } from './dto/create-job_seeker.dto';
 import { UpdateJobSeekerDto } from './dto/update-job_seeker.dto';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { Prisma, verified } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { validate } from 'class-validator';
