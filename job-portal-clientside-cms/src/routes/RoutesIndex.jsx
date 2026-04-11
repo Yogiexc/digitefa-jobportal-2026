@@ -15,7 +15,6 @@ import ExperienceLevel from "../pages/master-data/ExperienceLevel";
 import Skills from "../pages/master-data/Skills";
 import UniversityManagement from "../pages/university-management/UniversityManagement";
 import CompanyManagement from "../pages/company-management/CompanyManagement";
-import Talents from "../pages/talents/Talents";
 import AboutUs from "../pages/content/AboutUs";
 import EventNews from "../pages/content/EventNews";
 import PrivacyPolicy from "../pages/content/PrivacyPolicy";
@@ -143,12 +142,6 @@ function RoutesIndex() {
       >
         <Route path="/profile-completed" element={<ProfileCompleted />} />
         <Route path="/request-profile" element={<RequestProfile />} />
-      </Route>
-
-      <Route
-        element={<ProtectedRoute requiredRole={["superadmin", "company"]} />}
-      >
-        <Route path="/talents" element={<Talents />} />
       </Route>
 
       <Route element={<ProtectedRoute requiredRole={["university"]} />}>
