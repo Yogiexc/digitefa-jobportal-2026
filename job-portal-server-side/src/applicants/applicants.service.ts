@@ -180,7 +180,19 @@ export class ApplicantsService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // 1) Buat aplikasi
+        // 1) Update request_apply status if it exists
+        await tx.request_apply.updateMany({
+          where: {
+            job_id,
+            job_seeker_id: user.job_seeker_id,
+            status: 'not_applied'
+          },
+          data: {
+            status: 'applied'
+          }
+        });
+
+        // 2) Buat aplikasi
         const application = await tx.applications.create({
           data: {
             job_id,

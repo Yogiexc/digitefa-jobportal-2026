@@ -837,6 +837,125 @@ export class JobsService {
     }
   }
 
+  async findAllJobsRequested(
+    user: any,
+    params: {
+      page?: number;
+      pageSize?: number;
+    },
+  ) {
+    let { page = 1, pageSize = 10 } = params;
+
+    const skip = (page - 1) * pageSize;
+    const take = +pageSize;
+
+    try {
+      const totalData = await (this.prisma as any).request_apply.count({
+        where: { job_seeker_id: user.job_seeker_id },
+      });
+
+      const totalPages = Math.ceil(totalData / pageSize);
+
+      const requestedJobs = await (this.prisma as any).request_apply.findMany({
+        where: { job_seeker_id: user.job_seeker_id },
+        skip,
+        take,
+        orderBy: { created_at: 'desc' },
+        include: {
+          job: {
+            select: {
+              job_id: true,
+              title: true,
+              location: true,
+              employment_type: true,
+              work_type: true,
+              category: true,
+              education_requirement: true,
+              salary_type: true,
+              minimum_salary: true,
+              maximum_salary: true,
+              experience_requirement: true,
+              published_at: true,
+              expired_at: true,
+              company: {
+                select: {
+                  company_id: true,
+                  company_detail: {
+                    select: {
+                      logo_url: true,
+                      legal_name: true,
+                      market_name: true,
+                      city: true,
+                      country: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const responseData = requestedJobs.map((request) => {
+        return {
+          request_apply_id: request.request_apply_id,
+          status: request.status,
+          requested_at: request.created_at,
+          job_id: request.job.job_id,
+          title: request.job.title,
+          published_at: request.job.published_at,
+          expired_at: request.job.expired_at,
+          employment_type: request.job.employment_type
+            .split('_')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' '),
+          work_type: request.job.work_type
+            .split('_')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' '),
+          category: request.job.category
+            .split('_')
+            .map((word) =>
+              word.toLowerCase() === 'and'
+                ? word
+                : word.charAt(0).toUpperCase() + word.slice(1),
+            )
+            .join(' '),
+          education_requirement: request.job.education_requirement,
+          salary_type: request.job.salary_type
+            .split('_')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' '),
+          minimum_salary: Number(request.job.minimum_salary),
+          maximum_salary: Number(request.job.maximum_salary),
+          experience_requirement: request.job.experience_requirement,
+          location: request.job.location,
+          company: {
+            company_id: request.job.company.company_id,
+            logo_url: request.job.company.company_detail.logo_url,
+            legal_name: request.job.company.company_detail.legal_name,
+            market_name: request.job.company.company_detail.market_name,
+            city: request.job.company.company_detail.city,
+            country: request.job.company.company_detail.country,
+          },
+        };
+      });
+
+      return {
+        status: 'success',
+        message: 'Jobs requested retrieved successfully',
+        totalData: +totalData,
+        totalPages: +totalPages,
+        currentPage: +page,
+        size: +pageSize,
+        data: responseData,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Failed to retrieve requested jobs');
+    }
+  }
+
   async findApplicants(
     job_id: string,
     user: any,
@@ -1679,6 +1798,37 @@ export class JobsService {
             });
           }
         }
+        
+        // Sync to invitations table per user request
+        if (['waiting_interview', 'accepted', 'rejected'].includes(status)) {
+          const invitationStatus = status === 'waiting_interview' ? 'waiting_interview' : status;
+          
+          const existingInvitation = await (tx as any).invitations.findFirst({
+            where: { 
+              job_id: application.job_id,
+              job_seeker_id: application.job_seeker_id
+            }
+          });
+          
+          if (existingInvitation) {
+            await (tx as any).invitations.update({
+              where: { invitation_id: existingInvitation.invitation_id },
+              data: {
+                status: invitationStatus,
+                interview_dates: interview_date ? new Date(interview_date) : null
+              }
+            });
+          } else {
+            await (tx as any).invitations.create({
+              data: {
+                job_id: application.job_id,
+                job_seeker_id: application.job_seeker_id,
+                status: invitationStatus,
+                interview_dates: interview_date ? new Date(interview_date) : null
+              }
+            });
+          }
+        }
       });
 
       if (application.job_seeker?.email) {
@@ -1768,7 +1918,7 @@ export class JobsService {
       throw new NotFoundException('Job seeker not found');
     }
 
-    const existing = await (this.prisma as any).invitations.findUnique({
+    const existing = await (this.prisma as any).request_apply.findUnique({
       where: {
         job_id_job_seeker_id: {
           job_id,
@@ -1778,14 +1928,14 @@ export class JobsService {
     });
 
     if (existing) {
-      throw new InternalServerErrorException('Talent is already invited to this job');
+      throw new InternalServerErrorException('Talent has already been requested to apply to this job');
     }
 
-    await (this.prisma as any).invitations.create({
+    await (this.prisma as any).request_apply.create({
       data: {
         job_id,
         job_seeker_id,
-        status: 'pending'
+        status: 'not_applied'
       }
     });
 

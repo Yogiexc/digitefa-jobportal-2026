@@ -81,14 +81,6 @@ const MenuSidebar = [
     ["superadmin"]
   ),
 
-  getItem(
-    "Talents",
-    <Link to={`/talents`}>Talents </Link>,
-    "talents",
-    "/talents",
-    <IdentificationIcon className="size-5" />,
-    ["superadmin", "company"]
-  ),
 
   getItem(
     "Profile Company",

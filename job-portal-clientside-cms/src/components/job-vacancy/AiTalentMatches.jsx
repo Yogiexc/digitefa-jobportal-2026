@@ -1,4 +1,4 @@
-import { Button, Layout, Modal, Table, message, Progress, Space, Typography, Tag, Avatar, Tooltip } from "antd";
+import { Button, Layout, Modal, Table, message, Progress, Space, Typography, Tag, Avatar, Tooltip, Drawer, Divider } from "antd";
 import { useEffect, useState } from "react";
 import Api from "../../services/Api";
 import { SparklesIcon, UserCircleIcon, EnvelopeIcon } from "@heroicons/react/24/solid";
@@ -9,6 +9,9 @@ const { Text, Title } = Typography;
 const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription }) => {
     const [loading, setLoading] = useState(false);
     const [matches, setMatches] = useState([]);
+    const [invitingId, setInvitingId] = useState(null);
+    const [openProfile, setOpenProfile] = useState(false);
+    const [selectedCandidate, setSelectedCandidate] = useState(null);
 
     useEffect(() => {
         if (open && jobId) {
@@ -64,6 +67,24 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription }) => {
         if (score >= 0.7) return "High Match";
         if (score >= 0.4) return "Medium Match";
         return "Low Match";
+    };
+
+    const handleInvite = async (candidate) => {
+        const jobSeekerId = candidate.job_seeker?.job_seeker_id || candidate.job_seeker_id || candidate.student_id;
+        if (!jobSeekerId) {
+            message.error("Candidate ID not found.");
+            return;
+        }
+
+        setInvitingId(jobSeekerId);
+        try {
+            await Api.post(`/jobs/${jobId}/invite`, { job_seeker_id: jobSeekerId });
+            message.success(`Invitation successfully sent to ${candidate.job_seeker?.full_name || "candidate"}!`);
+        } catch (error) {
+            message.error(error.response?.data?.message || "Failed to send invitation. They might already be invited.");
+        } finally {
+            setInvitingId(null);
+        }
     };
 
     const columns = [
@@ -133,9 +154,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription }) => {
                         type="primary"
                         icon={<EnvelopeIcon className="h-4 w-4 mr-1 text-white border-white inline" />}
                         className="bg-purple-600 hover:bg-purple-500 w-full"
-                        onClick={() => {
-                            message.success(`Invitation sent to ${record.job_seeker?.full_name || "candidate"}'s email!`);
-                        }}
+                        onClick={() => handleInvite(record)}
+                        loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
                     >
                         Invite
                     </Button>
@@ -143,7 +163,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription }) => {
                         type="default"
                         className="w-full"
                         onClick={() => {
-                            message.info(`Viewing profile for ${record.job_seeker?.full_name || "candidate"}...`);
+                            setSelectedCandidate(record);
+                            setOpenProfile(true);
                         }}
                     >
                         View Profile
@@ -186,6 +207,67 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription }) => {
                     Back to Vacancies
                 </Button>
             </div>
+
+            <Drawer
+                title="Candidate Profile Details"
+                placement="right"
+                width={500}
+                onClose={() => setOpenProfile(false)}
+                open={openProfile}
+            >
+                {selectedCandidate && (
+                    <div className="flex flex-col">
+                        <div className="flex items-center space-x-4 mb-6">
+                            <Avatar size={64} src={selectedCandidate.photo_profile || selectedCandidate.job_seeker?.profile_picture_url} icon={!(selectedCandidate.photo_profile || selectedCandidate.job_seeker?.profile_picture_url) && <UserCircleIcon className="h-full w-full" />} />
+                            <div>
+                                <Title level={4} style={{ marginBottom: 0 }}>{selectedCandidate.job_seeker?.full_name || "Unknown Candidate"}</Title>
+                                <Text type="secondary">{selectedCandidate.job_seeker?.email || "No Email Provided"}</Text>
+                            </div>
+                        </div>
+
+                        {selectedCandidate.personal_summary && (
+                            <div className="mb-6">
+                                <Title level={5}>Summary</Title>
+                                <Text>{selectedCandidate.personal_summary}</Text>
+                            </div>
+                        )}
+
+                        <div className="mb-6">
+                            <Title level={5}>Skills Match</Title>
+                            <div className="flex flex-wrap gap-2">
+                                {(selectedCandidate.skills || []).map((skill, index) => (
+                                    <Tag color="cyan" key={skill.job_seeker_skill_id || index}>{skill.skill_name || skill}</Tag>
+                                ))}
+                            </div>
+                        </div>
+
+                        {selectedCandidate.education && selectedCandidate.education.length > 0 && (
+                            <div className="mb-6">
+                                <Title level={5}>Education</Title>
+                                {selectedCandidate.education.map((edu, index) => (
+                                    <div key={edu.education_id || index} className="mb-2">
+                                        <Text strong>{edu.university_name}</Text><br />
+                                        <Text type="secondary">{edu.degree} in {edu.major}</Text>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {selectedCandidate.experiences && selectedCandidate.experiences.length > 0 && (
+                            <div className="mb-6">
+                                <Title level={5}>Experience</Title>
+                                {selectedCandidate.experiences.map((exp, index) => (
+                                    <div key={exp.experience_id || index} className="mb-2 pb-2 border-b border-gray-100 last:border-0">
+                                        <Text strong>{exp.experience_title}</Text><br />
+                                        <Text>{exp.company_name}</Text> <br/>
+                                        {exp.description && <Text type="secondary" className="text-sm line-clamp-3">{exp.description}</Text>}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </Drawer>
         </Content>
     );
 };

@@ -296,6 +296,24 @@ export class JobsController {
     });
   }
 
+  @ApiTags('job-seeker-requested-jobs')
+  @Get('requested/jobs')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['job_seeker']))
+  @ApiOperation({ summary: 'List all jobs requested by company for job seeker' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
+  findAllJobsRequested(
+    @Request() req,
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ) {
+    return this.jobsService.findAllJobsRequested(req.user, {
+      page,
+      pageSize,
+    });
+  }
+
   @ApiTags('jobs-applicants')
   @Get('jobs/applicants/detail/:application_id')
   @ApiBearerAuth('access-token')
