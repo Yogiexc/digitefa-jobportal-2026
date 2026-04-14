@@ -11,6 +11,7 @@ const CertificationLicenses = ({ open, setOpen, section, initialValues, resetFor
   const closed = () => {
     resetForm({})
     setOpen(section, false)
+    form.resetFields()
   }
 
   const handleFinish = async (values) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Form, Input, Modal, Row, Col, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -13,6 +13,8 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
   const closed = () => {
     resetForm({})
     setOpen(section, false)
+    form.resetFields()
+    setInputValue('')
   }
 
   const handleFinish = async (values) => {
@@ -35,6 +37,12 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
 
   const characterLimit = 250;
   const isOverLimit = inputValue.length > characterLimit;
+
+  useEffect(() => {
+    if (initialValues && initialValues.description) {
+      setInputValue(initialValues.description);
+    }
+  }, [initialValues]);
 
   return (
     <Modal
