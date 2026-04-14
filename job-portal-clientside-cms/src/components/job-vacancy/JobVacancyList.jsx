@@ -30,6 +30,7 @@ import Delete from "./Delete";
 import Pagination from "../Pagination";
 import StatusModal from "../StatusModal";
 import AiTalentMatches from "./AiTalentMatches";
+import ShowApplicants from "./ShowApplicants";
 
 const { Content } = Layout;
 
@@ -53,6 +54,8 @@ const JobVacancyList = () => {
   const [openViewApplicants, setOpenViewApplicants] = useState(false);
   const [openDeleteData, setOpenDeleteData] = useState(false);
   const [openAiMatches, setOpenAiMatches] = useState(false);
+  const [openAiProfile, setOpenAiProfile] = useState(false);
+  const [selectedSeekerId, setSelectedSeekerId] = useState(null);
 
   const [modalMessage, setModalMessage] = useState("");
   const [modalStatus, setModalStatus] = useState("");
@@ -236,6 +239,18 @@ const JobVacancyList = () => {
     setOpenEditData(false);
     setOpenReuploadData(false);
     setOpenAiMatches(false);
+    setOpenAiProfile(false);
+  };
+
+  const handleViewAiProfile = (id) => {
+    setSelectedSeekerId(id);
+    setOpenAiProfile(true);
+    setOpenAiMatches(false);
+  };
+
+  const handleBackToMatches = () => {
+    setOpenAiProfile(false);
+    setOpenAiMatches(true);
   };
 
   return (
@@ -283,6 +298,13 @@ const JobVacancyList = () => {
           onBack={handleBack}
           jobId={selectJobData}
         />
+      ) : openAiProfile ? (
+        <ShowApplicants
+          open={openAiProfile}
+          setOpen={setOpenAiProfile}
+          onBack={handleBackToMatches}
+          jobSeekerId={selectedSeekerId}
+        />
       ) : openAiMatches ? (
         <AiTalentMatches
           open={openAiMatches}
@@ -290,6 +312,7 @@ const JobVacancyList = () => {
           onBack={handleBack}
           jobId={selectJobData}
           jobDescription={selectJobDescription}
+          onViewProfile={handleViewAiProfile}
         />
       ) : (
         <>

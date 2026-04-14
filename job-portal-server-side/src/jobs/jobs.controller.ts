@@ -315,6 +315,21 @@ export class JobsController {
   }
 
   @ApiTags('jobs-applicants')
+  @Get('jobs/seekers/detail/:job_seeker_id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['company']))
+  @ApiOperation({ summary: 'Get job seeker detail by job seeker id' })
+  async getJobSeekerDetail(
+    @Request() req,
+    @Param('job_seeker_id') job_seeker_id: string,
+  ) {
+    return this.jobsService.getJobSeekerDetail(
+      req.user,
+      job_seeker_id,
+    );
+  }
+
+  @ApiTags('jobs-applicants')
   @Get('jobs/applicants/detail/:application_id')
   @ApiBearerAuth('access-token')
   @UseGuards(new JwtAuthGuard(['company']))

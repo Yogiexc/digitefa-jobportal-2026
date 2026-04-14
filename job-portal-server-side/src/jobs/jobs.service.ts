@@ -1495,6 +1495,89 @@ export class JobsService {
     }
   }
 
+  async getJobSeekerDetail(user: any, job_seeker_id: string) {
+    try {
+      const jobSeeker = await this.prisma.job_seeker_details.findUnique({
+        where: { job_seeker_id },
+        include: {
+          job_seeker: true,
+          personal_info: true,
+          education: true,
+          experiences: true,
+          skills: true,
+          projects: true,
+          languages: true,
+          certifications: true,
+        },
+      });
+
+      if (!jobSeeker) {
+        throw new NotFoundException('Job Seeker not found');
+      }
+
+      // Remove sensitive data using lodash.omit
+      if (jobSeeker.job_seeker) {
+        jobSeeker.job_seeker = omit(jobSeeker.job_seeker, [
+          'password',
+          'otpExpires',
+          'otp',
+          'created_at',
+          'updated_at',
+        ]);
+      }
+      if (jobSeeker.personal_info) {
+        jobSeeker.personal_info = omit(jobSeeker.personal_info, [
+          'created_at',
+          'updated_at',
+        ]);
+      }
+      if (jobSeeker.education) {
+        jobSeeker.education = omit(jobSeeker.education, [
+          'created_at',
+          'updated_at',
+        ]);
+      }
+      if (jobSeeker.experiences) {
+        jobSeeker.experiences = jobSeeker.experiences.map((exp) =>
+          omit(exp, ['created_at', 'updated_at']),
+        );
+      }
+      if (jobSeeker.skills) {
+        jobSeeker.skills = jobSeeker.skills.map((skill) =>
+          omit(skill, ['created_at', 'updated_at']),
+        );
+      }
+      if (jobSeeker.projects) {
+        jobSeeker.projects = jobSeeker.projects.map((project) =>
+          omit(project, ['created_at', 'updated_at']),
+        );
+      }
+      if (jobSeeker.languages) {
+        jobSeeker.languages = jobSeeker.languages.map((lang) =>
+          omit(lang, ['created_at', 'updated_at']),
+        );
+      }
+      if (jobSeeker.certifications) {
+        jobSeeker.certifications = jobSeeker.certifications.map((cert) =>
+          omit(cert, ['created_at', 'updated_at']),
+        );
+      }
+
+      return {
+        status: 'success',
+        message: 'Job Seeker retrieved successfully',
+        data: {
+          jobSeeker,
+          completed_courses: [],
+          suitability_score: 0.0,
+        },
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException('Failed to retrieve job seeker');
+    }
+  }
+
   async getJobSeekerByApplicationId(user: any, application_id: string) {
     const application = await this.prisma.applications.findUnique({
       where: { application_id },

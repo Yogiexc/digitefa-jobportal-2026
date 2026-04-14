@@ -6,7 +6,7 @@ import { SparklesIcon, UserCircleIcon, EnvelopeIcon } from "@heroicons/react/24/
 const { Content } = Layout;
 const { Text, Title } = Typography;
 
-const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription }) => {
+const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewProfile }) => {
     const [loading, setLoading] = useState(false);
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
@@ -163,8 +163,14 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription }) => {
                         type="default"
                         className="w-full"
                         onClick={() => {
+<<<<<<< Updated upstream
                             setSelectedCandidate(record);
                             setOpenProfile(true);
+=======
+                            if (onViewProfile) {
+                                onViewProfile(record.job_seeker_id);
+                            }
+>>>>>>> Stashed changes
                         }}
                     >
                         View Profile

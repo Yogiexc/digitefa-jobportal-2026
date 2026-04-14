@@ -106,7 +106,7 @@ const MenuSidebar = [
     "interviews",
     "/interviews",
     <UserGroupIcon className="size-5" />,
-    ["company"]
+    [""]
   ),
 
   getItem(

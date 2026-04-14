@@ -60,8 +60,8 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
       fetchData(1, true);
     }
   }, [open]);
- 
-  
+
+
   return (
     <>
       <Modal
@@ -135,20 +135,6 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
                 rules={[{ required: true, message: "Please enter interview date" }]}
               >
                 <Input type="datetime-local" style={{ height: 40 }} />
-              </Form.Item>
-              <Form.Item
-                name="meeting_link"
-                label="Meeting Link / Location"
-                rules={[{ required: true, message: "Please enter meeting link or location" }]}
-              >
-                <Input placeholder="e.g. Zoom Link or Office Address" style={{ height: 40 }} />
-              </Form.Item>
-              <Form.Item
-                name="notes"
-                label="Additional Notes"
-                style={{ marginBottom: 10 }}
-              >
-                <Input.TextArea rows={3} placeholder="Any notes for the candidate" />
               </Form.Item>
             </>
           )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Typography, Image, Upload } from "antd";
+import { Button, Typography, Image } from "antd";
 import Api from "../../services/Api";
 import PersonalInformationIcon from "../../assets/svg/Personal.svg";
 import PersonalSummaryIcon from "../../assets/svg/PersonalSummary.svg";
@@ -9,11 +9,11 @@ import ExperienceIcon from "../../assets/svg/Experience.svg";
 import SkillIcon from "../../assets/svg/Skills.svg";
 import ProjectIcon from "../../assets/svg/Project.svg";
 import LanguageIcon from "../../assets/svg/Language.svg";
+import BrokenImage from "../../assets/images/broken.jpg";
 
 const { Text } = Typography;
 
-const ShowApplicants = ({ onBack, applicantsId }) => {
-  const [fileList, setFileList] = useState([]);
+const ShowApplicants = ({ onBack, applicantsId, jobSeekerId }) => {
   const [previewImage, setPreviewImage] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [jobSeekerData, setJobSeekerData] = useState("");
@@ -21,7 +21,11 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
 
   useEffect(() => {
     const fetchJobSeekerDetails = () => {
-      Api.get(`/jobs/applicants/detail/${applicantsId}`)
+      const endpoint = applicantsId
+        ? `/jobs/applicants/detail/${applicantsId}`
+        : `/jobs/seekers/detail/${jobSeekerId}`;
+
+      Api.get(endpoint)
         .then((response) => {
           if (response && response.data) {
             // The backend wraps the response in { data: { jobSeeker: { ... } } }
@@ -49,14 +53,6 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
             });
 
             if (profilePictureUrl) {
-              setFileList([
-                {
-                  uid: "-1",
-                  name: "profile-picture.png",
-                  status: "done",
-                  url: profilePictureUrl,
-                },
-              ]);
               setPreviewImage(profilePictureUrl);
             }
           } else {
@@ -69,49 +65,28 @@ const ShowApplicants = ({ onBack, applicantsId }) => {
     };
 
     fetchJobSeekerDetails();
-  }, [applicantsId]);
+  }, [applicantsId, jobSeekerId]);
 
   const handleBack = () => {
     onBack();
   };
 
-  const getBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-
-  const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setPreviewImage(file.url || file.preview);
-    setPreviewOpen(true);
-  };
 
   const renderPersonalInformation = () => {
     return (
       <div className="mb-2">
-        <Upload
-          listType="picture-circle"
-          fileList={fileList}
-          onPreview={handlePreview}
-        ></Upload>
-        {previewImage && (
-          <Image
-            wrapperStyle={{
-              display: "none",
-            }}
-            preview={{
-              visible: previewOpen,
-              onVisibleChange: (visible) => setPreviewOpen(visible),
-              afterOpenChange: (visible) => !visible && setPreviewImage(""),
-            }}
-            src={previewImage}
-          />
-        )}
+        <Image
+          width={100}
+          height={100}
+          className="rounded-full object-cover mb-4 border border-gray-200"
+          src={previewImage || BrokenImage}
+          fallback={BrokenImage}
+          preview={{
+            visible: previewOpen,
+            onVisibleChange: (visible) => setPreviewOpen(visible),
+          }}
+        />
+        <br />
         <Text className="font-medium text-xl">
           {jobSeekerData.full_name}
         </Text>
