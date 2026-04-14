@@ -178,6 +178,7 @@ export class RegisterService {
           data: {
             email,
             full_name,
+            phone_number,
             password: hashedPassword,
             otp: otpHash,
             otpExpires: new Date(Date.now() + 15 * 60 * 1000), // OTP expires in 15 minutes
@@ -367,15 +368,12 @@ export class RegisterService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
+    console.log('[verifyOtp Debug] email:', email, 'otpHash:', otpHash);
+    console.log('[verifyOtp Debug] Dates - now:', new Date(), ' company.otpExpires:', company?.otpExpires);
+    console.log('[verifyOtp Debug] company:', !!company, 'otpMatch:', company?.otp === otpHash, 'unexpired:', company ? new Date() <= company.otpExpires : false);
+    
     let user;
-    if (job_seeker) {
-      if (job_seeker.otp !== otpHash || new Date() > job_seeker.otpExpires) {
-        throw new HttpException(
-          'Invalid or expired OTP',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
+    if (job_seeker && job_seeker.otp === otpHash && new Date() <= new Date(job_seeker.otpExpires)) {
       // Update user verification
       user = await this.prisma.job_seekers.update({
         where: { email },
@@ -386,14 +384,7 @@ export class RegisterService {
         },
       });
       user.role = 'job_seeker';
-    } else if (company) {
-      if (company.otp !== otpHash || new Date() > company.otpExpires) {
-        throw new HttpException(
-          'Invalid or expired OTP',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
+    } else if (company && company.otp === otpHash && new Date() <= new Date(company.otpExpires)) {
       // Update user verification
       user = await this.prisma.companies.update({
         where: { email },
@@ -402,16 +393,11 @@ export class RegisterService {
           otp: null,
           otpExpires: null,
         },
+        include: { company_detail: true }
       });
+      user.legal_name = user?.company_detail?.legal_name;
       user.role = 'company';
-    } else if (university) {
-      if (university.otp !== otpHash || new Date() > university.otpExpires) {
-        throw new HttpException(
-          'Invalid or expired OTP',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
+    } else if (university && university.otp === otpHash && new Date() <= new Date(university.otpExpires)) {
       // Update user verification
       user = await this.prisma.universities.update({
         where: { email },
@@ -420,8 +406,15 @@ export class RegisterService {
           otp: null,
           otpExpires: null,
         },
+        include: { university_detail: true }
       });
+      user.university_name = user?.university_detail?.university_name;
       user.role = 'university';
+    } else {
+      throw new HttpException(
+        'Invalid or expired OTP',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Create payload and generate token
