@@ -163,14 +163,9 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                         type="default"
                         className="w-full"
                         onClick={() => {
-<<<<<<< Updated upstream
-                            setSelectedCandidate(record);
-                            setOpenProfile(true);
-=======
                             if (onViewProfile) {
                                 onViewProfile(record.job_seeker_id);
                             }
->>>>>>> Stashed changes
                         }}
                     >
                         View Profile
