@@ -4,6 +4,7 @@ import { EyeIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import { useNavigate } from "react-router-dom";
 import NotFoundIcon from "../../assets/images/404.png";
+import JobIcon from "../../assets/images/job.jpg";
 
 const calculateDaysAgo = (published_at) => {
   const publishedDate = new Date(published_at);
@@ -27,7 +28,7 @@ const RequestedJobList = () => {
       },
     })
       .then((response) => {
-        const jobsData = response.data?.data || [];
+        const jobsData = response.data ?? [];
         setJobs(jobsData);
       })
       .catch((error) => {
@@ -63,6 +64,10 @@ const RequestedJobList = () => {
                             src={`${API_URL}/${job.company.logo_url}`}
                             alt="Job Icon"
                             className="w-16"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = JobIcon;
+                            }}
                           />
                           <div className="flex flex-col">
                             <h3 className="text-[15px] font-semibold">

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,6 +14,7 @@ import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as nodemailer from 'nodemailer';
+import { Prisma } from '@prisma/client';
 import { interviewEmailTemplate } from './email-templates/interview-email-template';
 import { acceptedEmailTemplate } from './email-templates/accepted-email-template';
 import { rejectedEmailTemplate } from './email-templates/rejected-email-template';
@@ -2011,16 +2013,30 @@ export class JobsService {
     });
 
     if (existing) {
-      throw new InternalServerErrorException('Talent has already been requested to apply to this job');
+      throw new ConflictException(
+        'Talent has already been invited to apply to this job',
+      );
     }
 
-    await (this.prisma as any).request_apply.create({
-      data: {
-        job_id,
-        job_seeker_id,
-        status: 'not_applied'
+    try {
+      await (this.prisma as any).request_apply.create({
+        data: {
+          job_id,
+          job_seeker_id,
+          status: 'not_applied',
+        },
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'Talent has already been invited to apply to this job',
+        );
       }
-    });
+      throw e;
+    }
 
     if (jobSeeker.email) {
       const companyName = job.company?.company_detail?.market_name || 'A Company';

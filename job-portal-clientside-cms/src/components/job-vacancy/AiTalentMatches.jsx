@@ -70,7 +70,10 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     };
 
     const handleInvite = async (candidate) => {
-        const jobSeekerId = candidate.job_seeker?.job_seeker_id || candidate.job_seeker_id || candidate.student_id;
+        const jobSeekerId =
+            candidate.job_seeker_id ||
+            candidate.job_seeker?.job_seeker_id ||
+            candidate.student_id;
         if (!jobSeekerId) {
             message.error("Candidate ID not found.");
             return;
@@ -81,7 +84,11 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
             await Api.post(`/jobs/${jobId}/invite`, { job_seeker_id: jobSeekerId });
             message.success(`Invitation successfully sent to ${candidate.job_seeker?.full_name || "candidate"}!`);
         } catch (error) {
-            message.error(error.response?.data?.message || "Failed to send invitation. They might already be invited.");
+            const msg =
+                error?.data?.message ||
+                error?.response?.data?.message ||
+                "Failed to send invitation. They might already be invited.";
+            message.error(msg);
         } finally {
             setInvitingId(null);
         }

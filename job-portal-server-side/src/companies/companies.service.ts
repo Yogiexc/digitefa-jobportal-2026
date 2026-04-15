@@ -284,7 +284,9 @@ export class CompaniesService {
     // Fetch all job seekers with details
     const seekers = await this.prisma.job_seeker_details.findMany({
       include: {
-        job_seeker: { select: { email: true, full_name: true } },
+        job_seeker: {
+          select: { job_seeker_id: true, email: true, full_name: true },
+        },
         skills: true,
         experiences: true,
         education: true,
@@ -320,12 +322,16 @@ export class CompaniesService {
       if (!response.ok) throw new InternalServerErrorException('AI API error');
       const result = await response.json();
 
-      const finalResults = result.results.map((r: any) => {
-        const seeker = seekers.find(
-          (s) => s.job_seeker_detail_id === r.talent_id,
-        );
-        return { ...seeker, ai_score: r.score };
-      });
+      const finalResults = result.results
+        .map((r: any) => {
+          const seeker = seekers.find(
+            (s) =>
+              String(s.job_seeker_detail_id) === String(r.talent_id ?? ''),
+          );
+          if (!seeker) return null;
+          return { ...seeker, ai_score: r.score };
+        })
+        .filter(Boolean);
 
       return { status: 'success', data: finalResults };
     } catch (e) {
