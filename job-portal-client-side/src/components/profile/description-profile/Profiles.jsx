@@ -16,7 +16,8 @@ import {
   TrashIcon,
   LinkIcon,
   SparklesIcon,
-  DocumentArrowUpIcon
+  DocumentArrowUpIcon,
+  ArrowDownTrayIcon
 } from "@heroicons/react/24/outline";
 import { message, Upload } from "antd";
 import { useProfile } from "../../../hooks/useProfile";
@@ -53,6 +54,7 @@ const Profiles = () => {
 
   const [popup, setPopUp] = useState(defaultPopUp);
   const [linkAccountOpen, setLinkAccountOpen] = useState(false);
+  const [isAutofillModalOpen, setIsAutofillModalOpen] = useState(false);
 
   const sections = {
     [sectionEnums.PERSONAL_SUMMARY]: {
@@ -149,6 +151,7 @@ const Profiles = () => {
       });
       message.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
       getAllSectionData();
+      setIsAutofillModalOpen(false);
       onSuccess();
     } catch (error) {
       console.error(error);
@@ -195,18 +198,13 @@ const Profiles = () => {
               <div className="text-base font-semibold mb-6 md:mb-8">
                 Profile Completion
               </div>
-              <Upload
-                accept=".pdf"
-                customRequest={onCvUpload}
-                showUploadList={false}
+              <Button
+                icon={<SparklesIcon className="w-5 h-5 text-purple-600" />}
+                className="mb-8 w-full border-purple-300 bg-purple-50 hover:bg-purple-100 flex items-center justify-center h-12 rounded-xl shadow-sm"
+                onClick={() => setIsAutofillModalOpen(true)}
               >
-                <Button
-                  icon={<SparklesIcon className="w-5 h-5 text-purple-600" />}
-                  className="mb-8 w-full border-purple-300 bg-purple-50 hover:bg-purple-100 flex items-center justify-center h-12 rounded-xl shadow-sm"
-                >
-                  <span className="text-purple-700 font-semibold text-sm">Autofill from CV</span>
-                </Button>
-              </Upload>
+                <span className="text-purple-700 font-semibold text-sm">Autofill from CV</span>
+              </Button>
               <Progress
                 type="circle"
                 percent={percentage}
@@ -325,6 +323,77 @@ const Profiles = () => {
         open={popup[sectionEnums.LANGUAGE]}
         setOpen={onHandlePopUp}
       />
+
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <SparklesIcon className="w-5 h-5 text-purple-600" />
+            <span>Autofill Profile from CV</span>
+          </div>
+        }
+        open={isAutofillModalOpen}
+        onCancel={() => setIsAutofillModalOpen(false)}
+        footer={null}
+        centered
+        width={400}
+        styles={{ body: { padding: '24px 20px' } }}
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-gray-500 text-sm mb-2">
+            Choose an option to automatically populate your profile information using our AI extraction tool.
+          </p>
+          
+          <Button 
+            type="default" 
+            size="large" 
+            block 
+            onClick={() => window.open('/template/cv-template.pdf', '_blank')}
+            className="h-16 flex items-center justify-between px-10 rounded-2xl bg-[#E3FCEC] hover:bg-[#E3FCEC]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#06A73B]/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                <ArrowDownTrayIcon className="w-5 h-5 text-[#06A73B] group-hover:text-[#E3FCEC]" />
+              </div>
+              <div className="text-left">
+                <div className="font-semibold text-sm text-[#06A73B] group-hover:text-[#E3FCEC]">Download Template</div>
+                <div className="text-[11px] font-medium text-[#06A73B]/70 group-hover:text-[#E3FCEC]/80">Use our standard format</div>
+              </div>
+            </div>
+          </Button>
+
+          <div className="flex items-center gap-2 my-1">
+            <div className="flex-1 h-[1px] bg-gray-100"></div>
+            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider text-center px-2">
+              if you already have your own CV you can directly upload it
+            </p>
+            <div className="flex-1 h-[1px] bg-gray-100"></div>
+          </div>
+          
+          <Upload
+            accept=".pdf"
+            customRequest={onCvUpload}
+            showUploadList={false}
+            className="w-full"
+          >
+            <Button 
+              type="primary" 
+              size="large" 
+              block 
+              className="h-16 flex items-center justify-between px-14 rounded-2xl bg-purple-600 hover:bg-purple-700"
+            >
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2 bg-purple-500/30 rounded-xl group-hover:bg-purple-500/50 transition-colors">
+                  <DocumentArrowUpIcon className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-sm">Upload & Autofill</div>
+                  <div className="text-[11px] text-purple-100 font-medium">Extract data from your CV</div>
+                </div>
+              </div>
+            </Button>
+          </Upload>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -418,14 +487,17 @@ const TextCard = (props) => (
             <p>{props.text}</p>
           ) : (
             <div className="w-4/5" style={{ fontSize: "0.8rem" }}>
+              
               <p className="text-xl font-medium leading-7">
-                {props.text?.grade}
+                {props.text?.university_name} 
               </p>
-              <p className="text-sm">
-                {props.text?.university_name} • {props.text?.major}
+              <p className="text-[15px]">
+                {props.text?.major}
               </p>
               <p className="text-xs">{props.text?.degree}</p>
-              <br />
+              <p className="text-xs">
+                GPA :{props.text?.grade}
+              </p>
               <p className="text-[10px]">
                 {dateToMonthYear(props.text?.start_date)} -{" "}
                 {dateToMonthYear(props.text?.end_date)}
