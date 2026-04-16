@@ -343,11 +343,11 @@ const Profiles = () => {
             Choose an option to automatically populate your profile information using our AI extraction tool.
           </p>
           
+          <a href="/template/CV Template Digitefa Real.docx" download>
           <Button 
             type="default" 
             size="large" 
             block 
-            onClick={() => window.open('/template/cv-template.pdf', '_blank')}
             className="h-16 flex items-center justify-between px-10 rounded-2xl bg-[#E3FCEC] hover:bg-[#E3FCEC]"
           >
             <div className="flex items-center gap-3">
@@ -360,6 +360,7 @@ const Profiles = () => {
               </div>
             </div>
           </Button>
+          </a>
 
           <div className="flex items-center gap-2 my-1">
             <div className="flex-1 h-[1px] bg-gray-100"></div>
@@ -379,15 +380,15 @@ const Profiles = () => {
               type="primary" 
               size="large" 
               block 
-              className="h-16 flex items-center justify-between px-14 rounded-2xl bg-purple-600 hover:bg-purple-700"
+              className="h-16 flex items-center justify-between px-14 rounded-2xl bg-purple-100 hover:bg-purple-700"
             >
               <div className="flex items-center gap-3 text-white">
                 <div className="p-2 bg-purple-500/30 rounded-xl group-hover:bg-purple-500/50 transition-colors">
                   <DocumentArrowUpIcon className="w-5 h-5" />
                 </div>
                 <div className="text-left">
-                  <div className="font-semibold text-sm">Upload & Autofill</div>
-                  <div className="text-[11px] text-purple-100 font-medium">Extract data from your CV</div>
+                  <div className="font-semibold text-purple-500 text-sm">Upload & Autofill</div>
+                  <div className="text-[11px] text-purple-500 font-medium">Extract data from your CV</div>
                 </div>
               </div>
             </Button>
