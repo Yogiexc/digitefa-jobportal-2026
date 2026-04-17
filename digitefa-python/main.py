@@ -399,15 +399,22 @@ def recommend_jobs(req: JobRecommendationRequest):
 @app.post("/parse-cv")
 async def parse_cv(file: UploadFile = File(...)):
     """
-    Parses a PDF CV using pdfplumber and regular expressions to extract structured data.
+    ENDPOINT INI BERFUNGSI SEBAGAI OTAR UTAMA FITUR AUTOFILL CV.
+    Alur Kerja:
+    1. Menerima file PDF dari backend (NestJS).
+    2. Membaca teks mentah dari PDF menggunakan library pdfplumber.
+    3. Mengekstrak informasi penting (Nama, Email, HP, Pengalaman, dll) menggunakan Regex (Pola Teks).
+    4. Mengembalikan data terstruktur dalam bentuk JSON kembali ke NestJS.
     """
     if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="File must be a PDF")
 
     try:
+        # 1. BACA FILE KE DALAM MEMORI (RAM)
         contents = await file.read()
         pdf_file = io.BytesIO(contents)
         
+        # 2. EKSTRAKSI TEKS DARI PDF
         full_text = ""
         with pdfplumber.open(pdf_file) as pdf:
             for page in pdf.pages:
@@ -416,17 +423,22 @@ async def parse_cv(file: UploadFile = File(...)):
                     full_text += text + "\n"
                     
         cv_lines = full_text.split('\n')
+        # 3. SIAPKAN KERANJANG KOSONG UNTUK MENAMPUNG KATEGORI DATA
+
         sections = {
             "name": "", "email": "", "phone": "", "address": "", "date_of_birth": "",
             "personal_summary": [], "skills": [], "experience": [], 
             "education": [], "projects": [], "certifications": [], "languages": []
         }
         
+        # 4. BUAT POLA PENCARIAN (REGEX) UNTUK DATA PRIBADI
+        # Regex (Regular Expression) adalah robot pencari kecocokan teks.
         email_regex = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
         phone_regex = re.compile(r"(\+?\d[\d -]{8,15})")
         dob_regex = re.compile(r"(?i)(?:ttl|lahir|dob|date of birth)[:\s]*(\d{1,2}[\s\-/]+[a-zA-Z0-9]{2,10}[\s\-/]+\d{2,4})")
         address_regex = re.compile(r"(?i)(?:alamat|address|domisili)[:\s]+([^=\n]{5,50})")
         
+        # 5. TERAPKAN REGEX KE SELURUH TEKS UNTUK MENDAPATKAN HASIL
         emails = email_regex.findall(full_text)
         if emails: sections["email"] = emails[0]
             
@@ -439,15 +451,19 @@ async def parse_cv(file: UploadFile = File(...)):
         addresses = address_regex.findall(full_text)
         if addresses: sections["address"] = addresses[0].strip()
 
+        # 6. MENCARI NAMA (Biasanya diletakkan di baris-baris teratas CV)
         for line in cv_lines:
             line_clean = line.strip()
             if line_clean and len(line_clean) < 40:
                 l_lower = line_clean.lower()
+                # Hindari baris yang mengandung kata kunci seperti 'resume' atau 'cv'
                 if not any(bw in l_lower for bw in ['resume', 'cv', 'curriculum vitae', 'profil', 'data pribadi', 'contact']):
                     sections["name"] = line_clean
                     break
                     
+        # 7. LOGIKA PARSING BERDASARKAN JUDUL BAGIAN (SECTIONS)
         current_section = None
+        # Kamus kata kunci untuk menebak sedang membaca "bagian apa" dari CV
         header_patterns = {
             "experience": r"^(pengalaman|experience|work history|employment|riwayat kerja)",
             "education": r"^(pendidikan|education|academic|riwayat pendidikan)",
@@ -462,13 +478,15 @@ async def parse_cv(file: UploadFile = File(...)):
             lline = line.lower().strip()
             matched_section = False
             
+            # Cocokkan setiap baris kalimat dengan kata kunci header di atas
             if len(lline) < 50 and lline:
                 for sec, pattern in header_patterns.items():
                     if re.search(pattern, lline):
-                        current_section = sec
+                        current_section = sec # Switch ke mode penampungan bagian ini (misal: "education")
                         matched_section = True
                         break
             
+            # Jika baris ini bukan judul, maka simpan isinya ke dalam keranjang (current_section)
             if not matched_section and current_section and line.strip():
                 if current_section in ["skills", "languages"]:
                     parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]

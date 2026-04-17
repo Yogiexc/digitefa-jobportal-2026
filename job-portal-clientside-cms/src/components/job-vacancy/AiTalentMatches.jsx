@@ -108,8 +108,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                     <div className="flex flex-col">
                         <Text strong className="text-base">{record.job_seeker?.full_name || "Unknown Candidate"}</Text>
                         <Text type="secondary" className="text-sm">
-                            {record.education && record.education.length > 0
-                                ? `${record.education[0].degree} - ${record.education[0].major}`
+                            {record.education
+                                ? `${record.education.degree} - ${record.education.major}`
                                 : "No Education Listed"}
                         </Text>
                     </div>
@@ -249,15 +249,13 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                             </div>
                         </div>
 
-                        {selectedCandidate.education && selectedCandidate.education.length > 0 && (
+                        {selectedCandidate.education && (
                             <div className="mb-6">
                                 <Title level={5}>Education</Title>
-                                {selectedCandidate.education.map((edu, index) => (
-                                    <div key={edu.education_id || index} className="mb-2">
-                                        <Text strong>{edu.university_name}</Text><br />
-                                        <Text type="secondary">{edu.degree} in {edu.major}</Text>
-                                    </div>
-                                ))}
+                                <div className="mb-2">
+                                    <Text strong>{selectedCandidate.education.university_name}</Text><br />
+                                    <Text type="secondary">{selectedCandidate.education.degree} in {selectedCandidate.education.major}</Text>
+                                </div>
                             </div>
                         )}
 
