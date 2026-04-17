@@ -281,32 +281,44 @@ class MatchScoreRequest(BaseModel):
 @app.post("/calculate-match-score")
 def calculate_match_score(req: MatchScoreRequest):
     """
-    Calculates weighted match score based on 5 parameters:
-    Skill (40%), Experience (25%), Summary (10%), Education (10%), Others (15%)
+    ENDPOINT INI MENGHITUNG KECOCOKAN (MATCH SCORE) ANTARA KANDIDAT & LOWONGAN.
+    Ini BUKAN sekadar pencocokan kata (word matching) biasa!
+    Ini menggunakan AI model (all-MiniLM-L6-v2) untuk mencocokkan "MAKNA" kalimat (Semantic Embedding).
+    
+    Hitungan Bobot:
+    - Skill (40%), Experience (25%), Summary (10%), Education (10%), Others (15%)
     """
     def get_sim(text1, text2):
         if not text1.strip() or not text2.strip():
             return 0.0
         try:
+            # 1. AI MENGUBAH TEKS MENJADI ANGKA (VECTOR)
             emb1 = model.encode(text1, convert_to_tensor=True)
             emb2 = model.encode(text2, convert_to_tensor=True)
+            
+            # 2. MENGHITUNG KEMIRIPAN SUDUT ANGKA (Cosine Similarity)
+            # Semakin dekat maknanya, semakin mendekati angka 1.0 (100% Cocok)
             score = float(util.cos_sim(emb1, emb2)[0][0].cpu().numpy())
-            return max(0.0, score) # Prevent negative cosine similarity
+            return max(0.0, score) # Hindari nilai minus
+
         except:
             return 0.0
 
+    # 3. MENGHITUNG NILAI KECOCOKAN TIAP KATEGORI (0.0 sampai 1.0)
     skill_score = get_sim(req.job.skills_requirement, req.candidate.skills)
     exp_score = get_sim(req.job.experience_requirement + " " + req.job.description, req.candidate.experience)
     summary_score = get_sim(req.job.description, req.candidate.summary)
     edu_score = get_sim(req.job.education_requirement, req.candidate.education)
     others_score = get_sim(req.job.description, req.candidate.others)
     
+    # 4. MENGGABUNGKAN SELURUH HASIL MENJADI PERSENTASE TOTAL (OVERALL)
     overall = (skill_score * 0.40) + \
               (exp_score * 0.25) + \
               (summary_score * 0.10) + \
               (edu_score * 0.10) + \
               (others_score * 0.15)
 
+    # 5. KEMBALIKAN KE NESTJS CMS COMPANY
     return {
         "status": "success",
         "data": {
@@ -406,7 +418,7 @@ async def parse_cv(file: UploadFile = File(...)):
     3. Mengekstrak informasi penting (Nama, Email, HP, Pengalaman, dll) menggunakan Regex (Pola Teks).
     4. Mengembalikan data terstruktur dalam bentuk JSON kembali ke NestJS.
     """
-    if not file.filename.lower().endswith('.pdf'):
+    if not file.filename.lower().endswith('.word.pdf'):
         raise HTTPException(status_code=400, detail="File must be a PDF")
 
     try:
