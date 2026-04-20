@@ -518,15 +518,6 @@ const AddData = ({
                 ]}
               >
                 <Select style={{ borderColor: "#BBBBBB", height: "56px" }}>
-                  <Select.Option value="Elementary School">
-                    Elementary School
-                  </Select.Option>
-                  <Select.Option value="Junior High School">
-                    Junior High School
-                  </Select.Option>
-                  <Select.Option value="Senior High School">
-                    Senior High School
-                  </Select.Option>
                   <Select.Option value="Associate Degree">
                     Associate Degree
                   </Select.Option>

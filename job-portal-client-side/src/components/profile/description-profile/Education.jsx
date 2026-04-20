@@ -187,7 +187,16 @@ const Education = ({
                 { required: true, message: "Level of Degrees cannot be empty" },
               ]}
             >
-              <Input style={{ borderRadius: 12, height: 56 }} />
+              <Select
+                placeholder="Select level"
+                style={{ borderRadius: 12, height: 56, textAlign: "left" }}
+                options={[
+                  { value: "associate degree", label: "Associate Degree" },
+                  { value: "bachelor's degree", label: "Bachelor's Degree" },
+                  { value: "master's degree", label: "Master's Degree" },
+                  { value: "doctoral degree", label: "Doctoral Degree" },
+                ]}
+              />
             </Form.Item>
           </Col>
           {colSpan.span === 24 && (
