@@ -5,8 +5,8 @@ export class CreateSkillDto {
     @IsString()
     @ApiProperty({
         type: 'string',
-        description: 'This is a required property',
-        default: "Skill 1",
+        description: 'The name of the skill. Must be unique (case-insensitive) for the user.',
+        default: "Java",
     })
     skill_name: string;
 }

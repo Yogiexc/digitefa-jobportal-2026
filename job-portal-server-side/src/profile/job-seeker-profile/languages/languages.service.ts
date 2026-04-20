@@ -69,14 +69,17 @@ export class LanguagesService {
       throw new NotFoundException('Job seeker details not found');
     }
 
-    const checkLanguages = await this.prisma.languages.findFirst({
+    const existingLanguages = await this.prisma.languages.findMany({
       where: {
-        language_name: createLanguageDto.language_name,
         job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id
       }
     });
 
-    if (checkLanguages) {
+    const isDuplicate = existingLanguages.some(
+      (lang) => lang.language_name.toLowerCase() === createLanguageDto.language_name.toLowerCase()
+    );
+
+    if (isDuplicate) {
       throw new BadRequestException('Language already exists');
     }
 

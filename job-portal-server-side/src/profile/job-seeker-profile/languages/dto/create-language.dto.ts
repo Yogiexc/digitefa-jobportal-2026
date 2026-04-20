@@ -5,7 +5,7 @@ export class CreateLanguageDto {
     @IsString()
     @ApiProperty({
         type: 'string',
-        description: 'This is a required property',
+        description: 'The name of the language. Must be unique (case-insensitive) for the user.',
         default: "Bahasa Indonesia",
     })
     language_name: string;

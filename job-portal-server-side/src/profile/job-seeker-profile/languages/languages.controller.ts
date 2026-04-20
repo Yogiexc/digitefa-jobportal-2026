@@ -26,11 +26,10 @@ export class LanguagesController {
   }
 
   @Post()
-  @ApiConsumes('multipart/form-data')
   @ApiConsumes('application/json')
   @ApiBearerAuth('access-token')
   @UseGuards(new JwtAuthGuard(['job_seeker']))
-  @ApiOperation({ summary: 'Add languages job seeker' })
+  @ApiOperation({ summary: 'Add a new language', description: 'Adds a new language to the profile. Case-insensitive duplicate check applies.' })
   addLanguages(@Request() req, @Body() createLanguageDto: CreateLanguageDto) {
     return this.languagesService.addLanguages(req.user, createLanguageDto);
   }

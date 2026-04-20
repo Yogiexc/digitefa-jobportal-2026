@@ -463,18 +463,20 @@ export class ProfileService {
       }
 
       if (parsedData.education_structured && parsedData.education_structured.length > 0) {
-        // Find and delete existing education to prevent Unique Constraint failure
-        const existingEdu = await this.prisma.education.findUnique({
+        const existingEducations = await this.prisma.education.findMany({
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
         });
-        if (existingEdu) {
-          await this.prisma.education.delete({
-            where: { education_id: existingEdu.education_id },
-          });
-        }
 
         for (const edu of parsedData.education_structured) {
           if (edu.university && edu.university !== 'Extracted University' && edu.university !== 'From CV') {
+            const isDuplicate = existingEducations.some(existing => 
+              existing.university_name.toLowerCase() === edu.university.toLowerCase() &&
+              (existing.degree || '').toLowerCase() === (edu.degree || '').toLowerCase() &&
+              (existing.major || '').toLowerCase() === (edu.major || '').toLowerCase()
+            );
+
+            if (isDuplicate) continue;
+
             const validUniv = await this.prisma.university_details.findFirst({
               where: {
                 university_name: {
@@ -483,31 +485,16 @@ export class ProfileService {
               }
             });
 
-            if (validUniv) {
-              await this.prisma.education.create({
-                data: {
-                  job_seeker_detail_id: detail.job_seeker_detail_id,
-                  university_name: validUniv.university_name,
-                  degree: edu.degree || 'Auto-filled',
-                  major: edu.major || 'General',
-                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
-                  end_date: safeDate(edu.end_date),
-                },
-              });
-              break; // education is 1-to-1
-            } else {
-              await this.prisma.education.create({
-                data: {
-                  job_seeker_detail_id: detail.job_seeker_detail_id,
-                  university_name: edu.university || 'Unknown',
-                  degree: edu.degree || 'Auto-filled',
-                  major: edu.major || 'General',
-                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
-                  end_date: safeDate(edu.end_date),
-                },
-              });
-              break;
-            }
+            await this.prisma.education.create({
+              data: {
+                job_seeker_detail_id: detail.job_seeker_detail_id,
+                university_name: validUniv ? validUniv.university_name : (edu.university || 'Unknown'),
+                degree: edu.degree || 'Auto-filled',
+                major: edu.major || 'General',
+                start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
+                end_date: safeDate(edu.end_date),
+              },
+            });
           }
         }
       }

@@ -51,7 +51,7 @@ model job_seeker_details {
   profile_picture_url  String?
   personal_summary     String?          @db.Text
   personal_info        personal_info?
-  education            education?
+  education            education[]
   experiences          experiences[]
   skills               skills[]
   projects             projects[]
@@ -74,7 +74,7 @@ model personal_info {
 
 model education {
   education_id         String             @id @default(uuid())
-  job_seeker_detail_id String             @unique
+  job_seeker_detail_id String
   job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   university_id        String?
   university_name      String

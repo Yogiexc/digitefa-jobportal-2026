@@ -1,4 +1,4 @@
-import { Controller, Get, Put, UseInterceptors, UploadedFile, BadRequestException, UseGuards, Request, Body, Post, Delete } from '@nestjs/common';
+import { Controller, Get, Put, UseInterceptors, UploadedFile, BadRequestException, UseGuards, Request, Body, Post, Delete, Param } from '@nestjs/common';
 import { JobSeekerProfileService } from './job-seeker-profile.service';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -106,13 +106,31 @@ export class JobSeekerProfileController {
   }
 
   @ApiTags('job-seeker-profile-education')
-  @Put('education')
-  @ApiConsumes('multipart/form-data')
+  @Post('education')
   @ApiConsumes('application/json')
   @ApiBearerAuth('access-token')
   @UseGuards(new JwtAuthGuard(['job_seeker']))
-  @ApiOperation({ summary: 'Update education job seeker' })
-  async updateEducation(@Request() req, @Body() updateEducationDto: UpdateEducationDto) {
-    return this.jobSeekerProfileService.updateEducation(req.user, updateEducationDto);
+  @ApiOperation({ summary: 'Create a new education entry for the job seeker', description: 'Adds a new education record. University + Degree + Major combination must be unique.' })
+  async createEducation(@Request() req, @Body() updateEducationDto: UpdateEducationDto) {
+    return this.jobSeekerProfileService.createEducation(req.user, updateEducationDto);
+  }
+
+  @ApiTags('job-seeker-profile-education')
+  @Put('education/:education_id')
+  @ApiConsumes('application/json')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['job_seeker']))
+  @ApiOperation({ summary: 'Update an existing education entry', description: 'Updates education details by ID.' })
+  async updateEducation(@Request() req, @Param('education_id') education_id: string, @Body() updateEducationDto: UpdateEducationDto) {
+    return this.jobSeekerProfileService.updateEducation(req.user, education_id, updateEducationDto);
+  }
+
+  @ApiTags('job-seeker-profile-education')
+  @Delete('education/:education_id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(new JwtAuthGuard(['job_seeker']))
+  @ApiOperation({ summary: 'Delete an education entry', description: 'Removes an education record from the job seeker profile.' })
+  async deleteEducation(@Request() req, @Param('education_id') education_id: string) {
+    return this.jobSeekerProfileService.deleteEducation(req.user, education_id);
   }
 }

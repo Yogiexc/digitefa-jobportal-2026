@@ -45,15 +45,24 @@ const Education = ({
   };
 
   const handleFinish = async (values) => {
-    let { length_of_study, ...payload } = values;
-    if (length_of_study) {
-      payload = {
-        ...payload,
-        start_date: length_of_study[0],
-        end_date: length_of_study[1],
-      };
-    }
-    await action(section, "put", { values: payload });
+    let { length_of_study, start_date, end_date, ...payload } = values;
+    
+    // Ensure dates are correctly formatted
+    const startDate = start_date ? dayjs(start_date).toISOString() : (length_of_study?.[0] ? dayjs(length_of_study[0]).toISOString() : null);
+    const endDate = end_date ? dayjs(end_date).toISOString() : (length_of_study?.[1] ? dayjs(length_of_study[1]).toISOString() : null);
+
+    const data = {
+      ...payload,
+      start_date: startDate,
+      end_date: endDate,
+    };
+
+    const method = initialValues?.education_id ? "put" : "post";
+    const actionPayload = initialValues?.education_id 
+      ? { primaryKey: "education_id", values: { ...data, education_id: initialValues.education_id } }
+      : { values: data };
+
+    await action(section, method, actionPayload);
     closed();
   };
 
@@ -145,26 +154,16 @@ const Education = ({
                     .includes(input.toLowerCase())
                 }
                 notFoundContent={null}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const inputValue = e.target.value;
-                    if (inputValue) {
-                      form.setFieldsValue({
-                        university_name: inputValue,
-                      });
-                    }
-                  }
+                onSelect={(value) => {
+                  form.setFieldsValue({ university_name: value });
                 }}
                 onSearch={(value) => {
-                  if (
-                    value &&
-                    !universities.find(
-                      (uni) => uni.value.toLowerCase() === value.toLowerCase()
-                    )
-                  ) {
-                    form.setFieldsValue({
-                      university_name: value,
-                    });
+                  form.setFieldsValue({ university_name: value });
+                }}
+                onBlur={(e) => {
+                  const value = e.target.value;
+                  if (value) {
+                    form.setFieldsValue({ university_name: value });
                   }
                 }}
               />

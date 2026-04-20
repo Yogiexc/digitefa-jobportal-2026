@@ -545,17 +545,26 @@ const ListItemCard = (props) => {
                 <p className="text-xl font-medium leading-7">
                   {item?.experience_title ||
                     item?.project_name ||
-                    item?.certification_name}
+                    item?.certification_name ||
+                    item?.university_name}
                 </p>
                 {sectionId === "EXPERIENCE" && (
                   <p className="text-sm">
                     {item?.company_name} • {item.employment_type}
                   </p>
                 )}
+                {sectionId === "EDUCATION" && (
+                  <p className="text-sm">
+                    {item?.major} • {item?.degree}
+                  </p>
+                )}
                 <p className="text-xs">
                   {item?.location && item?.location + " -"}{" "}
                   {item?.location_type}
                 </p>
+                {sectionId === "EDUCATION" && (
+                  <p className="text-xs">GPA: {item?.grade}</p>
+                )}
                 <p className="text-sm">{item?.issuing_organization}</p>
                 <p className="text-xs font-normal">
                   {dateToMonthYear(item?.start_date || item?.issue_date)} -

@@ -29,6 +29,7 @@ const useProfile = ({ defaultPercentage }) => {
             put: 'update personal summary',
         },
         [sectionEnums.EDUCATION]: {
+            post: 'create new education',
             put: 'update education',
             delete: 'delete education',
         },
@@ -64,8 +65,9 @@ const useProfile = ({ defaultPercentage }) => {
         },
         [sectionEnums.EDUCATION]: {
             get: '/profile/job-seeker/education',
-            put: '/profile/job-seeker/education',
-            delete: '/profile/job-seeker/education',
+            post: '/profile/job-seeker/education',
+            put: '/profile/job-seeker/education/:education_id',
+            delete: '/profile/job-seeker/education/:education_id',
         },
         [sectionEnums.EXPERIENCE]: {
             get: '/profile/job-seeker/experience',
@@ -101,7 +103,7 @@ const useProfile = ({ defaultPercentage }) => {
     const [percentage, setPercentage] = useState(defaultPercentage)
     const [sectionItems, setSectionItems] = useState({
         [sectionEnums.PERSONAL_SUMMARY]: { type: 'text', text: null, percentageComplete: 0 },
-        [sectionEnums.EDUCATION]: { type: 'object', text: null, percentageComplete: 0 },
+        [sectionEnums.EDUCATION]: { type: 'array', list: [], percentageComplete: 0 },
         [sectionEnums.EXPERIENCE]: { type: 'array', list: [], percentageComplete: 0 },
         [sectionEnums.SKILL]: { type: 'array', list: [], percentageComplete: 0 },
         [sectionEnums.PROJECT]: { type: 'array', list: [], percentageComplete: 0 },
@@ -148,12 +150,6 @@ const useProfile = ({ defaultPercentage }) => {
                     item.percentageComplete = it.data ? 10 : 0
                 }
                 tempPercentage += item.percentageComplete
-
-                if (key === sectionEnums.EDUCATION && !it.data.start_date) {
-                    item[propertyKey] = null
-                    tempPercentage -= item.percentageComplete
-                    item.percentageComplete = 0
-                }
 
                 temp[key] = item
             })

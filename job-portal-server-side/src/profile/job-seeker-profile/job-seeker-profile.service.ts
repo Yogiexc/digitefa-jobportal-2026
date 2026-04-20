@@ -186,6 +186,28 @@ export class JobSeekerProfileService {
   async getEducation(user: any) {
     const jobSeekerDetail = await this.prisma.job_seeker_details.findUnique({
       where: { job_seeker_id: user.job_seeker_id },
+      include: { education: { orderBy: { start_date: 'desc' } } }
+    });
+
+    if (!jobSeekerDetail) {
+      throw new NotFoundException('Job seeker details not found');
+    }
+
+    return {
+      status: 'success',
+      message: 'Job Seeker Education retrieved successfully',
+      data: jobSeekerDetail.education
+    };
+  }
+
+  async createEducation(user: any, updateEducationDto: UpdateEducationDto) {
+    const errors = await validate(updateEducationDto);
+    if (errors.length > 0) {
+      throw new BadRequestException('Validation failed');
+    }
+
+    const jobSeekerDetail = await this.prisma.job_seeker_details.findUnique({
+      where: { job_seeker_id: user.job_seeker_id },
       include: { education: true }
     });
 
@@ -193,23 +215,57 @@ export class JobSeekerProfileService {
       throw new NotFoundException('Job seeker details not found');
     }
 
-    const modifiedDataEducation = {
-      university_name: jobSeekerDetail.education ? jobSeekerDetail.education.university_name : null,
-      degree: jobSeekerDetail.education ? jobSeekerDetail.education.degree : null,
-      major: jobSeekerDetail.education ? jobSeekerDetail.education.major : null,
-      start_date: jobSeekerDetail.education ? jobSeekerDetail.education.start_date : null,
-      end_date: jobSeekerDetail.education ? jobSeekerDetail.education.end_date : null,
-      grade: jobSeekerDetail.education ? (jobSeekerDetail.education.grade ? jobSeekerDetail.education.grade : null) : null,
-    };
+    // Duplicate Prevention (Case-insensitive check for Univ + Degree + Major)
+    const existingEdu = jobSeekerDetail.education.find(edu => 
+      edu.university_name.toLowerCase() === updateEducationDto.university_name.toLowerCase() &&
+      edu.degree.toLowerCase() === updateEducationDto.degree.toLowerCase() &&
+      edu.major.toLowerCase() === updateEducationDto.major.toLowerCase()
+    );
 
-    return {
-      status: 'success',
-      message: 'Job Seeker Education retrieved successfully',
-      data: modifiedDataEducation
-    };
+    if (existingEdu) {
+      throw new BadRequestException('Education entry already exists');
+    }
+
+    try {
+      const getUniversity = await this.prisma.university_details.findFirst({
+        where: { university_name: updateEducationDto.university_name }
+      });
+
+      const newEducation = await this.prisma.education.create({
+        data: {
+          university_name: updateEducationDto.university_name,
+          degree: updateEducationDto.degree,
+          major: updateEducationDto.major,
+          start_date: new Date(updateEducationDto.start_date),
+          end_date: new Date(updateEducationDto.end_date),
+          grade: updateEducationDto.grade,
+          job_seeker_details: {
+            connect: {
+              job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id,
+            }
+          },
+          ...(getUniversity && {
+            university: {
+              connect: {
+                university_id: getUniversity.university_id
+              }
+            }
+          })
+        }
+      });
+
+      return {
+        status: 'success',
+        message: 'Job Seeker Education created successfully',
+        data: newEducation
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Failed to create job seeker education');
+    }
   }
 
-  async updateEducation(user: any, updateEducationDto: UpdateEducationDto) {
+  async updateEducation(user: any, education_id: string, updateEducationDto: UpdateEducationDto) {
     const errors = await validate(updateEducationDto);
     if (errors.length > 0) {
       throw new BadRequestException('Validation failed');
@@ -223,66 +279,78 @@ export class JobSeekerProfileService {
       throw new NotFoundException('Job seeker details not found');
     }
 
+    const educationEntry = await this.prisma.education.findUnique({
+      where: { education_id, job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id }
+    });
+
+    if (!educationEntry) {
+      throw new NotFoundException('Education entry not found');
+    }
+
     try {
-      const getUniversity = await this.prisma.university_details.findUnique({
+      const getUniversity = await this.prisma.university_details.findFirst({
         where: { university_name: updateEducationDto.university_name }
       });
 
-      await this.prisma.education.upsert({
-        where: { job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id },
-        update: {
+      const updatedEducation = await this.prisma.education.update({
+        where: { education_id },
+        data: {
           university_name: updateEducationDto.university_name,
           degree: updateEducationDto.degree,
           major: updateEducationDto.major,
           start_date: new Date(updateEducationDto.start_date),
           end_date: new Date(updateEducationDto.end_date),
           grade: updateEducationDto.grade,
-        },
-        create: {
-          university_name: updateEducationDto.university_name,
-          degree: updateEducationDto.degree,
-          major: updateEducationDto.major,
-          start_date: new Date(updateEducationDto.start_date),
-          end_date: new Date(updateEducationDto.end_date),
-          grade: updateEducationDto.grade,
-          job_seeker_details: {
+          university: getUniversity ? {
             connect: {
-              job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id,
+              university_id: getUniversity.university_id
             }
-          },
-
-        }
+          } : {
+            disconnect: true
+          }
+        },
       });
-
-      if (getUniversity) {
-        await this.prisma.education.update({
-          where: { job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id },
-          data: {
-            university: {
-              connect: {
-                university_id: getUniversity.university_id
-              }
-            }
-          }
-        });
-      } else {
-        await this.prisma.education.update({
-          where: { job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id },
-          data: {
-            university: {
-              disconnect: true
-            }
-          }
-        });
-      }
 
       return {
         status: 'success',
         message: 'Job Seeker Education updated successfully',
+        data: updatedEducation
       };
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('Failed to update job seeker education');
+    }
+  }
+
+  async deleteEducation(user: any, education_id: string) {
+    const jobSeekerDetail = await this.prisma.job_seeker_details.findUnique({
+      where: { job_seeker_id: user.job_seeker_id },
+    });
+
+    if (!jobSeekerDetail) {
+      throw new NotFoundException('Job seeker details not found');
+    }
+
+    const educationEntry = await this.prisma.education.findUnique({
+      where: { education_id, job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id }
+    });
+
+    if (!educationEntry) {
+      throw new NotFoundException('Education entry not found');
+    }
+
+    try {
+      await this.prisma.education.delete({
+        where: { education_id }
+      });
+
+      return {
+        status: 'success',
+        message: 'Education deleted successfully',
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Failed to delete job seeker education');
     }
   }
 

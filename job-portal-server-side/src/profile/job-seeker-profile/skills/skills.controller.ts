@@ -18,11 +18,10 @@ export class SkillsController {
   }
 
   @Post('skills')
-  @ApiConsumes('multipart/form-data')
   @ApiConsumes('application/json')
   @ApiBearerAuth('access-token')
   @UseGuards(new JwtAuthGuard(['job_seeker']))
-  @ApiOperation({ summary: 'Create skills job seeker' })
+  @ApiOperation({ summary: 'Add a new skill', description: 'Adds a new skill to the profile. Case-insensitive duplicate check applies.' })
   async updateSkills(@Request() req, @Body() updateSkillsDto: CreateSkillDto) {
     return this.skillsService.createSkills(req.user, updateSkillsDto);
   }

@@ -101,12 +101,18 @@ const PersonalSummary = ({
             },
             {
               validator: (_, value) => {
-                if (value && value.length > characterLimit) {
-                  return Promise.reject(
-                    new Error(
-                      `Character limit exceeded! Maximum is ${characterLimit} characters.`
-                    )
-                  );
+                if (value) {
+                  const wordCount = value.trim().split(/\s+/).filter(word => word.length > 0).length;
+                  if (wordCount < 3) {
+                    return Promise.reject(new Error("Personal summary must contain at least 3 words."));
+                  }
+                  if (value.length > characterLimit) {
+                    return Promise.reject(
+                      new Error(
+                        `Character limit exceeded! Maximum is ${characterLimit} characters.`
+                      )
+                    );
+                  }
                 }
                 return Promise.resolve();
               },

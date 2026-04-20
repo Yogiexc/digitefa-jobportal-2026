@@ -42,14 +42,17 @@ export class SkillsService {
       throw new NotFoundException('Job seeker not found');
     }
 
-    const getSkills = await this.prisma.skills.findFirst({
+    const existingSkills = await this.prisma.skills.findMany({
       where: {
-        skill_name: createSkillsDto.skill_name,
         job_seeker_detail_id: jobSeekerDetail.job_seeker_detail_id
       }
     });
 
-    if (getSkills) {
+    const isDuplicate = existingSkills.some(
+      (skill) => skill.skill_name.toLowerCase() === createSkillsDto.skill_name.toLowerCase()
+    );
+
+    if (isDuplicate) {
       throw new BadRequestException('Skill already exists');
     }
 
