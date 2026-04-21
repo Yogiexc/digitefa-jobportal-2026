@@ -445,7 +445,10 @@ export class ProfileService {
               job_seeker_detail_id: detail.job_seeker_detail_id,
               experience_title: exp.title || 'Experience',
               company_name: exp.company || 'Unknown',
-              description: (exp.description || '').substring(0, 250), // Prisma varchar 255
+              employment_type: exp.employment_type || 'Full-time',
+              location_type: exp.location_type || 'On-site',
+              location: exp.location || 'Jakarta',
+              description: (exp.description || '').substring(0, 250),
               start_date: safeDate(exp.start_date),
               end_date: safeDate(exp.end_date)
             },
@@ -491,6 +494,7 @@ export class ProfileService {
                 university_name: validUniv ? validUniv.university_name : (edu.university || 'Unknown'),
                 degree: edu.degree || 'Auto-filled',
                 major: edu.major || 'General',
+                grade: edu.grade || null,
                 start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
                 end_date: safeDate(edu.end_date),
               },
