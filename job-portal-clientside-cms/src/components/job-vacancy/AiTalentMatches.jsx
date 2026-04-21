@@ -98,48 +98,122 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         {
             title: "Applicant Profile",
             key: "profile",
+            width: "18%",
             render: (_, record) => (
-                <Space align="start">
+                <Space align="center" style={{ minWidth: 150 }}>
                     <Avatar
                         size={48}
                         src={record.photo_profile ? record.photo_profile : null}
                         icon={!record.photo_profile && <UserCircleIcon />}
                     />
-                    <div className="flex flex-col">
-                        <Text strong className="text-base">{record.job_seeker?.full_name || "Unknown Candidate"}</Text>
-                        <Text type="secondary" className="text-sm">
-                            {record.education
-                                ? `${record.education.degree} - ${record.education.major}`
-                                : "No Education Listed"}
+                    <div className="flex flex-col" style={{ overflow: 'hidden' }}>
+                        <Text strong className="text-sm">
+                            {record.job_seeker?.full_name || "Unknown Candidate"}
+                        </Text>
+                        <Text type="secondary" className="text-xs" style={{ fontSize: '10px' }}>
+                            {record.job_seeker?.email}
                         </Text>
                     </div>
                 </Space>
             )
         },
         {
-            title: "Skills Match",
-            key: "skills",
-            render: (_, record) => (
-                <div className="flex flex-wrap gap-1 max-w-xs">
-                    {(record.skills || []).slice(0, 5).map(skill => (
-                        <Tag color="cyan" key={skill.job_seeker_skill_id}>{skill.skill_name}</Tag>
-                    ))}
-                    {record.skills?.length > 5 && <Tag>+{record.skills.length - 5} more</Tag>}
-                </div>
-            )
+            title: "Qualifications",
+            key: "qualifications",
+            width: "40%",
+            render: (_, record) => {
+                const formatEducation = (text) => {
+                    if (!text) return "";
+                    const words = text.split(' ');
+                    let result = "";
+                    for (let i = 0; i < words.length; i++) {
+                        result += words[i];
+                        if ((i + 1) % 2 === 0 && i !== words.length - 1) {
+                            result += "\n";
+                        } else {
+                            result += " ";
+                        }
+                    }
+                    return result.trim();
+                };
+
+                const educationText = record.education 
+                    ? `${record.education.degree} in ${record.education.major}`
+                    : null;
+
+                return (
+                    <div className="flex flex-col gap-3">
+                        {/* Education Section */}
+                        {educationText && (
+                            <div>
+                                <Text style={{ fontSize: '10px', color: '#8c8c8c' }} bold uppercase>Education</Text>
+                                <div className="mt-1">
+                                    <Tag color="blue" className="rounded-md px-2 py-1 border-blue-200 m-0 w-fit h-auto whitespace-pre-line leading-relaxed text-xs">
+                                        {formatEducation(educationText)}
+                                    </Tag>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Experience Section */}
+                        {record.experiences?.length > 0 && (
+                            <div>
+                                <Text style={{ fontSize: '10px', color: '#8c8c8c' }} bold uppercase>Experience</Text>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                    {(record.experiences || []).slice(0, 3).map((exp, idx) => (
+                                        <Tag color="purple" key={exp.experience_id || idx} className="rounded-md px-2 py-0.5 border-purple-200 text-xs">
+                                            {exp.experience_title}
+                                        </Tag>
+                                    ))}
+                                    {record.experiences?.length > 3 && <Tag className="rounded-md text-xs">+{record.experiences.length - 3} more</Tag>}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Skills Section */}
+                        {record.skills?.length > 0 && (
+                            <div>
+                                <Text style={{ fontSize: '10px', color: '#8c8c8c' }} bold uppercase>Skills</Text>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                    {(record.skills || []).slice(0, 6).map(skill => (
+                                        <Tag color="cyan" key={skill.job_seeker_skill_id} className="rounded-md px-2 py-0.5 border-cyan-200 text-xs">
+                                            {skill.skill_name}
+                                        </Tag>
+                                    ))}
+                                    {record.skills?.length > 6 && <Tag className="rounded-md text-xs">+{record.skills.length - 6} more</Tag>}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Languages Section */}
+                        {record.languages?.length > 0 && (
+                            <div>
+                                <Text style={{ fontSize: '10px', color: '#8c8c8c' }} bold uppercase>Languages</Text>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                    {(record.languages || []).map((lang, idx) => (
+                                        <Tag color="orange" key={lang.language_id || idx} className="rounded-md px-2 py-0.5 border-orange-200 text-xs">
+                                            {lang.language_name}
+                                        </Tag>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
         },
         {
             title: "AI Similarity Score",
             key: "score",
-            width: "25%",
+            width: "17%",
             render: (_, record) => {
                 const score = record.ai_score || 0;
                 const color = getScoreColor(score);
                 return (
-                    <div className="flex flex-col" style={{ minWidth: 150 }}>
+                    <div className="flex flex-col" style={{ minWidth: 140 }}>
                         <Space justify="space-between" className="w-full mb-1">
-                            <Text strong style={{ color }}>{getScoreText(score)}</Text>
-                            <Text type="secondary">{(score * 100).toFixed(0)}%</Text>
+                            <Text strong style={{ color, fontSize: '11px' }}>{getScoreText(score)}</Text>
+                            <Text type="secondary" style={{ fontSize: '10px' }}>{(score * 100).toFixed(0)}%</Text>
                         </Space>
                         <Progress
                             percent={Math.round(score * 100)}
@@ -155,28 +229,29 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         {
             title: "Action",
             key: "action",
+            width: "10%",
             render: (_, record) => (
-                <Space direction="vertical" size="small">
+                <Space direction="vertical" size="small" className="w-full">
                     <Button
                         type="primary"
                         icon={<EnvelopeIcon className="h-4 w-4 mr-1 text-white border-white inline" />}
-                        className="bg-purple-600 hover:bg-purple-500 w-full"
+                        className="bg-purple-600 hover:bg-purple-500 w-full text-xs"
                         onClick={() => handleInvite(record)}
                         loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
                     >
                         Invite
                     </Button>
-                    <Button
-                        type="default"
-                        className="w-full"
-                        onClick={() => {
-                            if (onViewProfile) {
-                                onViewProfile(record.job_seeker_id);
-                            }
-                        }}
-                    >
-                        View Profile
-                    </Button>
+                    
+                    {onViewProfile && (
+                        <Button
+                            type="link"
+                            size="small"
+                            className="w-full text-xs text-purple-600"
+                            onClick={() => onViewProfile(record.job_seeker_id)}
+                        >
+                            Full Profile
+                        </Button>
+                    )}
                 </Space>
             )
         }
@@ -249,6 +324,17 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                             </div>
                         </div>
 
+                        {selectedCandidate.languages && selectedCandidate.languages.length > 0 && (
+                            <div className="mb-6">
+                                <Title level={5}>Languages</Title>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedCandidate.languages.map((lang, index) => (
+                                        <Tag color="orange" key={lang.language_id || index}>{lang.language_name}</Tag>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {selectedCandidate.education && (
                             <div className="mb-6">
                                 <Title level={5}>Education</Title>
@@ -265,7 +351,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                 {selectedCandidate.experiences.map((exp, index) => (
                                     <div key={exp.experience_id || index} className="mb-2 pb-2 border-b border-gray-100 last:border-0">
                                         <Text strong>{exp.experience_title}</Text><br />
-                                        <Text>{exp.company_name}</Text> <br/>
+                                        <Text>{exp.company_name}</Text> <br />
                                         {exp.description && <Text type="secondary" className="text-sm line-clamp-3">{exp.description}</Text>}
                                     </div>
                                 ))}

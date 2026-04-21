@@ -418,7 +418,7 @@ async def parse_cv(file: UploadFile = File(...)):
     3. Mengekstrak informasi penting (Nama, Email, HP, Pengalaman, dll) menggunakan Regex (Pola Teks).
     4. Mengembalikan data terstruktur dalam bentuk JSON kembali ke NestJS.
     """
-    if not file.filename.lower().endswith('.word.pdf'):
+    if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="File must be a PDF")
 
     try:

@@ -290,6 +290,7 @@ export class CompaniesService {
         skills: true,
         experiences: true,
         education: true,
+        languages: true,
       },
     });
 
@@ -305,8 +306,9 @@ export class CompaniesService {
       const eduText = s.education
         ? `${s.education.degree} in ${s.education.major} at ${s.education.university_name}`
         : '';
+      const langText = s.languages.map((l) => l.language_name).join(', ');
 
-      const profileText = `Name: ${s.job_seeker.full_name}. Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${s.personal_summary || ''}`;
+      const profileText = `Name: ${s.job_seeker.full_name}. Skills: ${skillsText}. Languages: ${langText}. Experience: ${expText}. Education: ${eduText}. Summary: ${s.personal_summary || ''}`;
 
       return { id: s.job_seeker_detail_id, profile_text: profileText };
     });

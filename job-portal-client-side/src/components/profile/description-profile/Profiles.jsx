@@ -42,6 +42,7 @@ const Profiles = () => {
     sectionItems,
     contextHolder,
     percentage,
+    messageApi,
     setInitialValues,
     getAllSectionData,
     action,
@@ -53,6 +54,7 @@ const Profiles = () => {
   const [isConfirmingCv, setIsConfirmingCv] = useState(false);
 
   const [popup, setPopUp] = useState(defaultPopUp);
+  const [isAutofilling, setIsAutofilling] = useState(false);
   const [linkAccountOpen, setLinkAccountOpen] = useState(false);
   const [isAutofillModalOpen, setIsAutofillModalOpen] = useState(false);
 
@@ -142,21 +144,28 @@ const Profiles = () => {
 
   const onCvUpload = async (options) => {
     const { file, onSuccess, onError } = options;
+    setIsAutofilling(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
-      message.loading({ content: 'Uploading and extracting CV via AI...', key: 'cvupload' });
+      messageApi.loading({ content: 'Uploading and extracting CV via AI...', key: 'cvupload' });
       const response = await Api.post("/profile/cv-autofill", formData, {
         headers: { "content-type": "multipart/form-data" },
       });
-      message.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
-      getAllSectionData();
+      messageApi.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
+      
+      // Refresh section data
+      await getAllSectionData();
+      
+      // Close modal on success
       setIsAutofillModalOpen(false);
       onSuccess();
     } catch (error) {
       console.error(error);
-      message.error({ content: 'Failed to process CV', key: 'cvupload' });
+      messageApi.error({ content: 'Failed to process CV', key: 'cvupload' });
       onError(error);
+    } finally {
+      setIsAutofilling(false);
     }
   };
 
@@ -380,6 +389,7 @@ const Profiles = () => {
               type="primary" 
               size="large" 
               block 
+              loading={isAutofilling}
               className="h-16 flex items-center justify-between px-14 rounded-2xl bg-purple-100 hover:bg-purple-700"
             >
               <div className="flex items-center gap-3 text-white">

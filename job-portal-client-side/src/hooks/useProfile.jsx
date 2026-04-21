@@ -188,7 +188,7 @@ const useProfile = ({ defaultPercentage }) => {
         }
     }
 
-    return { sectionEnums, defaultPopUp, initialValues, sectionItems, contextHolder, percentage, setInitialValues, getAllSectionData, action }
+    return { sectionEnums, defaultPopUp, initialValues, sectionItems, messageApi, contextHolder, percentage, setInitialValues, getAllSectionData, action }
 }
 
 export { useProfile }
