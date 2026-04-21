@@ -205,10 +205,11 @@ async function bootstrap() {
 
     ];
 
-    // // Save the Swagger JSON to a file
-    // fs.writeFileSync('./swagger.json', JSON.stringify(document));
+    // Save the Swagger JSON to a file
+    const fs = require('fs');
+    fs.writeFileSync('./swagger.json', JSON.stringify(document));
 
-    // // Convert JSON to YAML and save
+    // Convert JSON to YAML and save
     // const yamlString = yaml.stringify(document);
     // fs.writeFileSync('./swagger.yaml', yamlString);
 

@@ -14,9 +14,11 @@ import os
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from fastapi.responses import StreamingResponse
-
-app = FastAPI()
-
+app = FastAPI(
+    title="Digitefa AI API",
+    description="API for AI-based features like CV Parsing, Job Matching, Course Recommendation, and Talent Search.",
+    version="1.0.0"
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
