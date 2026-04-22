@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+﻿import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { validate } from 'class-validator';
 import * as fs from 'fs';
@@ -195,7 +195,7 @@ export class JobSeekerProfileService {
 
     return {
       status: 'success',
-      message: 'Job Seeker Education retrieved successfully',
+      message: 'Job Seeker education retrieved successfully',
       data: jobSeekerDetail.education
     };
   }
@@ -216,14 +216,14 @@ export class JobSeekerProfileService {
     }
 
     // Duplicate Prevention (Case-insensitive check for Univ + Degree + Major)
-    const existingEdu = jobSeekerDetail.education.find(edu => 
+    const existingEdu = jobSeekerDetail.education.find(edu =>
       edu.university_name.toLowerCase() === updateEducationDto.university_name.toLowerCase() &&
       edu.degree.toLowerCase() === updateEducationDto.degree.toLowerCase() &&
       edu.major.toLowerCase() === updateEducationDto.major.toLowerCase()
     );
 
     if (existingEdu) {
-      throw new BadRequestException('Education entry already exists');
+      throw new BadRequestException('education entry already exists');
     }
 
     try {
@@ -231,7 +231,7 @@ export class JobSeekerProfileService {
         where: { university_name: updateEducationDto.university_name }
       });
 
-      const newEducation = await this.prisma.education.create({
+      const neweducation = await this.prisma.education.create({
         data: {
           university_name: updateEducationDto.university_name,
           degree: updateEducationDto.degree,
@@ -256,8 +256,8 @@ export class JobSeekerProfileService {
 
       return {
         status: 'success',
-        message: 'Job Seeker Education created successfully',
-        data: newEducation
+        message: 'Job Seeker education created successfully',
+        data: neweducation
       };
     } catch (error) {
       console.log(error);
@@ -284,7 +284,7 @@ export class JobSeekerProfileService {
     });
 
     if (!educationEntry) {
-      throw new NotFoundException('Education entry not found');
+      throw new NotFoundException('education entry not found');
     }
 
     try {
@@ -292,7 +292,7 @@ export class JobSeekerProfileService {
         where: { university_name: updateEducationDto.university_name }
       });
 
-      const updatedEducation = await this.prisma.education.update({
+      const updatededucation = await this.prisma.education.update({
         where: { education_id },
         data: {
           university_name: updateEducationDto.university_name,
@@ -313,8 +313,8 @@ export class JobSeekerProfileService {
 
       return {
         status: 'success',
-        message: 'Job Seeker Education updated successfully',
-        data: updatedEducation
+        message: 'Job Seeker education updated successfully',
+        data: updatededucation
       };
     } catch (error) {
       console.log(error);
@@ -336,7 +336,7 @@ export class JobSeekerProfileService {
     });
 
     if (!educationEntry) {
-      throw new NotFoundException('Education entry not found');
+      throw new NotFoundException('education entry not found');
     }
 
     try {
@@ -346,7 +346,7 @@ export class JobSeekerProfileService {
 
       return {
         status: 'success',
-        message: 'Education deleted successfully',
+        message: 'education deleted successfully',
       };
     } catch (error) {
       console.log(error);

@@ -352,7 +352,7 @@ const Profiles = () => {
             Choose an option to automatically populate your profile information using our AI extraction tool.
           </p>
           
-          <a href="/template/CV Template Digitefa Real.docx" download>
+          <a href="/template/TEMPLATE CV FIX.docx" download>
           <Button 
             type="default" 
             size="large" 

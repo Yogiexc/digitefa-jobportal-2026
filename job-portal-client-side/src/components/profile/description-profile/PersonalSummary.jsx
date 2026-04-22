@@ -37,11 +37,10 @@ const PersonalSummary = ({
   };
 
   useEffect(() => {
-    if (open && initialValues) {
-      form.setFieldsValue({
-        ...initialValues,
-      });
-    }
+  if (open && initialValues) {
+    form.setFieldsValue(initialValues);
+    setInputValue(initialValues.personal_summary || "");
+  }
   }, [open, initialValues, form]);
 
   const characterLimit = 700;
@@ -125,8 +124,10 @@ const PersonalSummary = ({
               borderRadius: 12,
               height: 100,
             }}
-            value={inputValue}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              form.setFieldsValue({ personal_summary: e.target.value });
+            }}
           />
         </Form.Item>
         <div className="mt-7" style={{ textAlign: "center" }}>

@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   HttpException,
   HttpStatus,
@@ -373,7 +373,11 @@ export class ProfileService {
         headers: formData.getHeaders(),
       });
 
-      const parsedData = response.data.parsed_data;
+      const parsedData =
+        response?.data?.parsed_data ?? response?.data?.data ?? response?.data;
+      if (!parsedData || typeof parsedData !== 'object') {
+        throw new BadRequestException('Invalid parsed CV payload from parser service');
+      }
 
       // Auto-save data immediately without needing frontend confirmation step
       await this.cvAutofillConfirm(user, parsedData);
@@ -410,8 +414,38 @@ export class ProfileService {
         throw new BadRequestException('Job seeker profile details not found');
       }
 
+      const normalizeStringArray = (value: unknown): string[] => {
+        if (Array.isArray(value)) {
+          return value
+            .map((item) => String(item).trim())
+            .filter(Boolean);
+        }
+        if (typeof value === 'string') {
+          return value
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
+        }
+        return [];
+      };
+
+      const skillsFromCv = normalizeStringArray(parsedData.skills);
+      const languagesFromCv = normalizeStringArray(parsedData.languages);
+      const experiencesFromCv = Array.isArray(parsedData.experience_structured)
+        ? parsedData.experience_structured
+        : [];
+      const educationFromCv = Array.isArray(parsedData.education_structured)
+        ? parsedData.education_structured
+        : [];
+      const projectsFromCv = Array.isArray(parsedData.projects_structured)
+        ? parsedData.projects_structured
+        : [];
+      const certificationsFromCv = Array.isArray(parsedData.certifications_structured)
+        ? parsedData.certifications_structured
+        : [];
+
       // Auto-fill extracted info
-      if (parsedData.skills && parsedData.skills.length > 0) {
+      if (skillsFromCv.length > 0) {
         const existingSkills = await this.prisma.skills.findMany({
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
         });
@@ -419,7 +453,7 @@ export class ProfileService {
           s.skill_name.toLowerCase(),
         );
 
-        for (const skill of parsedData.skills) {
+        for (const skill of skillsFromCv) {
           if (!existingSkillNames.includes(skill.toLowerCase())) {
             await this.prisma.skills.create({
               data: {
@@ -438,8 +472,8 @@ export class ProfileService {
         return isNaN(d.getTime()) ? null : d;
       };
 
-      if (parsedData.experience_structured && parsedData.experience_structured.length > 0) {
-        for (const exp of parsedData.experience_structured) {
+      if (experiencesFromCv.length > 0) {
+        for (const exp of experiencesFromCv) {
           await this.prisma.experiences.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -465,14 +499,14 @@ export class ProfileService {
         });
       }
 
-      if (parsedData.education_structured && parsedData.education_structured.length > 0) {
-        const existingEducations = await this.prisma.education.findMany({
+      if (educationFromCv.length > 0) {
+        const existingeducation = await this.prisma.education.findMany({
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
         });
 
-        for (const edu of parsedData.education_structured) {
+        for (const edu of educationFromCv) {
           if (edu.university && edu.university !== 'Extracted University' && edu.university !== 'From CV') {
-            const isDuplicate = existingEducations.some(existing => 
+            const isDuplicate = existingeducation.some(existing =>
               existing.university_name.toLowerCase() === edu.university.toLowerCase() &&
               (existing.degree || '').toLowerCase() === (edu.degree || '').toLowerCase() &&
               (existing.major || '').toLowerCase() === (edu.major || '').toLowerCase()
@@ -537,8 +571,8 @@ export class ProfileService {
       }
 
       // 5. PROJECTS
-      if (parsedData.projects_structured && parsedData.projects_structured.length > 0) {
-        for (const proj of parsedData.projects_structured) {
+      if (projectsFromCv.length > 0) {
+        for (const proj of projectsFromCv) {
           await this.prisma.projects.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -560,8 +594,8 @@ export class ProfileService {
       }
 
       // 6. CERTIFICATIONS
-      if (parsedData.certifications_structured && parsedData.certifications_structured.length > 0) {
-        for (const cert of parsedData.certifications_structured) {
+      if (certificationsFromCv.length > 0) {
+        for (const cert of certificationsFromCv) {
           await this.prisma.certifications.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -585,12 +619,12 @@ export class ProfileService {
       }
 
       // 7. LANGUAGES
-      if (parsedData.languages && parsedData.languages.length > 0) {
+      if (languagesFromCv.length > 0) {
         const existingLangs = await this.prisma.languages.findMany({
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
         });
         const existingLangNames = existingLangs.map((l) => l.language_name.toLowerCase());
-        for (const lang of parsedData.languages) {
+        for (const lang of languagesFromCv) {
           if (!existingLangNames.includes(lang.toLowerCase())) {
             await this.prisma.languages.create({
               data: {
@@ -628,8 +662,9 @@ export class ProfileService {
       throw new BadRequestException('Job seeker profile details not found');
     }
 
-    const existingEdu = await this.prisma.education.findUnique({
+    const existingEdu = await this.prisma.education.findFirst({
       where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+      orderBy: { start_date: 'desc' },
     });
 
     if (existingEdu) {

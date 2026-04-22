@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+﻿import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateJobSeekerDto } from './dto/create-job_seeker.dto';
 import { UpdateJobSeekerDto } from './dto/update-job_seeker.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -97,7 +97,7 @@ export class JobSeekersService {
           job_seeker_id: jobSeeker.job_seeker_id,
           full_name: jobSeeker.full_name,
           email: jobSeeker.email,
-          university_name: jobSeeker.job_seeker_detail.education ? jobSeeker.job_seeker_detail.education.university_name : null
+          university_name: jobSeeker.job_seeker_detail.education?.[0]?.university_name || null
         }
       });
       return {
@@ -185,7 +185,9 @@ export class JobSeekersService {
 
     try {
       // Remove sensitive information
-      const modifiedEducation = omit(existingJobSeekerDetail.education, ['education_id', 'job_seeker_detail_id', 'university_id', 'created_at', 'updated_at']);
+      const modifiededucation = existingJobSeekerDetail.education.map((education) =>
+        omit(education, ['education_id', 'job_seeker_detail_id', 'university_id', 'created_at', 'updated_at']),
+      );
 
       const modifiedProjects = existingJobSeekerDetail.projects.map(project => omit(project, ['project_id', 'job_seeker_detail_id', 'created_at', 'updated_at']));
 
@@ -213,7 +215,7 @@ export class JobSeekersService {
         date_of_birth: existingJobSeekerDetail.personal_info?.date_of_birth,
         personal_summary: existingJobSeekerDetail.personal_summary,
         profile_picture_url: existingJobSeekerDetail.profile_picture_url,
-        education: modifiedEducation,
+        education: modifiededucation,
         skills: existingJobSeekerDetail.skills.map(skill => skill.skill_name),
         projects: modifiedProjects,
         experiences: modifiedExperiences2,

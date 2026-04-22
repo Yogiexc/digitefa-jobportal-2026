@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+﻿import { Injectable, NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
@@ -220,8 +220,9 @@ export class JobsSearchService {
                   `${e.experience_title} at ${e.company_name} - ${e.description}`,
               )
               .join('; ') || '';
-          const eduText = jobSeeker.education
-            ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+          const latestEducation = jobSeeker.education?.[0];
+          const eduText = latestEducation
+            ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
             : '';
           let profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
@@ -451,8 +452,9 @@ export class JobsSearchService {
               `${e.experience_title} at ${e.company_name} - ${e.description}`,
           )
           .join('; ') || '';
-      const eduText = jobSeeker.education
-        ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+      const latestEducation = jobSeeker.education?.[0];
+      const eduText = latestEducation
+        ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
         : '';
       const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
@@ -638,11 +640,11 @@ export class JobsSearchService {
               case 'personal_summary_match':
                 return 'This opportunity strongly reflects the direction and aspirations expressed in your personal summary, making it a promising match for your professional goals and values.';
               case 'projects_match':
-                return 'This role aligns closely with the types of work and initiatives you’ve showcased in your projects, suggesting a natural fit for your experience in hands-on, practical applications.';
+                return 'This role aligns closely with the types of work and initiatives youâ€™ve showcased in your projects, suggesting a natural fit for your experience in hands-on, practical applications.';
               case 'certifications_match':
                 return 'Based on the certifications listed in your profile, this position appears to be well-suited to your verified training and specialized knowledge, offering you a chance to apply them meaningfully.';
               case 'education_match':
-                return 'The academic background you’ve built provides a solid foundation for this job, making the educational requirements of the position well-aligned with your qualifications.';
+                return 'The academic background youâ€™ve built provides a solid foundation for this job, making the educational requirements of the position well-aligned with your qualifications.';
               case 'skills_match':
                 return 'Your listed skill set matches the key competencies needed for this role, indicating that you are well-prepared to contribute effectively from day one.';
               case 'experience_match':

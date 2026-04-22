@@ -461,41 +461,61 @@ async def parse_cv(file: UploadFile = File(...)):
         addresses = address_regex.findall(full_text)
         if addresses: sections["address"] = addresses[0].strip()
 
-        for line in cv_lines:
+        for line in cv_lines[:10]:  # cuma cek 10 baris atas
             line_clean = line.strip()
-            if line_clean and len(line_clean) < 40:
-                l_lower = line_clean.lower()
-                if not any(bw in l_lower for bw in ['resume', 'cv', 'curriculum vitae', 'profil', 'data pribadi', 'contact']):
-                    sections["name"] = line_clean
-                    break
+
+            if not line_clean:
+                continue
+
+            # skip kalau ada angka / simbol aneh
+            if re.search(r'\d', line_clean):
+                continue
+
+            # skip kalau keyword bukan nama
+            if any(k in line_clean.lower() for k in [
+                "cv", "resume", "profile", "profil",
+                "experience", "education", "skills"
+                ]):
+                continue
+
+            # kandidat nama: 2–4 kata, huruf semua
+            words = line_clean.split()
+            if 2 <= len(words) <= 4:
+                sections["name"] = line_clean
+            break
                     
         current_section = None
         header_patterns = {
             "experience": r"^(pengalaman|experience|work history|employment|riwayat kerja)",
             "education": r"^(pendidikan|education|academic|riwayat pendidikan)",
             "skills": r"^(keahlian|skills|keterampilan|kemampuan|core competencies)",
-            "personal_summary": r"^(summary|profile|profil|tentang saya|about me|ringkasan)",
+           "personal_summary": r"^(summary|profile|profil|personal summary|tentang saya|about me|ringkasan)",
             "projects": r"^(projects|proyek|portfolio|portofolio)",
-            "certifications": r"^(certifications|sertifikat|lisensi|licenses|sertifikasi|courses)",
+            "certifications": r"(certif|license)",
             "languages": r"^(languages|bahasa)"
         }
         
         for line in cv_lines:
             lline = line.lower().strip()
-            matched_section = False
-            if len(lline) < 50 and lline:
-                for sec, pattern in header_patterns.items():
-                    if re.search(pattern, lline):
-                        current_section = sec
-                        matched_section = True
-                        break
-            if not matched_section and current_section and line.strip():
+
+            # DETECT HEADER BARU
+            new_section = None
+            for sec, pattern in header_patterns.items():
+                if re.search(pattern, lline):
+                    new_section = sec
+                    break
+
+            if new_section:
+                current_section = new_section
+                continue  # ⛔ penting
+
+            # MASUKKAN DATA
+            if current_section and line.strip():
                 if current_section in ["skills", "languages"]:
                     parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]
                     sections[current_section].extend(parts)
                 else:
                     sections[current_section].append(line.strip())
-        
         # Skill Cleanup
         filtered_skills = []
         for s in sections["skills"]:
@@ -509,10 +529,28 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 30]))
         
         # Summary
+        sections["personal_summary"] = [
+            line for line in sections["personal_summary"]
+            if len(line.strip()) > 5
+            and not re.search(r'(education|skills|projects|experience|certifications)', line.lower())
+        ]
+
         sections["personal_summary"] = " ".join(sections["personal_summary"]).strip()
         
-        # Projects
-        valid_projects = [p for p in sections["projects"] if len(p.strip()) > 5]
+        project_blocks = []
+        i = 0
+
+        while i < len(sections["projects"]):
+            title = sections["projects"][i].strip() if i < len(sections["projects"]) else ""
+            date_line = sections["projects"][i+1].strip() if i+1 < len(sections["projects"]) else ""
+            desc = sections["projects"][i+2].strip() if i+2 < len(sections["projects"]) else ""
+
+            block = f"{title} {date_line} {desc}".strip()
+            project_blocks.append(block)
+            i += 3
+
+        valid_projects = project_blocks
+        valid_certs = [c for c in sections["certifications"] if len(c.strip()) > 10]
         date_pattern = re.compile(r'(?i)\b(?:19|20)\d{2}\b|(?:jan|feb|mar|apr|may|mei|jun|jul|aug|agu|sep|oct|okt|nov|dec|des)[a-z]*[\s,-]+\d{2,4}')
         
         def extract_dates(text):
@@ -523,162 +561,221 @@ async def parse_cv(file: UploadFile = File(...)):
             return re.sub(r'^[\W_]+|[\W_]+$', '', title).strip()
 
         sections["projects_structured"] = []
-        current_proj = None
         for line in valid_projects:
             line = line.strip('-• ')
             dates = extract_dates(line)
-            if len(line) < 100 and (dates or not current_proj):
-                if current_proj: sections["projects_structured"].append(current_proj)
-                title = clean_title(line[:100], dates)
-                current_proj = {
-                    "title": title or "Project Details",
-                    "description": line + " ",
-                    "start_date": dates[0] if len(dates) > 0 else "",
-                    "end_date": dates[-1] if len(dates) > 1 else ""
-                }
-            else:
-                if current_proj: current_proj["description"] += line + " "
-                
-        if current_proj: sections["projects_structured"].append(current_proj)
+
+            # 1. Hapus tanggal dari text (format Bulan Tahun)
+            text_no_dates = re.sub(
+                r'(?i)(?:jan|feb|mar|apr|may|mei|jun|jul|aug|agu|sep|oct|okt|nov|dec|des)[a-z]*\s+\d{4}',
+                '',
+                line
+            )
+            # 2. Hapus tahun saja
+            text_no_dates = re.sub(r'\b(?:19|20)\d{2}\b', '', text_no_dates)
+
+            # 3. Bersihin sisa tanda "-" dan whitespace
+            text_no_dates = re.sub(r'[-–]+', ' ', text_no_dates)
+            text_no_dates = re.sub(r'\s+', ' ', text_no_dates).strip()
+
+            # 4. Pisahkan title dan description (2 kata pertama sebagai judul)
+            words = text_no_dates.split()
+            title = " ".join(words[:2]) if len(words) > 0 else "Project"
+            description = " ".join(words[2:]) if len(words) > 2 else text_no_dates
+
+            sections["projects_structured"].append({
+                "title": title.strip(),
+                "description": description.strip() or line,
+                "start_date": dates[0] if len(dates) > 0 else "",
+                "end_date": dates[-1] if len(dates) > 1 else ""
+            })
         sections["projects"] = " ".join(valid_projects)
         
         # Certifications
-        valid_certs = [c.strip('-• ') for c in sections["certifications"] if len(c.strip()) > 5]
-        sections["certifications_structured"] = []
-        for c in valid_certs[:10]:
-            dates = extract_dates(c)
-            title = clean_title(c[:100], dates)
-            sections["certifications_structured"].append({
-                "title": title or "Certification",
-                "description": c
-            })
-        sections["certifications"] = " ".join(valid_certs)
+        cert_list = []
+
+        i = 0
+        lines = sections["certifications"]
+
+        def normalize_month(text):
+            months = {
+                "januari": "January", "februari": "February", "maret": "March",
+                "april": "April", "mei": "May", "juni": "June",
+                "juli": "July", "agustus": "August", "september": "September",
+                "oktober": "October", "november": "November", "desember": "December"
+            }
+            for indo, eng in months.items():
+                text = re.sub(indo, eng, text, flags=re.IGNORECASE)
+            return text
+
+        while i < len(lines):
+            cert = {
+                "certification_name": "",
+                "issue_date": "",
+                "expiration_date": "",
+                "issuing_organization": "",
+                "credential_url": ""
+            }
+
+            # Ambil 4 baris (1 blok)
+            block = lines[i:i+4]
+            block = [normalize_month(b.strip()) for b in block if b.strip()]
+
+            for line in block:
+                # URL
+                if "http" in line or "www" in line:
+                    cert["credential_url"] = line
+
+                # DATE
+                elif re.search(r'[A-Za-z]+\s+\d{4}\s*[–-]\s*[A-Za-z]+\s+\d{4}', line):
+                    dates = re.findall(r'[A-Za-z]+\s+\d{4}', line)
+                    if len(dates) >= 2:
+                        cert["issue_date"] = dates[0]
+                        cert["expiration_date"] = dates[1]
+
+                # ORGANIZATION
+                elif not cert["issuing_organization"] and not re.search(r'\d', line):
+                    cert["issuing_organization"] = line
+
+                # NAME
+                elif not cert["certification_name"]:
+                    cert["certification_name"] = line
+
+            if cert["certification_name"]:
+                cert_list.append(cert)
+
+            i += 4  # lompat 1 blok
+
+        sections["certifications_structured"] = cert_list
+        
 
         # Experience
         exp_list = []
-        current_exp = None
+        current_exp = {
+            "title": "",
+            "company": "",
+            "employment_type": "",
+            "location_type": "",
+            "location": "",
+            "description": "",
+            "start_date": "",
+            "end_date": ""
+        }
         emp_types = ["Full-time", "Part-time", "Internship", "Freelance", "Contract"]
         loc_types = ["Remote", "On-site", "Hybrid"]
         
         for line in sections["experience"]:
-            line = line.strip('-• ')
-            if not line: continue
-            
-            dates = extract_dates(line)
-            found_emp_type = "Full-time"
-            for et in emp_types:
-                if re.search(r'\b' + et.replace('-', r'[-\s]*') + r'\b', line, re.IGNORECASE):
-                    found_emp_type = et
-                    break
-            
-            found_loc_type = "On-site"
-            if re.search(r'\b(?:wfh|remote)\b', line, re.IGNORECASE):
-                found_loc_type = "Remote"
-            elif re.search(r'\b(?:hybrid)\b', line, re.IGNORECASE):
-                found_loc_type = "Hybrid"
-                
-            if dates or current_exp is None or re.search(r'\b(?:at|@|-|\||–)\b', line):
-                if current_exp and current_exp["description"]:
-                    exp_list.append(current_exp)
-                
-                parts = re.split(r'\b(?:at|@|-|\||–)\b', line, 1)
-                title = clean_title(parts[0][:100], dates)
-                company = clean_title(parts[1][:100], dates) if len(parts) > 1 else ""
-                
-                loc_match = re.search(r'(?i)\b(jakarta|bandung|surabaya|yogyakarta|medan|bali|singapore|remote)\b', line)
-                location = loc_match.group(1).title() if loc_match else "Jakarta"
-                
-                current_exp = {
-                    "title": title or "Experience",
-                    "company": company or "Company",
-                    "employment_type": found_emp_type,
-                    "location_type": found_loc_type,
-                    "location": location,
-                    "description": "",
-                    "start_date": dates[0] if len(dates) > 0 else "",
-                    "end_date": dates[-1] if len(dates) > 1 else ("Present" if re.search(r'(?i)present|sekarang|now', line) else "")
-                }
-            else:
-                current_exp["description"] += line + "\n"
+            line = line.strip()
+            if not line:
+                continue
 
-        if current_exp: exp_list.append(current_exp)
-        sections["experience_structured"] = exp_list[:10]
+            # 1. JOB TITLE (baris pertama biasanya)
+            if not current_exp["title"]:
+                current_exp["title"] = line
+                continue
+
+            # 2. DATE
+            elif re.search(r'(?i)[a-z]+\s+\d{4}\s*[–-]\s*[a-z]+\s+\d{4}', line):
+                dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
+                if len(dates) >= 2:
+                    current_exp["start_date"] = dates[0]
+                    current_exp["end_date"] = dates[1]
+                continue
+
+            # 3. COMPANY
+            elif "pt" in line.lower() or "cv" in line.lower():
+                current_exp["company"] = line
+                continue
+
+            # 4. EMPLOYMENT TYPE
+            elif line.lower() in ["fulltime", "freelance", "part time", "internship"]:
+                current_exp["employment_type"] = line
+                continue
+
+            # 5. LOCATION TYPE
+            elif line.lower() in ["remote", "onsite", "hybrid"]:
+                current_exp["location_type"] = line
+                continue
+
+            # 6. LOCATION
+            elif not current_exp["location"]:
+                current_exp["location"] = line
+                continue
+
+            # 7. DESCRIPTION
+            else:
+                current_exp["description"] += line + " "
+
+        if current_exp and current_exp["title"]:
+            exp_list.append(current_exp)
+
+        sections["experience_structured"] = exp_list
         sections["experience"] = " ".join(sections["experience"][:20])
 
-        # Education
-        edu_list = []
-        current_edu = None
-        
-        def extract_degree(text):
-            text = text.lower()
-            if re.search(r'\b(phd|doctorate|s3)\b', text): return "Doctorate"
-            if re.search(r'\b(master|s2|msc|mba|ma)\b', text): return "Master's Degree"
-            if re.search(r'\b(bachelor|s1|bsc|ba|beng|sarjana)\b', text): return "Bachelor's Degree"
-            if re.search(r'\b(diploma|d3|d4|associate)\b', text): return "Associate Degree"
-            if re.search(r'\b(smk|sma|high school)\b', text): return "High School"
-            return "Bachelor's Degree"
-            
-        def extract_gpa(text):
-            match = re.search(r'(?:gpa|ipk|grade)[\s:]*([0-4](?:\.\d{1,2})?)', text, re.IGNORECASE)
-            return match.group(1) if match else ""
-            
-        for line in sections["education"]:
-            line = line.strip('-• ')
-            if not line: continue
-            
-            dates = extract_dates(line)
-            is_new_edu = False
-            if dates or "univ" in line.lower() or "institut" in line.lower() or "school" in line.lower() or "sekolah" in line.lower() or "academy" in line.lower():
-                is_new_edu = True
-                
-            if is_new_edu or current_edu is None:
-                if current_edu:
-                    if not current_edu["degree"] or current_edu["degree"] == "Bachelor's Degree": current_edu["degree"] = extract_degree(current_edu["description"])
-                    if not current_edu["grade"]: current_edu["grade"] = extract_gpa(current_edu["description"])
-                    edu_list.append(current_edu)
-                
-                univ = clean_title(line[:100], dates)
-                current_edu = {
-                    "university": univ or "University",
-                    "degree": extract_degree(line),
-                    "major": "",
-                    "grade": extract_gpa(line),
-                    "description": line + "\n",
-                    "start_date": dates[0] if len(dates) > 0 else "",
-                    "end_date": dates[-1] if len(dates) > 1 else ("Present" if re.search(r'(?i)present|sekarang|now', line) else "")
-                }
-                
-                major_match = re.search(r'(?i)(?:in|of|major in|jurusan|program studi)\s+([A-Za-z ]+)', line)
-                if major_match: current_edu["major"] = clean_title(major_match.group(1)[:50], dates)
-                
-            else:
-                current_edu["description"] += line + "\n"
-                if not current_edu["grade"]: current_edu["grade"] = extract_gpa(line)
-                if not current_edu["major"]:
-                    major_match = re.search(r'(?i)(?:in|of|major in|jurusan|program studi)\s+([A-Za-z ]+)', line)
-                    if major_match: current_edu["major"] = clean_title(major_match.group(1)[:50], dates)
-                    elif re.search(r'\b(engineering|science|arts|business|management|computer|technology|systems)\b', line, re.IGNORECASE):
-                        current_edu["major"] = clean_title(line[:50], dates)
-                if current_edu["degree"] == "Bachelor's Degree":
-                     new_deg = extract_degree(line)
-                     if new_deg != "Bachelor's Degree": current_edu["degree"] = new_deg
+        edu = {
+            "university": "",
+            "degree": "",
+            "major": "",
+            "grade": "",
+            "start_date": "",
+            "end_date": "",
+            "length_of_study": ""
+        }
 
-        if current_edu:
-            if not current_edu["degree"] or current_edu["degree"] == "Bachelor's Degree": current_edu["degree"] = extract_degree(current_edu["description"])
-            if not current_edu["grade"]: current_edu["grade"] = extract_gpa(current_edu["description"])
-            if not current_edu["major"]: current_edu["major"] = "General"
-            edu_list.append(current_edu)
-            
-        sections["education_structured"] = edu_list[:5]
+        for line in sections["education"]:
+            line = line.strip()
+            if not line:
+                continue
+
+            # UNIVERSITY
+            if "university" in line.lower() or "universitas" in line.lower():
+                edu["university"] = line
+
+            # DATE
+            elif re.search(r'(?i)[a-z]+\s+\d{4}\s*-\s*[a-z]+\s+\d{4}', line):
+                dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
+                if len(dates) >= 2:
+                    edu["start_date"] = dates[0]
+                    edu["end_date"] = dates[1]
+
+            # DEGREE
+            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master', line):
+                edu["degree"] = line
+
+            # GPA
+            elif re.search(r'(?i)(gpa|ipk)?[:\s]*\b\d[.,]\d{1,2}\b', line):
+                gpa_match = re.search(r'\b\d[.,]\d{1,2}\b', line)
+                if gpa_match:
+                    edu["grade"] = gpa_match.group(0).replace(",", ".")
+
+            # MAJOR
+            else:
+                edu["major"] = line
+
+        # LENGTH
+        if edu["start_date"] and edu["end_date"]:
+            try:
+                start_year = re.search(r'\d{4}', edu["start_date"]).group()
+                end_year = re.search(r'\d{4}', edu["end_date"]).group()
+                edu["length_of_study"] = f"{int(end_year) - int(start_year)} years"
+            except:
+                pass
+
+        sections["education_structured"] = [edu]
         sections["education"] = " ".join(sections["education"][:10])
         
+        sections["full_name"] = sections["name"]
         return {
-            "parsed_data": sections,
+            "parsed_data": {
+                **sections,
+                "full_name": sections["name"]
+            },
             "raw_text": full_text
         }
     except Exception as e:
         print("Error Parsing CV:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
+        
 @app.get("/wordcloud")
 async def get_wordcloud():
     """

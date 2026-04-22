@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   ConflictException,
   Injectable,
@@ -303,12 +303,13 @@ export class CompaniesService {
             `${e.experience_title} at ${e.company_name} - ${e.description}`,
         )
         .join('; ');
-      const eduText = s.education
-        ? `${s.education.degree} in ${s.education.major} at ${s.education.university_name}`
+      const latestEdu = s.education && s.education.length > 0 ? s.education[0] : null;
+      const eduText = latestEdu
+        ? `${latestEdu.degree} in ${latestEdu.major} at ${latestEdu.university_name}`
         : '';
       const langText = s.languages.map((l) => l.language_name).join(', ');
 
-      const profileText = `Name: ${s.job_seeker.full_name}. Skills: ${skillsText}. Languages: ${langText}. Experience: ${expText}. Education: ${eduText}. Summary: ${s.personal_summary || ''}`;
+      const profileText = `Name: ${s.job_seeker.full_name}. Skills: ${skillsText}. Languages: ${langText}. Experience: ${expText}. education: ${eduText}. Summary: ${s.personal_summary || ''}`;
 
       return { id: s.job_seeker_detail_id, profile_text: profileText };
     });

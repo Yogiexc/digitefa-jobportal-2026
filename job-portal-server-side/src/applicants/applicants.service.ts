@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
@@ -11,7 +11,7 @@ import { Response } from 'express';
 
 @Injectable()
 export class ApplicantsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async applyJob(
     user: any,
     job_id: string,
@@ -107,8 +107,9 @@ export class ApplicantsService {
               `${e.experience_title} at ${e.company_name} - ${e.description}`,
           )
           .join('; ') || '';
-      const eduText = jobSeeker.education
-        ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}`
+      const latestEducation = jobSeeker.education?.[0];
+      const eduText = latestEducation
+        ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
         : '';
       const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
@@ -124,7 +125,7 @@ export class ApplicantsService {
         skills: jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '',
         experience: jobSeeker.experiences?.map((e) => `${e.experience_title} at ${e.company_name} - ${e.description}`).join('; ') || '',
         summary: jobSeeker.personal_summary || '',
-        education: jobSeeker.education ? `${jobSeeker.education.degree} in ${jobSeeker.education.major} at ${jobSeeker.education.university_name}` : '',
+        education: latestEducation ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}` : '',
         others: [
           ...(jobSeeker.projects?.map(p => p.project_name) || []),
           ...(jobSeeker.certifications?.map(c => c.certification_name) || [])

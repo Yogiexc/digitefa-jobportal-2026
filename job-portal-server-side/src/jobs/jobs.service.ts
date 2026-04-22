@@ -1,4 +1,4 @@
-import {
+﻿import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -1056,7 +1056,9 @@ export class JobsService {
               job_seeker: {
                 job_seeker_detail: {
                   education: {
-                    major: { contains: search },
+                    some: {
+                      major: { contains: search },
+                    },
                   },
                 },
               },
@@ -1136,7 +1138,7 @@ export class JobsService {
                 select: {
                   profile_picture_url: true,
                   personal_info: { select: { address: true } },
-                  education: { select: { major: true } },
+                  education: { select: { major: true }, take: 1, orderBy: { start_date: 'desc' } },
                 },
               },
             },
@@ -1251,7 +1253,7 @@ export class JobsService {
             app.job_seeker.job_seeker_detail?.profile_picture_url || null,
           address:
             app.job_seeker.job_seeker_detail?.personal_info?.address || null,
-          major: app.job_seeker.job_seeker_detail?.education?.major || null,
+          major: app.job_seeker.job_seeker_detail?.education?.[0]?.major || null,
           completed_courses: app.job_seeker.completed_courses,
           suitability_score: app.job_seeker.suitability_score,
         },
@@ -1285,7 +1287,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1328,7 +1332,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1371,7 +1377,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1414,7 +1422,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1457,7 +1467,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1534,10 +1546,9 @@ export class JobsService {
         ]);
       }
       if (jobSeeker.education) {
-        jobSeeker.education = omit(jobSeeker.education, [
-          'created_at',
-          'updated_at',
-        ]);
+        jobSeeker.education = jobSeeker.education.map((education) =>
+          omit(education, ['created_at', 'updated_at']),
+        );
       }
       if (jobSeeker.experiences) {
         jobSeeker.experiences = jobSeeker.experiences.map((exp) =>
@@ -1683,10 +1694,9 @@ export class JobsService {
         ]);
       }
       if (jobSeeker.education) {
-        jobSeeker.education = omit(jobSeeker.education, [
-          'created_at',
-          'updated_at',
-        ]);
+        jobSeeker.education = jobSeeker.education.map((education) =>
+          omit(education, ['created_at', 'updated_at']),
+        );
       }
       if (jobSeeker.experiences) {
         jobSeeker.experiences = jobSeeker.experiences.map((exp) =>
@@ -1883,18 +1893,18 @@ export class JobsService {
             });
           }
         }
-        
+
         // Sync to invitations table per user request
         if (['waiting_interview', 'accepted', 'rejected'].includes(status)) {
           const invitationStatus = status === 'waiting_interview' ? 'waiting_interview' : status;
-          
+
           const existingInvitation = await (tx as any).invitations.findFirst({
-            where: { 
+            where: {
               job_id: application.job_id,
               job_seeker_id: application.job_seeker_id
             }
           });
-          
+
           if (existingInvitation) {
             await (tx as any).invitations.update({
               where: { invitation_id: existingInvitation.invitation_id },
@@ -2139,6 +2149,8 @@ export class JobsService {
                     select: {
                       major: true,
                     },
+                    take: 1,
+                    orderBy: { start_date: 'desc' },
                   },
                 },
               },
@@ -2164,8 +2176,8 @@ export class JobsService {
           address: applicant.job_seeker.job_seeker_detail.personal_info
             ? applicant.job_seeker.job_seeker_detail.personal_info.address
             : null,
-          major: applicant.job_seeker.job_seeker_detail.education
-            ? applicant.job_seeker.job_seeker_detail.education.major
+          major: applicant.job_seeker.job_seeker_detail.education?.[0]
+            ? applicant.job_seeker.job_seeker_detail.education[0].major
             : null,
         },
       }));

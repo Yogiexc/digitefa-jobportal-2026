@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+﻿import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { omit } from 'lodash';
 import * as ExcelJS from 'exceljs';
@@ -27,7 +27,7 @@ export class StudentService {
     try {
       const where = {
         education: {
-          university_id: user.university_id
+          some: { university_id: user.university_id },
         },
         ...(search && {
           OR: [
@@ -37,10 +37,12 @@ export class StudentService {
         }),
         ...(classYear && {
           education: {
-            start_date: {
-              gte: new Date(`${classYear}-01-01`),
-              lte: new Date(`${classYear}-12-31`),
-            }
+            some: {
+              start_date: {
+                gte: new Date(`${classYear}-01-01`),
+                lte: new Date(`${classYear}-12-31`),
+              },
+            },
           }
         }),
         ...(startDate && {
@@ -105,8 +107,8 @@ export class StudentService {
 
   async getStudentByJobSeekerId(user: any, job_seeker_id: string) {
     try {
-      let student = await this.prisma.job_seeker_details.findUnique({
-        where: { job_seeker_id, education: { university_id: user.university_id } },
+      let student = await this.prisma.job_seeker_details.findFirst({
+        where: { job_seeker_id, education: { some: { university_id: user.university_id } } },
         include: {
           job_seeker: true,
           personal_info: true,
@@ -136,7 +138,7 @@ export class StudentService {
         student.personal_info = omit(student.personal_info, ['created_at', 'updated_at']);
       }
       if (student.education) {
-        student.education = omit(student.education, ['created_at', 'updated_at']);
+        student.education = student.education.map((education) => omit(education, ['created_at', 'updated_at']));
       }
       if (student.experiences) {
         student.experiences = student.experiences.map(exp => omit(exp, ['created_at', 'updated_at']));
@@ -185,7 +187,7 @@ export class StudentService {
         job_seeker: {
           job_seeker_detail: {
             education: {
-              university_id: user.university_id
+              some: { university_id: user.university_id },
             },
           }
         },
@@ -199,10 +201,12 @@ export class StudentService {
           job_seeker: {
             job_seeker_detail: {
               education: {
-                start_date: {
-                  gte: new Date(`${classYear}-01-01`),
-                  lte: new Date(`${classYear}-12-31`),
-                }
+                some: {
+                  start_date: {
+                    gte: new Date(`${classYear}-01-01`),
+                    lte: new Date(`${classYear}-12-31`),
+                  },
+                },
               }
             }
           }
@@ -270,7 +274,7 @@ export class StudentService {
       });
 
       const responseData = students.map(student => {
-        console.log(student.job_seeker.job_seeker_detail.education.start_date)
+        console.log(student.job_seeker.job_seeker_detail.education?.[0]?.start_date)
         return {
           application_id: student.application_id,
           applied_at: student.applied_at,
@@ -278,7 +282,7 @@ export class StudentService {
           job_seeker: {
             job_seeker_id: student.job_seeker.job_seeker_id,
             full_name: student.job_seeker.full_name,
-            class_year: student.job_seeker.job_seeker_detail.education.start_date,
+            class_year: student.job_seeker.job_seeker_detail.education?.[0]?.start_date,
           },
           job: {
             job_id: student.job.job_id,
@@ -328,7 +332,7 @@ export class StudentService {
       const students = await this.prisma.job_seeker_details.findMany({
         where: {
           education: {
-            university_id: user.university_id
+            some: { university_id: user.university_id },
           }
         },
         orderBy: {
@@ -361,10 +365,10 @@ export class StudentService {
           job_seeker_id: student.job_seeker_id,
           full_name: student.job_seeker.full_name,
           email: student.job_seeker.email,
-          degree: student.education.degree,
-          major: student.education.major,
-          start_date: moment(student.education.start_date, 'YYYY-MM-DD HH:mm:ss').format('MM/YYYY'),
-          end_date: moment(student.education.end_date, 'YYYY-MM-DD HH:mm:ss').format('MM/YYYY'),
+          degree: student.education?.[0]?.degree || null,
+          major: student.education?.[0]?.major || null,
+          start_date: student.education?.[0]?.start_date ? moment(student.education[0].start_date, 'YYYY-MM-DD HH:mm:ss').format('MM/YYYY') : null,
+          end_date: student.education?.[0]?.end_date ? moment(student.education[0].end_date, 'YYYY-MM-DD HH:mm:ss').format('MM/YYYY') : null,
           created_at: student.created_at,
         };
       });
@@ -439,7 +443,7 @@ export class StudentService {
           job_seeker: {
             job_seeker_detail: {
               education: {
-                university_id: user.university_id
+                some: { university_id: user.university_id },
               },
             }
           }

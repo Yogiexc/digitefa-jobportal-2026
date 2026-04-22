@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+﻿import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class UniversityService {
       const total = await this.prisma.job_seeker_details.count({
         where: {
           education: {
-            university_id: user.university_id
+            some: { university_id: user.university_id },
           },
         },
       });
@@ -41,7 +41,7 @@ export class UniversityService {
         const totalRegistered = await this.prisma.job_seeker_details.count({
           where: {
             education: {
-              university_id: user.university_id
+              some: { university_id: user.university_id },
             },
             created_at: {
               gte: startDate,
@@ -54,7 +54,7 @@ export class UniversityService {
           where: {
             job_seeker_detail: {
               education: {
-                university_id: user.university_id
+                some: { university_id: user.university_id },
               },
             }
             ,
@@ -100,7 +100,7 @@ export class UniversityService {
             lte: new Date(currentYear, currentMonth + 1, 0),
           },
           education: {
-            university_id: user.university_id,
+            some: { university_id: user.university_id },
           },
         },
       });
@@ -112,7 +112,7 @@ export class UniversityService {
             lte: new Date(currentYear, currentMonth, 0),
           },
           education: {
-            university_id: user.university_id,
+            some: { university_id: user.university_id },
           },
         },
       });
@@ -143,7 +143,7 @@ export class UniversityService {
       const totalTalents = await this.prisma.job_seeker_details.count({
         where: {
           education: {
-            university_id: user.university_id
+            some: { university_id: user.university_id },
           },
         },
       });
@@ -153,7 +153,7 @@ export class UniversityService {
           job_seeker: {
             job_seeker_detail: {
               education: {
-                university_id: user.university_id
+                some: { university_id: user.university_id },
               },
             }
           },

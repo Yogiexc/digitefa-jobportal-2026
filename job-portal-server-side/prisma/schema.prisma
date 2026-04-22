@@ -8,23 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum verified {
-  true
-  false
-}
-
-enum status {
-  not_submitted
-  submitted
-  accepted
-  rejected
-}
-
-enum role {
-  superadmin
-  admin
-}
-
 model job_seekers {
   job_seeker_id     String              @id @default(uuid())
   email             String              @unique
@@ -35,63 +18,65 @@ model job_seekers {
   verified          verified            @default(false)
   created_at        DateTime            @default(now())
   updated_at        DateTime            @updatedAt
-  job_seeker_detail job_seeker_details?
-  applications      applications[]
-  saved_jobs        saved_jobs[]
-  lmsUserId         String?
   lmsLinkedAt       DateTime?
+  lmsUserId         String?
+  applications      applications[]
   invitations       invitations[]
+  job_seeker_detail job_seeker_details?
   request_apply     request_apply[]
+  saved_jobs        saved_jobs[]
 }
 
 model job_seeker_details {
   job_seeker_detail_id String           @id @default(uuid())
   job_seeker_id        String           @unique
-  job_seeker           job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
   profile_picture_url  String?
   personal_summary     String?          @db.Text
-  personal_info        personal_info?
-  education            education[]
-  experiences          experiences[]
-  skills               skills[]
-  projects             projects[]
-  certifications       certifications[]
   created_at           DateTime         @default(now())
   updated_at           DateTime         @updatedAt
+  certifications       certifications[]
+  education           education[]
+  experiences          experiences[]
+  job_seeker           job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
   languages            languages[]
+  personal_info        personal_info?
+  projects             projects[]
+  skills               skills[]
 }
 
 model personal_info {
   personal_info_id     String             @id @default(uuid())
   job_seeker_detail_id String             @unique
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   address              String?
   phone_number         String?            @db.VarChar(15)
   date_of_birth        DateTime?
   created_at           DateTime           @default(now())
   updated_at           DateTime           @updatedAt
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
 }
 
 model education {
   education_id         String             @id @default(uuid())
   job_seeker_detail_id String
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   university_id        String?
   university_name      String
   degree               String
   major                String
   start_date           DateTime
   end_date             DateTime?
-  grade                String?
   created_at           DateTime           @default(now())
   updated_at           DateTime           @updatedAt
+  grade                String?
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   university           universities?      @relation(fields: [university_id], references: [university_id])
+
+  @@index([university_id], map: "education_university_id_fkey")
+  @@map("education")
 }
 
 model experiences {
   experience_id        String             @id @default(uuid())
   job_seeker_detail_id String
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   experience_title     String
   employment_type      String?
   company_name         String
@@ -102,6 +87,9 @@ model experiences {
   end_date             DateTime?
   created_at           DateTime           @default(now())
   updated_at           DateTime           @updatedAt
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
+
+  @@index([job_seeker_detail_id], map: "experiences_job_seeker_detail_id_fkey")
 }
 
 model languages {
@@ -109,8 +97,8 @@ model languages {
   language_name        String
   created_at           DateTime            @default(now())
   updated_at           DateTime            @updatedAt
-  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   job_seeker_detail_id String?
+  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
 
   @@unique([job_seeker_detail_id, language_name])
 }
@@ -120,36 +108,39 @@ model skills {
   skill_name           String
   created_at           DateTime            @default(now())
   updated_at           DateTime            @updatedAt
-  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   job_seeker_detail_id String?
+  job_seeker_details   job_seeker_details? @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
+
+  @@index([job_seeker_detail_id], map: "skills_job_seeker_detail_id_fkey")
 }
 
 model skills_category {
   skill_category_id String               @id @default(uuid())
   category_name     String               @unique
-  skills            skills_requirement[]
-  jobs              jobs[]
   created_at        DateTime             @default(now())
   updated_at        DateTime             @updatedAt
   deleted_at        DateTime?
+  jobs              jobs[]
+  skills            skills_requirement[]
 }
 
 model projects {
   project_id           String             @id @default(uuid())
   job_seeker_detail_id String
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   project_name         String
   description          String?            @db.VarChar(255)
   start_date           DateTime?
   end_date             DateTime?
   created_at           DateTime           @default(now())
   updated_at           DateTime           @updatedAt
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
+
+  @@index([job_seeker_detail_id], map: "projects_job_seeker_detail_id_fkey")
 }
 
 model certifications {
   certification_id     String             @id @default(uuid())
   job_seeker_detail_id String
-  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
   certification_name   String
   issuing_organization String?
   issue_date           DateTime?
@@ -157,6 +148,9 @@ model certifications {
   credential_url       String?
   created_at           DateTime           @default(now())
   updated_at           DateTime           @updatedAt
+  job_seeker_details   job_seeker_details @relation(fields: [job_seeker_detail_id], references: [job_seeker_detail_id], onDelete: Cascade)
+
+  @@index([job_seeker_detail_id], map: "certifications_job_seeker_detail_id_fkey")
 }
 
 model approval {
@@ -182,15 +176,14 @@ model companies {
   status         status           @default(not_submitted)
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
+  approval       approval?
   company_detail company_details?
   jobs           jobs[]
-  approval       approval?
 }
 
 model company_details {
   company_detail_id String    @id @default(uuid())
   company_id        String    @unique
-  company           companies @relation(fields: [company_id], references: [company_id])
   logo_url          String?
   legal_name        String?
   market_name       String?
@@ -210,6 +203,7 @@ model company_details {
   youtube_url       String?
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
+  company           companies @relation(fields: [company_id], references: [company_id])
 }
 
 model position_levels {
@@ -222,32 +216,250 @@ model position_levels {
 model jobs {
   job_id                 String               @id @default(uuid())
   company_id             String
-  company                companies            @relation(fields: [company_id], references: [company_id])
   title                  String
   category               job_category
   employment_type        String
-  work_type              work_type
   description            String               @db.Text
   location               String
   salary_type            salary_type
-  minimum_salary         BigInt?              @db.BigInt
-  maximum_salary         BigInt?              @db.BigInt
-  skills_category_id     String
-  skills_category        skills_category      @relation(fields: [skills_category_id], references: [skill_category_id])
-  skills_requirement     skills_requirement[]
+  minimum_salary         BigInt?
+  maximum_salary         BigInt?
   education_requirement  String?
   experience_requirement String?
-  benefits               job_benefits[]
   status                 job_status           @default(draft)
   published_at           DateTime?
   expired_at             DateTime?
-  deleted_at             DateTime?
   created_at             DateTime             @default(now())
   updated_at             DateTime             @updatedAt
+  work_type              work_type
+  deleted_at             DateTime?
+  skills_category_id     String
   applications           applications[]
-  saved_jobs             saved_jobs[]
   invitations            invitations[]
+  benefits               job_benefits[]
+  company                companies            @relation(fields: [company_id], references: [company_id])
+  skills_category        skills_category      @relation(fields: [skills_category_id], references: [skill_category_id])
   request_apply          request_apply[]
+  saved_jobs             saved_jobs[]
+  skills_requirement     skills_requirement[]
+
+  @@index([company_id], map: "jobs_company_id_fkey")
+  @@index([skills_category_id], map: "jobs_skills_category_id_fkey")
+}
+
+model job_benefits {
+  job_benefit_id String   @id @default(uuid())
+  job_id         String
+  benefit        String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  job            jobs     @relation(fields: [job_id], references: [job_id])
+
+  @@index([job_id], map: "job_benefits_job_id_fkey")
+}
+
+model skills_requirement {
+  skill_requirement_id String          @id @default(uuid())
+  job_id               String
+  skill                String
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
+  skill_category_id    String
+  job                  jobs            @relation(fields: [job_id], references: [job_id])
+  skill_category       skills_category @relation(fields: [skill_category_id], references: [skill_category_id])
+
+  @@index([job_id], map: "skills_requirement_job_id_fkey")
+  @@index([skill_category_id], map: "skills_requirement_skill_category_id_fkey")
+}
+
+model match_scores {
+  match_score_id String       @id @default(uuid())
+  application_id String       @unique
+  overall        Float?
+  summary        Float?
+  skills         Float?
+  experience     Float?
+  education      Float?
+  certifications Float?
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  projects       Float?
+  applications   applications @relation(fields: [application_id], references: [application_id], onDelete: Cascade)
+}
+
+model applications {
+  job_seeker_id    String
+  job_id           String
+  status           applicant_status @default(pending)
+  resume_url       String
+  expected_salary  BigInt?
+  applied_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  application_id   String           @id @default(uuid())
+  experience_years String?
+  job              jobs             @relation(fields: [job_id], references: [job_id])
+  job_seeker       job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
+  interviews       interviews?
+  match_scores     match_scores?
+
+  @@index([job_id], map: "applications_job_id_fkey")
+  @@index([job_seeker_id], map: "applications_job_seeker_id_fkey")
+}
+
+model universities {
+  university_id     String              @id @default(uuid())
+  email             String              @unique
+  password          String
+  full_name         String
+  otp               String?
+  otpExpires        DateTime?
+  verified          verified            @default(false)
+  status            status              @default(not_submitted)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  approval          approval?
+  students          education[]
+  university_detail university_details?
+}
+
+model university_details {
+  university_detail_id String       @id @default(uuid())
+  university_id        String       @unique
+  university_name      String       @unique
+  logo_url             String?
+  phone_number         String?      @db.VarChar(15)
+  category             String?
+  country              String?
+  province             String?
+  city                 String?
+  district             String?
+  full_address         String?
+  postal_code          String?
+  website              String?
+  facebook_url         String?
+  twitter_url          String?
+  instagram_url        String?
+  youtube_url          String?
+  created_at           DateTime     @default(now())
+  updated_at           DateTime     @updatedAt
+  university           universities @relation(fields: [university_id], references: [university_id])
+}
+
+model admins {
+  admin_id   String   @id @default(uuid())
+  email      String   @unique
+  full_name  String
+  password   String
+  role       role     @default(admin)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model saved_jobs {
+  saved_job_id  String      @id @default(uuid())
+  job_seeker_id String
+  job_id        String
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+  job           jobs        @relation(fields: [job_id], references: [job_id])
+  job_seeker    job_seekers @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
+
+  @@unique([job_id, job_seeker_id])
+  @@index([job_seeker_id], map: "saved_jobs_job_seeker_id_fkey")
+}
+
+model pages {
+  slug       String        @unique
+  title      String?       @db.VarChar(255)
+  category   page_category
+  content    String        @db.Text
+  event_date DateTime?     @db.DateTime(0)
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+  page_id    String        @id @default(uuid())
+  image_url  String?
+
+  @@index([slug])
+}
+
+model log_activities {
+  log_activity_id String   @id @default(uuid())
+  user_id         String
+  user_role       String
+  activity        String
+  created_at      DateTime @default(now())
+}
+
+model experience_levels {
+  experience_level_id String   @id @default(uuid())
+  name                String   @unique
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+}
+
+model settings {
+  setting_id String   @id @default(uuid())
+  key        String   @unique
+  value      String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model interviews {
+  interview_id   String       @id @default(uuid())
+  application_id String       @unique
+  interview_date DateTime
+  meeting_link   String?
+  notes          String?      @db.Text
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  application    applications @relation(fields: [application_id], references: [application_id], onDelete: Cascade)
+}
+
+model invitations {
+  invitation_id   String            @id @default(uuid())
+  job_id          String
+  job_seeker_id   String
+  status          invitation_status @default(waiting_interview)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  interview_dates DateTime?
+  job             jobs              @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
+  job_seeker      job_seekers       @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
+
+  @@unique([job_id, job_seeker_id])
+  @@index([job_seeker_id], map: "invitations_job_seeker_id_fkey")
+}
+
+model request_apply {
+  request_apply_id String               @id @default(uuid())
+  job_id           String
+  job_seeker_id    String
+  status           request_apply_status @default(not_applied)
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
+  job              jobs                 @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
+  job_seeker       job_seekers          @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
+
+  @@unique([job_id, job_seeker_id])
+  @@index([job_seeker_id], map: "request_apply_job_seeker_id_fkey")
+}
+
+enum verified {
+  true
+  false
+}
+
+enum status {
+  not_submitted
+  submitted
+  accepted
+  rejected
+}
+
+enum role {
+  superadmin
+  admin
 }
 
 enum work_type {
@@ -284,138 +496,12 @@ enum job_category {
   science_and_research
 }
 
-model job_benefits {
-  job_benefit_id String   @id @default(uuid())
-  job_id         String
-  job            jobs     @relation(fields: [job_id], references: [job_id])
-  benefit        String
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
-}
-
-model skills_requirement {
-  skill_requirement_id String          @id @default(uuid())
-  job_id               String
-  job                  jobs            @relation(fields: [job_id], references: [job_id])
-  skill                String
-  skill_category_id    String
-  skill_category       skills_category @relation(fields: [skill_category_id], references: [skill_category_id])
-  created_at           DateTime        @default(now())
-  updated_at           DateTime        @updatedAt
-}
-
 enum applicant_status {
   pending
   accepted
   rejected
   waiting_interview @map("waiting interview")
   interviewing
-}
-
-model match_scores {
-  match_score_id String       @id @default(uuid())
-  application_id String       @unique
-  overall        Float?
-  summary        Float?
-  skills         Float?
-  experience     Float?
-  education      Float?
-  projects       Float?
-  certifications Float?
-  created_at     DateTime     @default(now())
-  updated_at     DateTime     @updatedAt
-  applications   applications @relation(fields: [application_id], references: [application_id], onDelete: Cascade)
-}
-
-model applications {
-  application_id   String           @id @default(uuid())
-  job_seeker_id    String
-  job_id           String
-  status           applicant_status @default(pending)
-  resume_url       String
-  expected_salary  BigInt?          @db.BigInt
-  experience_years String?
-  applied_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
-  job_seeker       job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
-  job              jobs             @relation(fields: [job_id], references: [job_id])
-  match_scores     match_scores?
-  interviews       interviews?
-}
-
-model universities {
-  university_id     String              @id @default(uuid())
-  email             String              @unique
-  password          String
-  full_name         String
-  otp               String?
-  otpExpires        DateTime?
-  verified          verified            @default(false)
-  status            status              @default(not_submitted)
-  created_at        DateTime            @default(now())
-  updated_at        DateTime            @updatedAt
-  university_detail university_details?
-  students          education[]
-  approval          approval?
-}
-
-model university_details {
-  university_detail_id String       @id @default(uuid())
-  university_id        String       @unique
-  university           universities @relation(fields: [university_id], references: [university_id])
-  university_name      String       @unique
-  logo_url             String?
-  phone_number         String?      @db.VarChar(15)
-  category             String?
-  country              String?
-  province             String?
-  city                 String?
-  district             String?
-  full_address         String?
-  postal_code          String?
-  website              String?
-  facebook_url         String?
-  twitter_url          String?
-  instagram_url        String?
-  youtube_url          String?
-  created_at           DateTime     @default(now())
-  updated_at           DateTime     @updatedAt
-}
-
-model admins {
-  admin_id   String   @id @default(uuid())
-  email      String   @unique
-  full_name  String
-  password   String
-  role       role     @default(admin)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-}
-
-model saved_jobs {
-  saved_job_id  String      @id @default(uuid())
-  job_seeker_id String
-  job_id        String
-  created_at    DateTime    @default(now())
-  updated_at    DateTime    @updatedAt
-  job_seeker    job_seekers @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
-  job           jobs        @relation(fields: [job_id], references: [job_id])
-
-  @@unique([job_id, job_seeker_id])
-}
-
-model pages {
-  page_id    String        @id @default(uuid())
-  slug       String        @unique
-  title      String?       @db.VarChar(255)
-  category   page_category
-  content    String        @db.Text
-  image_url  String?
-  event_date DateTime?     @db.DateTime()
-  created_at DateTime      @default(now())
-  updated_at DateTime      @updatedAt
-
-  @@index([slug])
 }
 
 enum page_category {
@@ -425,74 +511,13 @@ enum page_category {
   news
 }
 
-model log_activities {
-  log_activity_id String   @id @default(uuid())
-  user_id         String
-  user_role       String
-  activity        String
-  created_at      DateTime @default(now())
-}
-
-model experience_levels {
-  experience_level_id String   @id @default(uuid())
-  name                String   @unique
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-}
-
-model settings {
-  setting_id String   @id @default(uuid())
-  key        String   @unique
-  value      String   @db.Text
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-}
-
-model interviews {
-  interview_id   String       @id @default(uuid())
-  application_id String       @unique
-  application    applications @relation(fields: [application_id], references: [application_id], onDelete: Cascade)
-  interview_date DateTime
-  meeting_link   String?
-  notes          String?      @db.Text
-  created_at     DateTime     @default(now())
-  updated_at     DateTime     @updatedAt
-}
-
 enum invitation_status {
   accepted
   rejected
   waiting_interview @map("waiting interview")
 }
 
-model invitations {
-  invitation_id   String            @id @default(uuid())
-  job_id          String
-  job             jobs              @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
-  job_seeker_id   String
-  job_seeker      job_seekers       @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
-  status          invitation_status @default(waiting_interview)
-  interview_dates DateTime?
-  created_at      DateTime          @default(now())
-  updated_at      DateTime          @updatedAt
-
-  @@unique([job_id, job_seeker_id])
-}
-
 enum request_apply_status {
   not_applied @map("not applied")
   applied
-}
-
-model request_apply {
-  request_apply_id String               @id @default(uuid())
-  job_id           String
-  job              jobs                 @relation(fields: [job_id], references: [job_id], onDelete: Cascade)
-  job_seeker_id    String
-  job_seeker       job_seekers          @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
-  status           request_apply_status @default(not_applied)
-  created_at       DateTime             @default(now())
-  updated_at       DateTime             @updatedAt
-
-  @@unique([job_id, job_seeker_id])
 }
