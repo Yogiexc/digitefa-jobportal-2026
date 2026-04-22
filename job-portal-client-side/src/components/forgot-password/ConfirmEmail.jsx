@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { Form, Input, Button, message } from "antd";
+import { Form, Input, Button, App } from "antd";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import LockIcon from "../../assets/svg/Lock.svg";
 
 const ConfirmEmail = ({ onSetEmail, onFinish, onBackToLogin }) => {
+  const { message } = App.useApp();
   const [loading, setLoading] = useState(false);
 
   const handleConfirmEmail = async (values) => {

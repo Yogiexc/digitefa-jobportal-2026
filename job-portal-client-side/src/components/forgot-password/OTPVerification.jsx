@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-import { Form, Button, message } from "antd";
+import { Form, Button, App } from "antd";
 import { InputOTP } from "antd-input-otp";
 import Api from "../../services/Api";
 import LockIcon from "../../assets/svg/Lock.svg";
 
 const OTPVerification = ({ email, onFinish, onSetOtp, onBackToLogin }) => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [value, setValue] = useState([]);
   const [loading, setLoading] = useState(false);
