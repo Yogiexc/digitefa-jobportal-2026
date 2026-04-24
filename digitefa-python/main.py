@@ -592,11 +592,18 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["projects"] = " ".join(valid_projects)
         
         # Certifications
-        cert_list = []
+        # 🔥 FINAL CERT PARSER (ANTI DUPLIKAT + DATE FIX)
 
-        i = 0
-        lines = sections["certifications"]
+        raw_lines = sections.get("certifications", [])
 
+        # pastikan list
+        if isinstance(raw_lines, str):
+            raw_lines = [raw_lines]
+
+        # gabung semua jadi 1 string
+        text = " ".join(raw_lines)
+
+        # normalize bulan
         def normalize_month(text):
             months = {
                 "januari": "January", "februari": "February", "maret": "March",
@@ -608,48 +615,35 @@ async def parse_cv(file: UploadFile = File(...)):
                 text = re.sub(indo, eng, text, flags=re.IGNORECASE)
             return text
 
-        while i < len(lines):
+        text = normalize_month(text)
+
+        # normalize dash
+        text = text.replace("–", "-").replace("—", "-")
+
+        # regex ambil semua field
+        pattern = r'(.+?)\s*-\s*(.+?)\s+([A-Za-z]+\s+\d{4})\s*-\s*([A-Za-z]+\s+\d{4})\s+(https?://\S+|www\.\S+)'
+
+        matches = re.findall(pattern, text)
+
+        cert_list = []
+
+        for m in matches:
             cert = {
-                "certification_name": "",
-                "issue_date": "",
-                "expiration_date": "",
-                "issuing_organization": "",
-                "credential_url": ""
+                "certification_name": m[0].strip(),
+                "issuing_organization": m[1].strip(),
+                "issue_date": m[2].strip(),
+                "expiration_date": m[3].strip(),
+                "credential_url": m[4].rstrip('.,);')
             }
-
-            # Ambil 4 baris (1 blok)
-            block = lines[i:i+4]
-            block = [normalize_month(b.strip()) for b in block if b.strip()]
-
-            for line in block:
-                # URL
-                if "http" in line or "www" in line:
-                    cert["credential_url"] = line
-
-                # DATE
-                elif re.search(r'[A-Za-z]+\s+\d{4}\s*[–-]\s*[A-Za-z]+\s+\d{4}', line):
-                    dates = re.findall(r'[A-Za-z]+\s+\d{4}', line)
-                    if len(dates) >= 2:
-                        cert["issue_date"] = dates[0]
-                        cert["expiration_date"] = dates[1]
-
-                # ORGANIZATION
-                elif not cert["issuing_organization"] and not re.search(r'\d', line):
-                    cert["issuing_organization"] = line
-
-                # NAME
-                elif not cert["certification_name"]:
-                    cert["certification_name"] = line
-
-            if cert["certification_name"]:
-                cert_list.append(cert)
-
-            i += 4  # lompat 1 blok
+            cert_list.append(cert)
 
         sections["certifications_structured"] = cert_list
         
 
         # Experience
+        print("RAW EXPERIENCE LINES:")
+        for l in sections["experience"]:
+            print(">>", repr(l))
         exp_list = []
         current_exp = {
             "title": "",

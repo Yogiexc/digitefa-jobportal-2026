@@ -1,4 +1,4 @@
-﻿import {
+import {
   BadRequestException,
   HttpException,
   HttpStatus,
@@ -599,20 +599,25 @@ export class ProfileService {
           await this.prisma.certifications.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
-              certification_name: cert.title || 'Certification from CV',
-              issuing_organization: 'Extracted Org',
-              credential_url: (cert.description || '').substring(0, 250),
-              issue_date: new Date(),
+              certification_name: cert.certification_name || cert.title || 'Certification from CV',
+              issuing_organization: cert.issuing_organization || 'Extracted Org',
+              credential_url: (cert.credential_url || cert.description || '').substring(0, 250),
+              issue_date: safeDate(cert.issue_date) || new Date(),
+              expiration_date: safeDate(cert.expiration_date),
             },
           });
         }
       } else if (parsedData.certifications) {
+        const rawCert = Array.isArray(parsedData.certifications) 
+          ? parsedData.certifications.join(' ') 
+          : String(parsedData.certifications);
+          
         await this.prisma.certifications.create({
           data: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
             certification_name: 'Certification from CV',
             issuing_organization: 'Extracted Org',
-            credential_url: parsedData.certifications.substring(0, 250),
+            credential_url: rawCert.substring(0, 250),
             issue_date: new Date(),
           },
         });
