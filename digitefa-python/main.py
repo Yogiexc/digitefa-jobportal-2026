@@ -486,7 +486,7 @@ async def parse_cv(file: UploadFile = File(...)):
                     
         current_section = None
         header_patterns = {
-            "experience": r"^(pengalaman|experience|work history|employment|riwayat kerja)",
+            "experience": r"^(experiences?|pengalaman|work history|employment|riwayat kerja)$",
             "education": r"^(pendidikan|education|academic|riwayat pendidikan)",
             "skills": r"^(keahlian|skills|keterampilan|kemampuan|core competencies)",
            "personal_summary": r"^(summary|profile|profil|personal summary|tentang saya|about me|ringkasan)",
@@ -532,64 +532,69 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["personal_summary"] = [
             line for line in sections["personal_summary"]
             if len(line.strip()) > 5
-            and not re.search(r'(education|skills|projects|experience|certifications)', line.lower())
         ]
 
-        sections["personal_summary"] = " ".join(sections["personal_summary"]).strip()
-        
-        project_blocks = []
-        i = 0
+        sections["personal_summary"] = re.sub(
+            r'\s+',
+            ' ',
+            " ".join(sections["personal_summary"])
+        ).strip()
 
-        while i < len(sections["projects"]):
-            title = sections["projects"][i].strip() if i < len(sections["projects"]) else ""
-            date_line = sections["projects"][i+1].strip() if i+1 < len(sections["projects"]) else ""
-            desc = sections["projects"][i+2].strip() if i+2 < len(sections["projects"]) else ""
+        # sections["personal_summary"] = " ".join(sections["personal_summary"]).strip()
+        projects = []
+        current_proj = None
 
-            block = f"{title} {date_line} {desc}".strip()
-            project_blocks.append(block)
-            i += 3
+        date_regex = re.compile(r'(?i)([a-z]+\s+\d{4})\s*[–-]\s*([a-z]+\s+\d{4})')
 
-        valid_projects = project_blocks
-        valid_certs = [c for c in sections["certifications"] if len(c.strip()) > 10]
-        date_pattern = re.compile(r'(?i)\b(?:19|20)\d{2}\b|(?:jan|feb|mar|apr|may|mei|jun|jul|aug|agu|sep|oct|okt|nov|dec|des)[a-z]*[\s,-]+\d{2,4}')
-        
-        def extract_dates(text):
-            return date_pattern.findall(text)
-            
-        def clean_title(title, dates):
-            for d in dates: title = title.replace(d, "").strip()
-            return re.sub(r'^[\W_]+|[\W_]+$', '', title).strip()
+        for line in sections["projects"]:
+            line = line.strip('-• ').strip()
+            if not line:
+                continue
 
-        sections["projects_structured"] = []
-        for line in valid_projects:
-            line = line.strip('-• ')
-            dates = extract_dates(line)
+            # 🔥 1. DATE
+            date_match = date_regex.search(line)
+            if date_match:
+                if current_proj:
+                    current_proj["start_date"] = date_match.group(1)
+                    current_proj["end_date"] = date_match.group(2)
+                continue
 
-            # 1. Hapus tanggal dari text (format Bulan Tahun)
-            text_no_dates = re.sub(
-                r'(?i)(?:jan|feb|mar|apr|may|mei|jun|jul|aug|agu|sep|oct|okt|nov|dec|des)[a-z]*\s+\d{4}',
-                '',
-                line
-            )
-            # 2. Hapus tahun saja
-            text_no_dates = re.sub(r'\b(?:19|20)\d{2}\b', '', text_no_dates)
+            # 🔥 2. TITLE → HANYA kalau BELUM ADA project
+            if current_proj is None:
+                current_proj = {
+                    "title": line,
+                    "description": "",
+                    "start_date": "",
+                    "end_date": ""
+                }
+                continue
 
-            # 3. Bersihin sisa tanda "-" dan whitespace
-            text_no_dates = re.sub(r'[-–]+', ' ', text_no_dates)
-            text_no_dates = re.sub(r'\s+', ' ', text_no_dates).strip()
+            # 🔥 3. DETECT PROJECT BARU (STRONG SIGNAL)
+            # hanya kalau:
+            # - sebelumnya sudah ada description panjang
+            # - DAN line kelihatan seperti title (huruf besar / kapitalisasi)
+            if (
+                current_proj["description"]
+                and len(current_proj["description"]) > 50
+                and line.istitle()
+            ):
+                projects.append(current_proj)
+                current_proj = {
+                    "title": line,
+                    "description": "",
+                    "start_date": "",
+                    "end_date": ""
+                }
+                continue
 
-            # 4. Pisahkan title dan description (2 kata pertama sebagai judul)
-            words = text_no_dates.split()
-            title = " ".join(words[:2]) if len(words) > 0 else "Project"
-            description = " ".join(words[2:]) if len(words) > 2 else text_no_dates
+            # 🔥 4. DESCRIPTION (DEFAULT)
+            current_proj["description"] += line + " "
 
-            sections["projects_structured"].append({
-                "title": title.strip(),
-                "description": description.strip() or line,
-                "start_date": dates[0] if len(dates) > 0 else "",
-                "end_date": dates[-1] if len(dates) > 1 else ""
-            })
-        sections["projects"] = " ".join(valid_projects)
+        # simpan terakhir
+        if current_proj:
+            projects.append(current_proj)
+
+        sections["projects_structured"] = projects
         
         # Certifications
         # 🔥 FINAL CERT PARSER (ANTI DUPLIKAT + DATE FIX)
@@ -645,62 +650,77 @@ async def parse_cv(file: UploadFile = File(...)):
         for l in sections["experience"]:
             print(">>", repr(l))
         exp_list = []
-        current_exp = {
-            "title": "",
-            "company": "",
-            "employment_type": "",
-            "location_type": "",
-            "location": "",
-            "description": "",
-            "start_date": "",
-            "end_date": ""
-        }
-        emp_types = ["Full-time", "Part-time", "Internship", "Freelance", "Contract"]
-        loc_types = ["Remote", "On-site", "Hybrid"]
-        
+        current_exp = None
+        prev_line = ""
+
+        date_regex = re.compile(r'(?i)[a-z]+\s+\d{4}\s*[–-]\s*[a-z]+\s+\d{4}')
+
         for line in sections["experience"]:
             line = line.strip()
             if not line:
                 continue
 
-            # 1. JOB TITLE (baris pertama biasanya)
-            if not current_exp["title"]:
-                current_exp["title"] = line
+            # skip header
+            if line.lower() in ["experience", "experiences", "pengalaman"]:
                 continue
 
-            # 2. DATE
-            elif re.search(r'(?i)[a-z]+\s+\d{4}\s*[–-]\s*[a-z]+\s+\d{4}', line):
+            # 🔥 DETECT DATE = START RECORD
+            if date_regex.search(line):
                 dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
-                if len(dates) >= 2:
-                    current_exp["start_date"] = dates[0]
-                    current_exp["end_date"] = dates[1]
+
+                # simpan sebelumnya
+                if current_exp:
+                    exp_list.append(current_exp)
+
+                current_exp = {
+                    "title": prev_line,  # 🔥 baru ambil di sini
+                    "company": "",
+                    "employment_type": "",
+                    "location_type": "",
+                    "location": "",
+                    "description": "",
+                    "start_date": dates[0] if len(dates) > 0 else "",
+                    "end_date": dates[1] if len(dates) > 1 else ""
+                }
+
+                prev_line = line
                 continue
 
-            # 3. COMPANY
-            elif "pt" in line.lower() or "cv" in line.lower():
+            # kalau belum mulai record → cuma simpan prev_line
+            if current_exp is None:
+                prev_line = line
+                continue
+
+            # COMPANY
+            if not current_exp["company"]:
                 current_exp["company"] = line
+                prev_line = line
                 continue
 
-            # 4. EMPLOYMENT TYPE
-            elif line.lower() in ["fulltime", "freelance", "part time", "internship"]:
+            # EMPLOYMENT TYPE
+            if line.lower() in ["full time", "full-time", "part time", "internship", "freelance"]:
                 current_exp["employment_type"] = line
+                prev_line = line
                 continue
 
-            # 5. LOCATION TYPE
-            elif line.lower() in ["remote", "onsite", "hybrid"]:
+            # LOCATION TYPE
+            if line.lower() in ["remote", "on-site", "onsite", "hybrid"]:
                 current_exp["location_type"] = line
+                prev_line = line
                 continue
 
-            # 6. LOCATION
-            elif not current_exp["location"]:
+            # LOCATION
+            if not current_exp["location"]:
                 current_exp["location"] = line
+                prev_line = line
                 continue
 
-            # 7. DESCRIPTION
-            else:
-                current_exp["description"] += line + " "
+            # DESCRIPTION
+            current_exp["description"] += line + " "
+            prev_line = line
 
-        if current_exp and current_exp["title"]:
+        # simpan terakhir
+        if current_exp:
             exp_list.append(current_exp)
 
         sections["experience_structured"] = exp_list
