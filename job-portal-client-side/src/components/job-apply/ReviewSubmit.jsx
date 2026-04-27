@@ -21,8 +21,8 @@ import { useJobApply } from "../../pages/job-apply/JobApplyContext";
 import { useNavigate } from "react-router-dom";
 import { useOnMountUnsafe } from "../../hooks/useMountUnsave";
 import { dateToMonthYear, getUserSession, previewImageUrl } from "../../utils";
-import { UserOutlined } from "@ant-design/icons";
 import PersonalInformation from "./PersonalInformation";
+import jobIcon from "../../assets/images/job.jpg";
 import { useProfile } from "../../hooks/useProfile";
 
 const { Panel } = Collapse;
@@ -201,9 +201,13 @@ const ReviewSubmit = ({ onPrevious, jobId, onSuccess }) => {
           description={
             <div className="flex justify-between items-center">
               <img
-                src={imageUrl || UserOutlined}
-                alt="Programmer"
+                src={imageUrl || jobIcon}
+                alt="Profile"
                 className="w-[110px] h-[110px] rounded-full mr-5 ml-1 border border-[#BBBBBB] p-2"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = jobIcon;
+                }}
               />
 
               <div className="w-4/5" style={{ fontSize: "0.8rem" }}>

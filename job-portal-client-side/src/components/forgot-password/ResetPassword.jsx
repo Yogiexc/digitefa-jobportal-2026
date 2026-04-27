@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-import { Button, Input, Form, message } from "antd";
+import { Button, Input, Form, App } from "antd";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import LockIcon from "../../assets/svg/Lock.svg";
 
 const ResetPassword = ({ email, otp, onFinish, onBackToLogin }) => {
+  const { message } = App.useApp();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
