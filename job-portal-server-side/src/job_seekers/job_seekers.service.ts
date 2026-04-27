@@ -97,7 +97,7 @@ export class JobSeekersService {
           job_seeker_id: jobSeeker.job_seeker_id,
           full_name: jobSeeker.full_name,
           email: jobSeeker.email,
-          university_name: jobSeeker.job_seeker_detail.education ? jobSeeker.job_seeker_detail.education.university_name : null
+          university_name: jobSeeker.job_seeker_detail.education && jobSeeker.job_seeker_detail.education[0] ? jobSeeker.job_seeker_detail.education[0].university_name : null
         }
       });
       return {
@@ -185,7 +185,7 @@ export class JobSeekersService {
 
     try {
       // Remove sensitive information
-      const modifiedEducation = omit(existingJobSeekerDetail.education, ['education_id', 'job_seeker_detail_id', 'university_id', 'created_at', 'updated_at']);
+      const modifiedEducation = existingJobSeekerDetail.education.map(edu => omit(edu, ['education_id', 'job_seeker_detail_id', 'university_id', 'created_at', 'updated_at']));
 
       const modifiedProjects = existingJobSeekerDetail.projects.map(project => omit(project, ['project_id', 'job_seeker_detail_id', 'created_at', 'updated_at']));
 

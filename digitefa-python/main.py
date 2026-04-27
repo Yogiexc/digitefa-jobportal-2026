@@ -471,13 +471,13 @@ async def parse_cv(file: UploadFile = File(...)):
                     
         current_section = None
         header_patterns = {
-            "experience": r"^(pengalaman|experience|work history|employment|riwayat kerja)",
-            "education": r"^(pendidikan|education|academic|riwayat pendidikan)",
-            "skills": r"^(keahlian|skills|keterampilan|kemampuan|core competencies)",
-            "personal_summary": r"^(summary|profile|profil|tentang saya|about me|ringkasan)",
-            "projects": r"^(projects|proyek|portfolio|portofolio)",
-            "certifications": r"^(certifications|sertifikat|lisensi|licenses|sertifikasi|courses)",
-            "languages": r"^(languages|bahasa)"
+            "experience": r"(?i)^(?:[\s\d\.\-]*)(?:work\s+|professional\s+)?(pengalaman|experience|work history|employment|riwayat kerja)",
+            "education": r"(?i)^(?:[\s\d\.\-]*)(?:academic\s+|riwayat\s+)?(pendidikan|education|academic|riwayat pendidikan)",
+            "skills": r"(?i)^(?:[\s\d\.\-]*)(?:core\s+|key\s+)?(keahlian|skills|keterampilan|kemampuan|competencies)",
+            "personal_summary": r"(?i)^(?:[\s\d\.\-]*)(?:professional\s+|executive\s+|personal\s+)?(summary|profile|profil|tentang saya|about me|ringkasan)",
+            "projects": r"(?i)^(?:[\s\d\.\-]*)(?:academic\s+|key\s+)?(projects?|proyek|portfolio|portofolio)",
+            "certifications": r"(?i)^(?:[\s\d\.\-]*)(?:professional\s+)?(certifications?|sertifikat|lisensi|licenses?|sertifikasi|courses?)",
+            "languages": r"(?i)^(?:[\s\d\.\-]*)(languages?|bahasa)"
         }
         
         for line in cv_lines:
@@ -505,8 +505,8 @@ async def parse_cv(file: UploadFile = File(...)):
             filtered_skills.append(s_clean)
         sections["skills"] = list(set(filtered_skills))
         
-        # Languages Cleanup
-        sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 30]))
+        # Languages Cleanup (Increased length limit to 60 for cases like "Bahasa Indonesia (Native)")
+        sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 60]))
         
         # Summary
         sections["personal_summary"] = " ".join(sections["personal_summary"]).strip()
@@ -543,16 +543,37 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["projects"] = " ".join(valid_projects)
         
         # Certifications
-        valid_certs = [c.strip('-• ') for c in sections["certifications"] if len(c.strip()) > 5]
-        sections["certifications_structured"] = []
-        for c in valid_certs[:10]:
+        cert_list = []
+        current_cert = None
+        for c in sections["certifications"]:
+            c = c.strip('-• ')
+            if not c: continue
+            
             dates = extract_dates(c)
-            title = clean_title(c[:100], dates)
-            sections["certifications_structured"].append({
-                "title": title or "Certification",
-                "description": c
-            })
-        sections["certifications"] = " ".join(valid_certs)
+            urls = re.findall(r'(https?://[^\s]+)', c)
+            
+            # If dates found or new cert line (short), assume it's a new certification entry
+            if dates or current_cert is None or len(c) < 80:
+                if current_cert: cert_list.append(current_cert)
+                title = clean_title(c[:100], dates)
+                for u in urls: title = title.replace(u, "").strip()
+                
+                current_cert = {
+                    "name": title or "Certification and License",
+                    "organization": "",
+                    "issue_date": dates[0] if len(dates) > 0 else "",
+                    "expiration_date": dates[1] if len(dates) > 1 else "",
+                    "credential_url": urls[0] if urls else ""
+                }
+            else:
+                if not current_cert["organization"] and len(c) < 100:
+                    current_cert["organization"] = c
+                if not current_cert["credential_url"] and urls:
+                    current_cert["credential_url"] = urls[0]
+                    
+        if current_cert: cert_list.append(current_cert)
+        sections["certifications_structured"] = cert_list[:10]
+        sections["certifications"] = " ".join(sections["certifications"][:10])
 
         # Experience
         exp_list = []

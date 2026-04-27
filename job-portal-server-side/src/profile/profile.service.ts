@@ -565,10 +565,11 @@ export class ProfileService {
           await this.prisma.certifications.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
-              certification_name: cert.title || 'Certification from CV',
-              issuing_organization: 'Extracted Org',
-              credential_url: (cert.description || '').substring(0, 250),
-              issue_date: new Date(),
+              certification_name: cert.name || cert.title || 'Certification from CV',
+              issuing_organization: cert.organization || null,
+              credential_url: (cert.credential_url || '').substring(0, 250),
+              issue_date: safeDate(cert.issue_date),
+              expiration_date: safeDate(cert.expiration_date),
             },
           });
         }
@@ -577,8 +578,8 @@ export class ProfileService {
           data: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
             certification_name: 'Certification from CV',
-            issuing_organization: 'Extracted Org',
-            credential_url: parsedData.certifications.substring(0, 250),
+            issuing_organization: null,
+            credential_url: null,
             issue_date: new Date(),
           },
         });
@@ -628,13 +629,13 @@ export class ProfileService {
       throw new BadRequestException('Job seeker profile details not found');
     }
 
-    const existingEdu = await this.prisma.education.findUnique({
+    const existingEdu = await this.prisma.education.findMany({
       where: { job_seeker_detail_id: detail.job_seeker_detail_id },
     });
 
-    if (existingEdu) {
-      await this.prisma.education.delete({
-        where: { education_id: existingEdu.education_id },
+    if (existingEdu && existingEdu.length > 0) {
+      await this.prisma.education.deleteMany({
+        where: { job_seeker_detail_id: detail.job_seeker_detail_id },
       });
     }
 

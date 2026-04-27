@@ -303,8 +303,8 @@ export class CompaniesService {
             `${e.experience_title} at ${e.company_name} - ${e.description}`,
         )
         .join('; ');
-      const eduText = s.education
-        ? `${s.education.degree} in ${s.education.major} at ${s.education.university_name}`
+      const eduText = s.education && s.education.length > 0
+        ? s.education.map(e => `${e.degree} in ${e.major} at ${e.university_name}`).join(', ')
         : '';
       const langText = s.languages.map((l) => l.language_name).join(', ');
 

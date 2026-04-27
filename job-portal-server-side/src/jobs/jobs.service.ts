@@ -1056,7 +1056,9 @@ export class JobsService {
               job_seeker: {
                 job_seeker_detail: {
                   education: {
-                    major: { contains: search },
+                    some: {
+                      major: { contains: search },
+                    },
                   },
                 },
               },
@@ -1251,7 +1253,7 @@ export class JobsService {
             app.job_seeker.job_seeker_detail?.profile_picture_url || null,
           address:
             app.job_seeker.job_seeker_detail?.personal_info?.address || null,
-          major: app.job_seeker.job_seeker_detail?.education?.major || null,
+          major: app.job_seeker.job_seeker_detail?.education[0]?.major || null,
           completed_courses: app.job_seeker.completed_courses,
           suitability_score: app.job_seeker.suitability_score,
         },
@@ -1285,7 +1287,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1328,7 +1332,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1371,7 +1377,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1414,7 +1422,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -1457,7 +1467,9 @@ export class JobsService {
                 job_seeker: {
                   job_seeker_detail: {
                     education: {
-                      major: { contains: search },
+                      some: {
+                        major: { contains: search },
+                      },
                     },
                   },
                 },
@@ -2164,8 +2176,8 @@ export class JobsService {
           address: applicant.job_seeker.job_seeker_detail.personal_info
             ? applicant.job_seeker.job_seeker_detail.personal_info.address
             : null,
-          major: applicant.job_seeker.job_seeker_detail.education
-            ? applicant.job_seeker.job_seeker_detail.education.major
+          major: applicant.job_seeker.job_seeker_detail.education[0]
+            ? applicant.job_seeker.job_seeker_detail.education[0].major
             : null,
         },
       }));
