@@ -35,7 +35,7 @@ model job_seeker_details {
   created_at           DateTime         @default(now())
   updated_at           DateTime         @updatedAt
   certifications       certifications[]
-  education           education[]
+  education            education[]
   experiences          experiences[]
   job_seeker           job_seekers      @relation(fields: [job_seeker_id], references: [job_seeker_id], onDelete: Cascade)
   languages            languages[]

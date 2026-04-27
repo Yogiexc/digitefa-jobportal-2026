@@ -278,7 +278,11 @@ const Profiles = () => {
 
 
 
-      <LinkAccount open={linkAccountOpen} setOpen={setLinkAccountOpen} />
+      <LinkAccount 
+        open={linkAccountOpen} 
+        setOpen={setLinkAccountOpen} 
+        onSuccess={getAllSectionData}
+      />
 
       <PersonalSummary
         action={action}
