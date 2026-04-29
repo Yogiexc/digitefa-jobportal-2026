@@ -1,12 +1,8 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-
 import axios from 'axios';
 
-const app = createApp(App);
+const http = axios.create({
+    baseURL: process.env.VUE_APP_API_URL || 'http://localhost:8888/api',
+});
 
-// Set up axios
-axios.defaults.baseURL = 'http://localhost:8000/api';
-app.config.globalProperties.$http = axios;
+export default http;
 
-app.mount('#app');
