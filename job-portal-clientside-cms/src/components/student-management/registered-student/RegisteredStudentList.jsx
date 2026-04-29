@@ -124,16 +124,22 @@ const RegisteredStudentList = () => {
     },
     {
       title: "Major",
-      dataIndex: ["education", "major"],
+      dataIndex: "education",
       key: "major",
+      render: (education) => {
+        return education && education.length > 0 ? education[0].major : "-";
+      }
     },
     {
       title: "Class Year",
-      dataIndex: ["education", "start_date"],
+      dataIndex: "education",
       key: "start_date",
-      render: (text) => {
-        const date = new Date(text);
-        return date.getFullYear();
+      render: (education) => {
+        if (education && education.length > 0 && education[0].start_date) {
+          const date = new Date(education[0].start_date);
+          return date.getFullYear();
+        }
+        return "-";
       },
     },
     {
@@ -182,9 +188,9 @@ const RegisteredStudentList = () => {
         const studentData = response.data;
         const uniqueClassYear = Array.from(
           new Set(
-            studentData.map((item) =>
-              new Date(item.education.start_date).getFullYear()
-            )
+            studentData
+              .filter(item => item.education && item.education.length > 0 && item.education[0].start_date)
+              .map((item) => new Date(item.education[0].start_date).getFullYear())
           )
         );
         setData(studentData);

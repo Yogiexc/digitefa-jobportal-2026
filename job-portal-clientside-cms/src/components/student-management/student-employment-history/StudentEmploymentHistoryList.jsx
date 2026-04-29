@@ -141,6 +141,7 @@ const StudentEmploymentHistoryList = () => {
           >
             <Select.Option value="pending">Pending</Select.Option>
             <Select.Option value="accepted">Accepted</Select.Option>
+            <Select.Option value="waiting_interview">Waiting Interview</Select.Option>
             <Select.Option value="rejected">Rejected</Select.Option>
           </Select>
         </Form.Item>
@@ -180,13 +181,13 @@ const StudentEmploymentHistoryList = () => {
     },
     ...(secureLogData?.secureLogEnabled === "true"
       ? [
-          {
-            title: "Student UUID",
-            dataIndex: ["job_seeker", "job_seeker_id"],
-            key: "job_seeker_id",
-            width: "20%",
-          },
-        ]
+        {
+          title: "Student UUID",
+          dataIndex: ["job_seeker", "job_seeker_id"],
+          key: "job_seeker_id",
+          width: "20%",
+        },
+      ]
       : []),
     {
       title: "Student Name",
@@ -229,7 +230,19 @@ const StudentEmploymentHistoryList = () => {
         return date.toLocaleDateString("id-ID", options);
       },
     },
-    { title: "Status", dataIndex: "status", key: "status" },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (text) => {
+        if (!text) return text;
+        const normalizedText = text.toLowerCase();
+        if (normalizedText === "waiting_interview" || normalizedText === "waiting interview") {
+          return "Waiting Interview";
+        }
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      },
+    },
     {
       title: "Application Outcome Dates",
       dataIndex: "application_outcome_dates",

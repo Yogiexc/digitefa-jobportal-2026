@@ -176,7 +176,7 @@ export class StudentService {
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
     classYear?: number,
-    status?: 'pending' | 'accepted' | 'rejected',
+    status?: 'pending' | 'accepted' | 'rejected' | 'waiting interview' | 'waiting_interview',
     employmentType?: string
   }) {
     const { page = 1, pageSize = 10, search, sortBy = 'updated_at', sortOrder = 'desc', classYear = null, status = null, employmentType } = params;
@@ -215,8 +215,9 @@ export class StudentService {
             }
           }
         }),
-        ...(status && { status }
-        ),
+        ...(status && { 
+          status: status === 'waiting interview' ? 'waiting_interview' : status 
+        }),
         ...(employmentType && {
           job: {
             employment_type: employmentType
