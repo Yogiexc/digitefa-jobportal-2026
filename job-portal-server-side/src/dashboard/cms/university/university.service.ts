@@ -11,6 +11,7 @@ export class UniversityService {
         where: {
           education: {
             some: { university_id: user.university_id },
+
           },
         },
       });

@@ -672,9 +672,9 @@ export class ProfileService {
       orderBy: { start_date: 'desc' },
     });
 
-    if (existingEdu) {
-      await this.prisma.education.delete({
-        where: { education_id: existingEdu.education_id },
+    if (existingEdu && existingEdu.length > 0) {
+      await this.prisma.education.deleteMany({
+        where: { job_seeker_detail_id: detail.job_seeker_detail_id },
       });
     }
 

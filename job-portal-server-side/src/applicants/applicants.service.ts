@@ -110,6 +110,7 @@ export class ApplicantsService {
       const latestEducation = jobSeeker.education?.[0];
       const eduText = latestEducation
         ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
+
         : '';
       const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 

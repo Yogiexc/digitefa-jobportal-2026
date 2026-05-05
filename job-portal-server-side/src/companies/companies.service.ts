@@ -303,6 +303,7 @@ export class CompaniesService {
             `${e.experience_title} at ${e.company_name} - ${e.description}`,
         )
         .join('; ');
+
       const latestEdu = s.education && s.education.length > 0 ? s.education[0] : null;
       const eduText = latestEdu
         ? `${latestEdu.degree} in ${latestEdu.major} at ${latestEdu.university_name}`

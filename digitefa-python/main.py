@@ -486,6 +486,7 @@ async def parse_cv(file: UploadFile = File(...)):
                     
         current_section = None
         header_patterns = {
+
             "experience": r"^(experiences?|pengalaman|work history|employment|riwayat kerja)$",
             "education": r"^(pendidikan|education|academic|riwayat pendidikan)",
             "skills": r"^(keahlian|skills|keterampilan|kemampuan|core competencies)",
@@ -493,6 +494,7 @@ async def parse_cv(file: UploadFile = File(...)):
             "projects": r"^(projects|proyek|portfolio|portofolio)",
             "certifications": r"(certif|license)",
             "languages": r"^(languages|bahasa)"
+
         }
         
         for line in cv_lines:
@@ -525,8 +527,8 @@ async def parse_cv(file: UploadFile = File(...)):
             filtered_skills.append(s_clean)
         sections["skills"] = list(set(filtered_skills))
         
-        # Languages Cleanup
-        sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 30]))
+        # Languages Cleanup (Increased length limit to 60 for cases like "Bahasa Indonesia (Native)")
+        sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 60]))
         
         # Summary
         sections["personal_summary"] = [
@@ -639,6 +641,7 @@ async def parse_cv(file: UploadFile = File(...)):
 
         sections["certifications_structured"] = cert_list
         
+
 
         # Experience
         print("RAW EXPERIENCE LINES:")

@@ -25,7 +25,7 @@ export class StudentService {
     const take = +pageSize;
 
     try {
-      const where = {
+      const where: any = {
         education: {
           some: { university_id: user.university_id },
         },
@@ -174,7 +174,7 @@ export class StudentService {
     sortBy?: string,
     sortOrder?: 'asc' | 'desc',
     classYear?: number,
-    status?: 'pending' | 'accepted' | 'rejected',
+    status?: 'pending' | 'accepted' | 'rejected' | 'waiting interview' | 'waiting_interview',
     employmentType?: string
   }) {
     const { page = 1, pageSize = 10, search, sortBy = 'updated_at', sortOrder = 'desc', classYear = null, status = null, employmentType } = params;
@@ -183,7 +183,7 @@ export class StudentService {
     const take = +pageSize;
 
     try {
-      const where = {
+      const where: any = {
         job_seeker: {
           job_seeker_detail: {
             education: {
@@ -211,8 +211,9 @@ export class StudentService {
             }
           }
         }),
-        ...(status && { status }
-        ),
+        ...(status && { 
+          status: status === 'waiting interview' ? 'waiting_interview' : status 
+        }),
         ...(employmentType && {
           job: {
             employment_type: employmentType
