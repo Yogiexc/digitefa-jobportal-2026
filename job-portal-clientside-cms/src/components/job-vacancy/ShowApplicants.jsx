@@ -111,32 +111,40 @@ const ShowApplicants = ({ onBack, applicantsId, jobSeekerId }) => {
   };
 
   const renderEducation = (education) => {
-    // education is an object inprisma schema, not an array.
-    if (!education || Object.keys(education).length === 0) {
-      return <Text>No education available</Text>;
+    if (!Array.isArray(education) || education.length === 0) {
+      return <Text className="text-gray-400 italic">No education available</Text>;
     }
 
     const formatDate = (date) => {
       if (!date) return "";
-      return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-      });
+      try {
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return date; // Return raw string if invalid date
+        return d.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+        });
+      } catch (e) {
+        return date;
+      }
     };
 
-    return (
-      <div className="mb-2">
-        <Text>
-          {education.university_name} - {education.major}
+    return education.map((edu, index) => (
+      <div key={index} className="mb-6 last:mb-0 p-4 border rounded-xl bg-gray-50/30">
+        <Text className="font-medium text-xl">
+          {edu.university_name || edu.university || "Unnamed Institution"}
         </Text>
         <br />
-        <Text className="text-xs">{education.degree}</Text>
-        <div className="mb-6" />
-        <Text className="text-xs">
-          {formatDate(education.start_date)} - {formatDate(education.end_date)}
-        </Text>
+        <Text className="text-sm font-medium text-gray-600">{edu.major || "No Major Specified"}</Text>
+        <br />
+        <Text className="text-xs text-gray-500 font-medium uppercase tracking-wider">{edu.degree}</Text>
+        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
+          <Text className="text-xs">
+            {formatDate(edu.start_date)} — {formatDate(edu.end_date) || "Present"}
+          </Text>
+        </div>
       </div>
-    );
+    ));
   };
 
   const renderSkills = (skills) => {
