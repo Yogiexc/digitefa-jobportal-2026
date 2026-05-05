@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Modal, Select, Input } from "antd";
+import { Button, Form, Modal, Select, Input, DatePicker } from "antd";
 import Api from "../../services/Api";
 import StatusModal from "../StatusModal";
 import ApprovalIcon from "../../assets/svg/Status.svg";
@@ -22,7 +22,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
       .then((values) => {
         const payload = { status: values.status };
         if (values.status === 'waiting_interview') {
-          payload.interview_date = values.interview_date;
+          payload.interview_date = values.interview_date ? values.interview_date.format('YYYY-MM-DDTHH:mm') : null;
           payload.meeting_link = values.meeting_link;
           payload.notes = values.notes;
         }
@@ -134,7 +134,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
                 label="Interview Date & Time"
                 rules={[{ required: true, message: "Please enter interview date" }]}
               >
-                <Input type="datetime-local" style={{ height: 40 }} />
+                <DatePicker showTime style={{ width: '100%', height: 40 }} format="YYYY-MM-DD HH:mm" />
               </Form.Item>
             </>
           )}
