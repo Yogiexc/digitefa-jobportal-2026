@@ -11978,3 +11978,5 @@
 #56 D:\\laragon\\www\\digitefa-jobportal-2026\\lms-server-side\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('D:\\\\laragon\\\\www\\\\...')
 #57 {main}
 "} 
+[2026-04-29 06:31:30] local.INFO: Getting skill points for user {"id_user":"52f74433-89b5-442a-852d-81e8c83c16fd"} 
+[2026-04-29 06:31:30] local.DEBUG: Skill points response after parsing {"data":{"success":true,"message":"Student skill points retrieved successfully","data":{"total_points":0,"categories":[{"id_category":"49634978-2399-46af-9718-f8c76b1e51f6","name":"Data Science","total_points":0,"skills":[]},{"id_category":"5979ea51-11ba-45d7-9ffb-48a8a3ebe612","name":"Design","total_points":0,"skills":[]},{"id_category":"6ec9f9e4-c209-4161-a230-ea2a197d5b77","name":"Business","total_points":0,"skills":[]},{"id_category":"c67db6de-fc72-4f1e-9e36-9c4c20016143","name":"Marketing","total_points":0,"skills":[]},{"id_category":"f04fa0af-47e1-406c-885f-fda41f5a93ea","name":"Programming","total_points":0,"skills":[]}]}}} 

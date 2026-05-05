@@ -467,7 +467,7 @@ async def parse_cv(file: UploadFile = File(...)):
             if not line_clean:
                 continue
 
-            # skip kalau ada angka / simbol aneh
+            # ngeclean simbol aneh
             if re.search(r'\d', line_clean):
                 continue
 
@@ -507,7 +507,7 @@ async def parse_cv(file: UploadFile = File(...)):
 
             if new_section:
                 current_section = new_section
-                continue  # ⛔ penting
+                continue  
 
             # MASUKKAN DATA
             if current_section and line.strip():
@@ -540,7 +540,7 @@ async def parse_cv(file: UploadFile = File(...)):
             " ".join(sections["personal_summary"])
         ).strip()
 
-        # sections["personal_summary"] = " ".join(sections["personal_summary"]).strip()
+        # Projects
         projects = []
         current_proj = None
 
@@ -551,7 +551,7 @@ async def parse_cv(file: UploadFile = File(...)):
             if not line:
                 continue
 
-            # 🔥 1. DATE
+            # 1. DATE
             date_match = date_regex.search(line)
             if date_match:
                 if current_proj:
@@ -559,7 +559,7 @@ async def parse_cv(file: UploadFile = File(...)):
                     current_proj["end_date"] = date_match.group(2)
                 continue
 
-            # 🔥 2. TITLE → HANYA kalau BELUM ADA project
+            # 2. TITLE → HANYA kalau BELUM ADA project
             if current_proj is None:
                 current_proj = {
                     "title": line,
@@ -569,10 +569,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 }
                 continue
 
-            # 🔥 3. DETECT PROJECT BARU (STRONG SIGNAL)
-            # hanya kalau:
-            # - sebelumnya sudah ada description panjang
-            # - DAN line kelihatan seperti title (huruf besar / kapitalisasi)
+            # 3. DETECT PROJECT BARU (STRONG SIGNAL)
             if (
                 current_proj["description"]
                 and len(current_proj["description"]) > 50
@@ -587,7 +584,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 }
                 continue
 
-            # 🔥 4. DESCRIPTION (DEFAULT)
+            # 4. DESCRIPTION (DEFAULT)
             current_proj["description"] += line + " "
 
         # simpan terakhir
@@ -597,8 +594,6 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["projects_structured"] = projects
         
         # Certifications
-        # 🔥 FINAL CERT PARSER (ANTI DUPLIKAT + DATE FIX)
-
         raw_lines = sections.get("certifications", [])
 
         # pastikan list
@@ -664,7 +659,7 @@ async def parse_cv(file: UploadFile = File(...)):
             if line.lower() in ["experience", "experiences", "pengalaman"]:
                 continue
 
-            # 🔥 DETECT DATE = START RECORD
+            # DETECT DATE 
             if date_regex.search(line):
                 dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
 
@@ -673,7 +668,7 @@ async def parse_cv(file: UploadFile = File(...)):
                     exp_list.append(current_exp)
 
                 current_exp = {
-                    "title": prev_line,  # 🔥 baru ambil di sini
+                    "title": prev_line,  
                     "company": "",
                     "employment_type": "",
                     "location_type": "",
