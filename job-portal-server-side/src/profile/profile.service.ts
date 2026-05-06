@@ -608,10 +608,10 @@ export class ProfileService {
           });
         }
       } else if (parsedData.certifications) {
-        const rawCert = Array.isArray(parsedData.certifications) 
-          ? parsedData.certifications.join(' ') 
+        const rawCert = Array.isArray(parsedData.certifications)
+          ? parsedData.certifications.join(' ')
           : String(parsedData.certifications);
-          
+
         await this.prisma.certifications.create({
           data: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -672,9 +672,9 @@ export class ProfileService {
       orderBy: { start_date: 'desc' },
     });
 
-    if (existingEdu && existingEdu.length > 0) {
-      await this.prisma.education.deleteMany({
-        where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+    if (existingEdu) {
+      await this.prisma.education.delete({
+        where: { education_id: existingEdu.education_id },
       });
     }
 
