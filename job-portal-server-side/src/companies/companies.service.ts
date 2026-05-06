@@ -1,4 +1,4 @@
-﻿import {
+import {
   BadRequestException,
   ConflictException,
   Injectable,
@@ -278,7 +278,7 @@ export class CompaniesService {
     }
   }
 
-  async searchTalents(query: string) {
+  async searchTalents(query: string, job_id?: string) {
     if (!query) return { status: 'success', data: [] };
 
     // Fetch all job seekers with details
@@ -293,6 +293,16 @@ export class CompaniesService {
         languages: true,
       },
     });
+
+    // Fetch existing invitations for this job if job_id is provided
+    let invitedJobSeekerIds: string[] = [];
+    if (job_id) {
+      const invitations = await (this.prisma as any).request_apply.findMany({
+        where: { job_id },
+        select: { job_seeker_id: true },
+      });
+      invitedJobSeekerIds = invitations.map((inv) => inv.job_seeker_id);
+    }
 
     // Format for Python AI semantic search
     const talents = seekers.map((s) => {
@@ -333,7 +343,11 @@ export class CompaniesService {
               String(s.job_seeker_detail_id) === String(r.talent_id ?? ''),
           );
           if (!seeker) return null;
-          return { ...seeker, ai_score: r.score };
+          return {
+            ...seeker,
+            ai_score: r.score,
+            is_invited: invitedJobSeekerIds.includes(seeker.job_seeker_id),
+          };
         })
         .filter(Boolean);
 

@@ -1,4 +1,4 @@
-import { Button, Layout, Modal, Table, message, Progress, Space, Typography, Tag, Avatar, Tooltip, Drawer, Divider, Row, Col, Card } from "antd";
+import { Button, Layout, Modal, Table, message, Progress, Space, Typography, Tag, Avatar, Tooltip, Drawer, Divider, Row, Col, Card, Checkbox } from "antd";
 import { useEffect, useState } from "react";
 import Api from "../../services/Api";
 import { SparklesIcon, UserCircleIcon, EnvelopeIcon, BookmarkIcon } from "@heroicons/react/24/solid";
@@ -13,6 +13,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     const [loading, setLoading] = useState(false);
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
+    const [filterCriteria, setFilterCriteria] = useState(["skills", "projects", "experience", "education"]);
 
     useEffect(() => {
         if (open && jobId) {
@@ -45,7 +46,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         setLoading(true);
         try {
             // Endpoint added to job-portal backend that interacts with python similarity model
-            const { data } = await Api.get(`/companies/search/ai-talents?job_description=${encodeURIComponent(desc)}`);
+            // Passing jobId to check for existing invitations
+            const { data } = await Api.get(`/companies/search/ai-talents?job_description=${encodeURIComponent(desc)}&job_id=${jobId}`);
 
             // Sort matches by AI score descending
             const sortedMatches = (data || []).sort((a, b) => (b.ai_score || 0) - (a.ai_score || 0));
@@ -72,6 +74,15 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         try {
             await Api.post(`/jobs/${jobId}/invite`, { job_seeker_id: jobSeekerId });
             message.success(`Invitation successfully sent to ${candidate.job_seeker?.full_name || "candidate"}!`);
+            
+            // Update local state to reflect that this candidate is now invited
+            setMatches(prev => prev.map(m => {
+                const mId = m.job_seeker_id || m.job_seeker?.job_seeker_id;
+                if (mId === jobSeekerId) {
+                    return { ...m, is_invited: true };
+                }
+                return m;
+            }));
         } catch (error) {
             const msg =
                 error?.data?.message ||
@@ -83,19 +94,12 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         }
     };
 
-    const formatEducation = (text) => {
-        if (!text) return "";
-        const words = text.split(' ');
-        let result = "";
-        for (let i = 0; i < words.length; i++) {
-            result += words[i];
-            if ((i + 1) % 2 === 0 && i !== words.length - 1) {
-                result += "\n";
-            } else {
-                result += " ";
-            }
+    const handleFilterChange = (checkedValues) => {
+        if (checkedValues.length === 0) {
+            message.warning("Select at least one recommendation criteria");
+            return;
         }
-        return result.trim();
+        setFilterCriteria(checkedValues);
     };
 
     return (
@@ -112,94 +116,144 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                 </div>
             </div>
 
-            {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
-                    <Progress type="circle" percent={100} status="active" strokeColor={{ '0%': '#9333ea', '100%': '#a855f7' }} />
-                    <Text className="mt-4 font-medium text-gray-500">AI is analyzing thousands of candidate profiles...</Text>
-                </div>
-            ) : matches.length > 0 ? (
-                <Row gutter={[20, 20]}>
-                    {matches.map((record, index) => {
-                        const score = record.ai_score || 0;
-                        const jobSeekerId = record.job_seeker_id || record.job_seeker?.job_seeker_id;
-                        const education = record.education?.[0];
-                        
-                        return (
-                            <Col key={record.job_seeker_detail_id || index} xs={24} sm={12} lg={8}>
-                                <Card 
-                                    className="relative rounded-2xl border-2 border-purple-50 hover:border-purple-200 transition-all duration-300 shadow-sm cursor-pointer hover:shadow-md" 
-                                    onClick={() => onViewProfile && onViewProfile(jobSeekerId)}
-                                    bodyStyle={{ padding: '20px' }}
-                                >
-                                    {score > 0 && (
-                                        <div className="absolute top-0 right-0 bg-gradient-to-r from-red-600 to-red-400 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl flex flex-row items-center gap-1 z-10">
-                                            <SparklesIcon className="size-3" />
-                                            <span>{(score * 100).toFixed(0)}% AI Match</span>
-                                        </div>
-                                    )}
-                                    
-                                    <div className="flex justify-between items-start pt-2">
-                                        <div className="flex gap-4">
-                                            <div className="w-14 h-14 rounded-xl border border-gray-100 overflow-hidden flex-shrink-0 relative bottom-0">
-                                                <img
-                                                    src={record.photo_profile ? (record.photo_profile.startsWith('http') ? record.photo_profile : `${API_URL}/${record.photo_profile}`) : JobFallback}
-                                                    alt="Candidate"
-                                                    onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
-                                                    className="w-full h-full object-cover "
-                                                />
-                                            </div>
-                                            <div className="flex flex-col flex-1 min-w-0">
-                                                <h3 className="text-[16px] font-bold text-gray-900 leading-tight truncate">
-                                                    {record.job_seeker?.full_name || "Unknown Candidate"}
-                                                </h3>
-                                                <p className="text-[12px] text-gray-500 mt-1 truncate">
-                                                    {record.job_seeker?.email || "No email provided"}
-                                                </p>
-                                                <p className="text-[12px] text-gray-500 mt-1 truncate">
-                                                    {education?.degree || "No email provided"}
-                                                </p>
-                                            </div>
-                                        </div>
-                                       
-                                    </div>
+            <div className="flex flex-col lg:flex-row gap-8">
+                {/* Sidebar Filter */}
+                <div className="w-full lg:w-1/4">
+                    <Card
+                        className="rounded-2xl border-gray-100 shadow-sm sticky top-6"
+                        bodyStyle={{ padding: '24px' }}
+                    >
+                        <Title level={4} className="mb-4">Sort By</Title>
+                        <Divider className="my-4" />
 
-                                    <div className="mt-4">
-                                        <div className="flex flex-wrap gap-2 mt-2 max-h-[58px] overflow-hidden content-start">
-                                            {record.skills?.map((skill, sIdx) => (
-                                                <div key={sIdx} className="bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full px-3 py-1 border border-blue-100 flex items-center">
-                                                    {skill.skill_name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        
-                                        <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-100">
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">University</span>
-                                                <span className="text-[11px] text-gray-600 font-medium truncate max-w-[150px]">
-                                                    {education?.university_name || "-"}
-                                                </span>
-                                            </div>
-                                            <Button
-                                                type="primary"
-                                                className="bg-purple-600 hover:bg-purple-700 border-none rounded-lg h-9 px-5 flex items-center gap-2"
-                                                onClick={(e) => { e.stopPropagation(); handleInvite(record); }}
-                                                loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
-                                            >
-                                                <span className="text-xs font-bold">Invite</span>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </Card>
-                            </Col>
-                        );
-                    })}
-                </Row>
-            ) : (
-                <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                    <UserCircleIcon className="size-12 text-gray-300 mx-auto mb-4" />
-                    <Text type="secondary" className="text-gray-500 font-medium">No suitable talents found for this job description.</Text>
+                        <div>
+                            <Text className="font-bold text-black block mb-4">Most Relevant</Text>
+                            <Checkbox.Group
+                                className="flex flex-col gap-4"
+                                options={[
+                                    { value: "skills", label: "By Skills" },
+                                    { value: "projects", label: "By Projects" },
+                                    { value: "experience", label: "By Experience" },
+                                    { value: "education", label: "By Education" },
+                                ]}
+                                value={filterCriteria}
+                                onChange={handleFilterChange}
+                            />
+                        </div>
+                    </Card>
                 </div>
-            )}
+
+                {/* Talent List */}
+                <div className="w-full lg:w-3/4">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+                            <Progress type="circle" percent={100} status="active" strokeColor={{ '0%': '#9333ea', '100%': '#a855f7' }} />
+                            <Text className="mt-4 font-medium text-gray-500">AI is analyzing thousands of candidate profiles...</Text>
+                        </div>
+                    ) : matches.length > 0 ? (
+                        <Row gutter={[20, 20]}>
+                            {matches.map((record, index) => {
+                                const score = record.ai_score || 0;
+                                const jobSeekerId = record.job_seeker_id || record.job_seeker?.job_seeker_id;
+                                const education = record.education?.[0];
+
+                                return (
+                                    <Col key={record.job_seeker_detail_id || index} xs={24} md={12}>
+                                        <Card
+                                            className="relative h-full rounded-2xl border-2 border-purple-50 hover:border-purple-200 transition-all duration-300 shadow-sm"
+                                            bodyStyle={{ padding: '20px', height: '100%', display: 'flex', flexDirection: 'column' }}
+                                        >
+                                            {score > 0 && (
+                                                <div className="absolute top-0 right-0 bg-gradient-to-r from-red-600 to-red-400 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl flex flex-row items-center gap-1 z-10">
+                                                    <SparklesIcon className="size-3" />
+                                                    <span>{(score * 100).toFixed(0)}% AI Match</span>
+                                                </div>
+                                            )}
+
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start pt-2">
+                                                    <div className="flex gap-4">
+                                                        <div className="w-14 h-14 rounded-xl border border-gray-100 overflow-hidden flex-shrink-0 relative bottom-0">
+                                                            <img
+                                                                src={record.photo_profile ? (record.photo_profile.startsWith('http') ? record.photo_profile : `${API_URL}/${record.photo_profile}`) : JobFallback}
+                                                                alt="Candidate"
+                                                                onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
+                                                                className="w-full h-full object-cover "
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col flex-1 min-w-0">
+                                                            <h3 className="text-[16px] font-bold text-gray-900 leading-tight truncate">
+                                                                {record.job_seeker?.full_name || "Unknown Candidate"}
+                                                            </h3>
+                                                            <p className="text-[12px] text-gray-500 mt-1 truncate">
+                                                                {record.job_seeker?.email || "No email provided"}
+                                                            </p>
+                                                            <p className="text-[12px] text-gray-500 mt-1 truncate">
+                                                                {education?.degree || "No email provided"}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-4">
+                                                    <div className="flex flex-wrap gap-2 mt-2 min-h-[58px] max-h-[58px] overflow-hidden content-start">
+                                                        {record.skills?.map((skill, sIdx) => (
+                                                            <div key={sIdx} className="bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full px-3 py-1 border border-blue-100 flex items-center">
+                                                                {skill.skill_name}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-100 gap-2">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">University</span>
+                                                    <span className="text-[11px] text-gray-600 font-medium truncate max-w-[100px] xl:max-w-[150px]">
+                                                        {education?.university_name || "-"}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        style={{
+                                                            borderRadius: 12,
+                                                            height: 36,
+                                                            borderColor: "#BBB",
+                                                            borderWidth: 1,
+                                                        }}
+                                                        onClick={() => onViewProfile && onViewProfile(jobSeekerId)}
+                                                        className="flex items-center justify-center hover:bg-gray-50"
+                                                    >
+                                                        <span className="text-[11px] font-bold text-gray-600">
+                                                            View Profile
+                                                        </span>
+                                                    </Button>
+                                                    <Button
+                                                        type="primary"
+                                                        className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${record.is_invited ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#dd2a2a] hover:bg-[#FF9D98]'}`}
+                                                        onClick={(e) => { e.stopPropagation(); !record.is_invited && handleInvite(record); }}
+                                                        loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
+                                                        disabled={record.is_invited}
+                                                    >
+                                                        <span className="text-[11px] font-bold">
+                                                            {record.is_invited ? "Invited" : "Invite"}
+                                                        </span>
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                );
+                            })}
+                        </Row>
+                    ) : (
+                        <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                            <UserCircleIcon className="size-12 text-gray-300 mx-auto mb-4" />
+                            <Text type="secondary" className="text-gray-500 font-medium">No suitable talents found for this job description.</Text>
+                        </div>
+                    )}
+                </div>
+            </div>
 
             <div className="flex justify-end mt-6">
                 <Button onClick={onBack} size="large">

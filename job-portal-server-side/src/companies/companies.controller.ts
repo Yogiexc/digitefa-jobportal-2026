@@ -157,8 +157,18 @@ export class CompaniesController {
     type: String,
     description: 'Job Description or query',
   })
-  searchTalents(@Query('query') query: string, @Query('job_description') job_description: string) {
-    return this.companiesService.searchTalents(job_description || query);
+  @ApiQuery({
+    name: 'job_id',
+    required: false,
+    type: String,
+    description: 'Current Job ID to check for existing invitations',
+  })
+  searchTalents(
+    @Query('query') query: string,
+    @Query('job_description') job_description: string,
+    @Query('job_id') job_id: string,
+  ) {
+    return this.companiesService.searchTalents(job_description || query, job_id);
   }
 
   @Post('change-status')
