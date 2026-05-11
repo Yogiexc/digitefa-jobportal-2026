@@ -1,18 +1,17 @@
-import { Button, Layout, Modal, Table, message, Progress, Space, Typography, Tag, Avatar, Tooltip, Drawer, Divider, Row, Col, Card, Checkbox, Spin } from "antd";
+import { Button, Layout, Typography, Row, Col, Card, Spin, App } from "antd";
 import { useEffect, useState } from "react";
 import Api from "../../services/Api";
-import { SparklesIcon, UserCircleIcon, EnvelopeIcon, BookmarkIcon } from "@heroicons/react/24/solid";
-import { LoadingOutlined } from "@ant-design/icons";
+import { SparklesIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import JobFallback from "../../assets/images/broken.jpg";
+import AiTalentFilter from "./AiTalentFilter";
 
 const API_URL = import.meta.env.VITE_IMAGE_API;
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
 
-const antIcon = <LoadingOutlined style={{ fontSize: 40, color: '#dd2a2a' }} spin />;
-
 const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewProfile }) => {
+    const { message } = App.useApp();
     const [loading, setLoading] = useState(false);
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
@@ -124,36 +123,17 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Sidebar Filter */}
                 <div className="w-full lg:w-1/4">
-                    <Card
-                        className="rounded-2xl border-gray-100 shadow-sm sticky top-6"
-                        bodyStyle={{ padding: '24px' }}
-                    >
-                        <Title level={4} className="mb-4">Sort By</Title>
-                        <Divider className="my-4" />
-
-                        <div>
-                            <Text className="font-bold text-black block mb-4">Most Relevant</Text>
-                            <Checkbox.Group
-                                className="flex flex-col gap-4"
-                                options={[
-                                    { value: "skills", label: "By Skills" },
-                                    { value: "projects", label: "By Projects" },
-                                    { value: "experience", label: "By Experience" },
-                                    { value: "education", label: "By Education" },
-                                ]}
-                                value={filterCriteria}
-                                onChange={handleFilterChange}
-                            />
-                        </div>
-                    </Card>
+                    <AiTalentFilter 
+                        filterCriteria={filterCriteria} 
+                        onFilterChange={handleFilterChange} 
+                    />
                 </div>
 
                 {/* Talent List */}
                 <div className="w-full lg:w-3/4">
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
-                            <Spin indicator={antIcon} />
-                            <Text className="mt-4 font-medium text-gray-500">AI is analyzing candidate profiles based on your criteria...</Text>
+                        <div className="flex justify-center items-center py-40 bg-white rounded-2xl shadow-sm border border-gray-100">
+                            <Spin size="large" />
                         </div>
                     ) : matches.length > 0 ? (
                         <Row gutter={[20, 20]}>

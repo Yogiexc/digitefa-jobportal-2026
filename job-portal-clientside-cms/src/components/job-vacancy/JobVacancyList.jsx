@@ -19,6 +19,7 @@ import {
   Select,
   Table,
   Segmented,
+  App,
 } from "antd";
 import Api from "../../services/Api";
 import AddData from "./AddData";
@@ -35,6 +36,7 @@ import ShowApplicants from "./ShowApplicants";
 const { Content } = Layout;
 
 const JobVacancyList = () => {
+  const { message } = App.useApp();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -88,19 +90,25 @@ const JobVacancyList = () => {
     }
   };
 
-  const menu = (record) => (
-    <Menu
-      onClick={({ key }) => handleMenuClick(record, key)}
-      className="custom-menu"
-    >
-      <Menu.ItemGroup title="ACTION" className="custom-menu-item-group" />
-      <Menu.Item key="show" icon={<EyeIcon className="size-5" />}>
-        Show
-      </Menu.Item>
-      <Menu.Item key="edit" icon={<PencilSquareIcon className="size-5" />}>
-        Edit
-      </Menu.Item>
-      <Menu.Item key="view_applicants" icon={<UsersIcon className="size-5" />}>
+  const getMenuItems = (record) => [
+    {
+      key: "action-title",
+      label: "ACTION",
+      type: "group",
+    },
+    {
+      key: "show",
+      label: "Show",
+      icon: <EyeIcon className="size-5" />,
+    },
+    {
+      key: "edit",
+      label: "Edit",
+      icon: <PencilSquareIcon className="size-5" />,
+    },
+    {
+      key: "view_applicants",
+      label: (
         <div className="relative">
           View <br />
           Applicants
@@ -109,18 +117,25 @@ const JobVacancyList = () => {
             <span className="ml-1">New</span>
           </badge>
         </div>
-      </Menu.Item>
-      <Menu.Item key="reupload" icon={<ArrowPathIcon className="size-5" />}>
-        Reupload
-      </Menu.Item>
-      <Menu.Item key="delete" icon={<TrashIcon className="size-5" />}>
-        Delete
-      </Menu.Item>
-      <Menu.Item key="aimatches" icon={<SparklesIcon className="size-5 text-purple-600" />}>
-        <span className="font-semibold text-purple-700">AI Matches</span>
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+      icon: <UsersIcon className="size-5" />,
+    },
+    {
+      key: "reupload",
+      label: "Reupload",
+      icon: <ArrowPathIcon className="size-5" />,
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      icon: <TrashIcon className="size-5" />,
+    },
+    {
+      key: "aimatches",
+      label: <span className="font-semibold text-purple-700">AI Matches</span>,
+      icon: <SparklesIcon className="size-5 text-purple-600" />,
+    },
+  ];
 
   const columns = [
     {
@@ -165,7 +180,14 @@ const JobVacancyList = () => {
       key: "action",
       width: "10%",
       render: (text, record) => (
-        <Dropdown overlay={menu(record)} trigger={["click"]}>
+        <Dropdown
+          menu={{
+            items: getMenuItems(record),
+            onClick: ({ key }) => handleMenuClick(record, key),
+            className: "custom-menu",
+          }}
+          trigger={["click"]}
+        >
           <button className="size-5 text-red-600 ml-3">
             <EllipsisVerticalIcon />
           </button>

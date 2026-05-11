@@ -19,6 +19,7 @@ import {
   Segmented,
   Form,
   DatePicker,
+  App,
 } from "antd";
 import Api from "../../services/Api";
 import ExportData from "./ExportData";
@@ -31,6 +32,7 @@ const { Content } = Layout;
 const { RangePicker } = DatePicker;
 
 const ViewApplicants = ({ jobId }) => {
+  const { message } = App.useApp();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -66,88 +68,98 @@ const ViewApplicants = ({ jobId }) => {
     }
   };
 
-  const menu = (record) => (
-    <Menu
-      onClick={({ key }) => handleMenuClick(record, key)}
-      className="custom-menu"
-    >
-      <Menu.ItemGroup title="ACTION" className="custom-menu-item-group" />
-      <Menu.Item key="show" icon={<EyeIcon className="size-5" />}>
-        Show
-      </Menu.Item>
-      <Menu.Item key="cv_resume" icon={<PencilSquareIcon className="size-5" />}>
-        CV / Resume
-      </Menu.Item>
-      <Menu.Item key="approval" icon={<UsersIcon className="size-5" />}>
-        Approval
-      </Menu.Item>
-    </Menu>
-  );
+  const getMenuItems = (record) => [
+    {
+      key: "action-title",
+      label: "ACTION",
+      type: "group",
+    },
+    {
+      key: "show",
+      label: "Show",
+      icon: <EyeIcon className="size-5" />,
+    },
+    {
+      key: "cv_resume",
+      label: "CV / Resume",
+      icon: <PencilSquareIcon className="size-5" />,
+    },
+    {
+      key: "approval",
+      label: "Approval",
+      icon: <UsersIcon className="size-5" />,
+    },
+  ];
 
-  const filterMenu = (
-    <Menu className="p-4" style={{ width: 330, padding: "16px" }}>
-      <Form layout="vertical">
-        <p className="text-gray-400 text-bold">Filter</p>
-        <Form.Item label="Select Date">
-          <RangePicker
-            style={{
-              borderColor: "#BBBBBB",
-              height: "56px",
-              width: "298px",
-              borderRadius: 12,
-            }}
-          />
-        </Form.Item>
+  const filterMenuItems = [
+    {
+      key: "filter-form",
+      label: (
+        <div className="p-2" onClick={(e) => e.stopPropagation()}>
+          <Form layout="vertical">
+            <p className="text-gray-400 text-bold">Filter</p>
+            <Form.Item label="Select Date">
+              <RangePicker
+                style={{
+                  borderColor: "#BBBBBB",
+                  height: "56px",
+                  width: "298px",
+                  borderRadius: 12,
+                }}
+              />
+            </Form.Item>
 
-        <Form.Item label="Salary">
-          <Select
-            placeholder="Select Salary"
-            style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
-          >
-            <Select.Option value="informatics">
-              Informatics Engineering
-            </Select.Option>
-            <Select.Option value="business">
-              Business Administration
-            </Select.Option>
-          </Select>
-        </Form.Item>
+            <Form.Item label="Salary">
+              <Select
+                placeholder="Select Salary"
+                style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
+              >
+                <Select.Option value="informatics">
+                  Informatics Engineering
+                </Select.Option>
+                <Select.Option value="business">
+                  Business Administration
+                </Select.Option>
+              </Select>
+            </Form.Item>
 
-        <Form.Item label="Experience">
-          <Select
-            placeholder="Select Experience"
-            style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
-          >
-            <Select.Option value="informatics">
-              Informatics Engineering
-            </Select.Option>
-            <Select.Option value="business">
-              Business Administration
-            </Select.Option>
-          </Select>
-        </Form.Item>
+            <Form.Item label="Experience">
+              <Select
+                placeholder="Select Experience"
+                style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
+              >
+                <Select.Option value="informatics">
+                  Informatics Engineering
+                </Select.Option>
+                <Select.Option value="business">
+                  Business Administration
+                </Select.Option>
+              </Select>
+            </Form.Item>
 
-        <div className="flex justify-end space-x-2">
-          <Button
-            style={{
-              width: 54,
-              height: 40,
-              borderColor: "#BBB",
-              borderRadius: 12,
-            }}
-          >
-            <span className="text-xs">Reset</span>
-          </Button>
-          <Button
-            type="primary"
-            style={{ width: 54, height: 40, borderRadius: 12 }}
-          >
-            <span className="text-xs">Apply</span>
-          </Button>
+            <div className="flex justify-end space-x-2">
+              <Button
+                style={{
+                  width: 54,
+                  height: 40,
+                  borderColor: "#BBB",
+                  borderRadius: 12,
+                }}
+              >
+                <span className="text-xs">Reset</span>
+              </Button>
+              <Button
+                type="primary"
+                style={{ width: 54, height: 40, borderRadius: 12 }}
+              >
+                <span className="text-xs">Apply</span>
+              </Button>
+            </div>
+          </Form>
         </div>
-      </Form>
-    </Menu>
-  );
+      ),
+    },
+  ];
 
   const columns = [
     {
@@ -187,7 +199,14 @@ const ViewApplicants = ({ jobId }) => {
       key: "action",
       width: "10%",
       render: (text, record) => (
-        <Dropdown overlay={menu(record)} trigger={["click"]}>
+        <Dropdown
+          menu={{
+            items: getMenuItems(record),
+            onClick: ({ key }) => handleMenuClick(record, key),
+            className: "custom-menu",
+          }}
+          trigger={["click"]}
+        >
           <button className="size-5 text-red-600 ml-3">
             <EllipsisVerticalIcon />
           </button>
@@ -315,9 +334,9 @@ const ViewApplicants = ({ jobId }) => {
               />
 
               <Dropdown
-                overlay={filterMenu}
-                visible={filterVisible}
-                onVisibleChange={setFilterVisible}
+                menu={{ items: filterMenuItems }}
+                open={filterVisible}
+                onOpenChange={setFilterVisible}
                 trigger={["click"]}
               >
                 <Button

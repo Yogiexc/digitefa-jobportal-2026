@@ -82,7 +82,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
           </div>
         }
         centered
-        visible={open}
+        open={open}
         onCancel={handleCancel}
         width={400}
         maskClosable={false}

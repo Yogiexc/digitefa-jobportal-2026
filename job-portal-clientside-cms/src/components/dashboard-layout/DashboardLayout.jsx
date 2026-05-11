@@ -104,42 +104,57 @@ const DashboardLayout = ({ children }) => {
     )
   }
 
-  const menuNavbar = (
-    <Menu >
-      <div className="flex items-center p-4">
-        <Avatar
-          src={profilePicture ? `${API_URL}/${profilePicture}` : null}
-          icon={<UserOutlined />}
-          size={48}
-        />
-        <div className="ml-3">
-          <div className="font-bold">{userData?.name}</div>
-          <div className="text-gray-500">{userData?.email}</div>
+  const menuNavbarItems = [
+    {
+      key: "user-info",
+      label: (
+        <div className="flex items-center p-2">
+          <Avatar
+            src={profilePicture ? `${API_URL}/${profilePicture}` : null}
+            icon={<UserOutlined />}
+            size={48}
+          />
+          <div className="ml-3">
+            <div className="font-bold">{userData?.name}</div>
+            <div className="text-gray-500 text-xs">{userData?.email}</div>
+          </div>
         </div>
-      </div>
-      <Divider className="my-2" />
-      <Menu.Item key="edit-profile" onClick={handleEditProfile}>
+      ),
+      disabled: true,
+    },
+    { type: "divider" },
+    {
+      key: "edit-profile",
+      label: (
         <div className="flex items-center">
           <PencilSquareIcon className="size-5 mr-2" /> Edit Profile
         </div>
-      </Menu.Item>
-      <Menu.Item key="change-password" onClick={handleChangePassword}>
+      ),
+      onClick: handleEditProfile,
+    },
+    {
+      key: "change-password",
+      label: (
         <div className="flex items-center">
           <LockClosedIcon className="size-5 mr-2" /> Change Password
         </div>
-      </Menu.Item>
-      <Menu.Item key="setting">
+      ),
+      onClick: handleChangePassword,
+    },
+    {
+      key: "setting",
+      label: (
         <div className="flex items-center">
           <Cog6ToothIcon className="size-5 mr-2" /> Setting
         </div>
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: "100vh" }} className="flex">
         <Drawer
-        visible={drawerVisible}
+        open={drawerVisible}
         onClose={closeDrawer}
         placement="left"
         closable
@@ -149,7 +164,7 @@ const DashboardLayout = ({ children }) => {
               className="flex items-center mr-4 bg-gray-100 hover:bg-gray-400 p-6 rounded-xl focus:outline-none focus:shadow-outline"
               shape="round"
             >
-              <Dropdown overlay={menuNavbar} trigger={["click"]}>
+              <Dropdown menu={{ items: menuNavbarItems }} trigger={["click"]}>
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center mr-1">
                     <Avatar
@@ -274,7 +289,7 @@ const DashboardLayout = ({ children }) => {
               </Button>
             </div>
             <div className="flex flex-col">
-              <Breadcrumb>{breadcrumbItems}</Breadcrumb>
+              <Breadcrumb items={breadcrumbItems} />
               <Text className="text-xl font-medium md:text-2xl md:font-medium">
                 {activeMenuSidebar?.text}
               </Text>
@@ -282,7 +297,7 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           <div className="flex items-center mr-4">
-            <Dropdown overlay={menuNavbar} trigger={["click"]} getPopupContainer={(trigger) => trigger.parentElement}>
+            <Dropdown menu={{ items: menuNavbarItems }} trigger={["click"]} getPopupContainer={(trigger) => trigger.parentElement}>
               <Button
                 className="flex items-center bg-gray-100 hover:bg-gray-400 p-8 rounded-xl focus:outline-none focus:shadow-outline hidden sm:flex"
                 shape="round"

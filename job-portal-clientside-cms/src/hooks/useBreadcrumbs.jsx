@@ -13,7 +13,7 @@ const useBreadcrumbs = () => {
   const activePage = params.get("page");
 
   const breadcrumbItems = useMemo(() => {
-    const items = [<Breadcrumb.Item key="home">Digitefa</Breadcrumb.Item>];
+    const items = [{ key: "home", title: "Digitefa" }];
     let currentPath = "";
     for (const pathSnippet of pathSnippets) {
       currentPath += `/${pathSnippet}`;
@@ -24,9 +24,7 @@ const useBreadcrumbs = () => {
             item.children.some((child) => child.link === currentPath))
       );
       if (menuItem) {
-        items.push(
-          <Breadcrumb.Item key={menuItem.key}>{menuItem.text}</Breadcrumb.Item>
-        );
+        items.push({ key: menuItem.key, title: menuItem.text });
       }
       const menuItem2 = MenuSidebar.find(
         (item) =>
@@ -37,20 +35,17 @@ const useBreadcrumbs = () => {
         const subMenu = menuItem2.children.find(
           (item) => item.link === currentPath
         );
-        items.push(
-          <Breadcrumb.Item key={subMenu.key}>{subMenu.text}</Breadcrumb.Item>
-        );
+        items.push({ key: subMenu.key, title: subMenu.text });
       }
     }
     if (activePage) {
-      items.push(
-        <Breadcrumb.Item key={activePage}>
-          {activePage
-            .split("-")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ")}
-        </Breadcrumb.Item>
-      );
+      items.push({
+        key: activePage,
+        title: activePage
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" "),
+      });
     }
     return items;
   }, [pathSnippets, MenuSidebar, activePage]);
