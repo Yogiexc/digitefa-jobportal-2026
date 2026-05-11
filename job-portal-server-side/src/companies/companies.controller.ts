@@ -163,12 +163,19 @@ export class CompaniesController {
     type: String,
     description: 'Current Job ID to check for existing invitations',
   })
+  @ApiQuery({
+    name: 'criteria',
+    required: false,
+    type: String,
+    description: 'Comma-separated criteria (skills, projects, experience, education)',
+  })
   searchTalents(
     @Query('query') query: string,
     @Query('job_description') job_description: string,
     @Query('job_id') job_id: string,
+    @Query('criteria') criteria: string,
   ) {
-    return this.companiesService.searchTalents(job_description || query, job_id);
+    return this.companiesService.searchTalents(job_description || query, job_id, criteria);
   }
 
   @Post('change-status')

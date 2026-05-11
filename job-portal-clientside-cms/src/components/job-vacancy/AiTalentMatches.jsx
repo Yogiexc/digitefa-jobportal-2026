@@ -1,13 +1,16 @@
-import { Button, Layout, Modal, Table, message, Progress, Space, Typography, Tag, Avatar, Tooltip, Drawer, Divider, Row, Col, Card, Checkbox } from "antd";
+import { Button, Layout, Modal, Table, message, Progress, Space, Typography, Tag, Avatar, Tooltip, Drawer, Divider, Row, Col, Card, Checkbox, Spin } from "antd";
 import { useEffect, useState } from "react";
 import Api from "../../services/Api";
 import { SparklesIcon, UserCircleIcon, EnvelopeIcon, BookmarkIcon } from "@heroicons/react/24/solid";
+import { LoadingOutlined } from "@ant-design/icons";
 import JobFallback from "../../assets/images/broken.jpg";
 
 const API_URL = import.meta.env.VITE_IMAGE_API;
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
+
+const antIcon = <LoadingOutlined style={{ fontSize: 40, color: '#dd2a2a' }} spin />;
 
 const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewProfile }) => {
     const [loading, setLoading] = useState(false);
@@ -24,7 +27,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                 fetchJobDetailAndMatches();
             }
         }
-    }, [open, jobId, jobDescription]);
+    }, [open, jobId, jobDescription, filterCriteria]);
 
     const fetchJobDetailAndMatches = async () => {
         setLoading(true);
@@ -47,7 +50,9 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         try {
             // Endpoint added to job-portal backend that interacts with python similarity model
             // Passing jobId to check for existing invitations
-            const { data } = await Api.get(`/companies/search/ai-talents?job_description=${encodeURIComponent(desc)}&job_id=${jobId}`);
+            // Passing filterCriteria to the backend
+            const criteriaParam = filterCriteria.length > 0 ? `&criteria=${filterCriteria.join(',')}` : '';
+            const { data } = await Api.get(`/companies/search/ai-talents?job_description=${encodeURIComponent(desc)}&job_id=${jobId}${criteriaParam}`);
 
             // Sort matches by AI score descending
             const sortedMatches = (data || []).sort((a, b) => (b.ai_score || 0) - (a.ai_score || 0));
@@ -147,8 +152,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                 <div className="w-full lg:w-3/4">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
-                            <Progress type="circle" percent={100} status="active" strokeColor={{ '0%': '#9333ea', '100%': '#a855f7' }} />
-                            <Text className="mt-4 font-medium text-gray-500">AI is analyzing thousands of candidate profiles...</Text>
+                            <Spin indicator={antIcon} />
+                            <Text className="mt-4 font-medium text-gray-500">AI is analyzing candidate profiles based on your criteria...</Text>
                         </div>
                     ) : matches.length > 0 ? (
                         <Row gutter={[20, 20]}>

@@ -278,8 +278,11 @@ export class CompaniesService {
     }
   }
 
-  async searchTalents(query: string, job_id?: string) {
+  async searchTalents(query: string, job_id?: string, criteria?: string) {
     if (!query) return { status: 'success', data: [] };
+
+    // Parse criteria
+    const criteriaList = criteria ? criteria.split(',') : ['skills', 'projects', 'experience', 'education'];
 
     // Fetch all job seekers with details
     const seekers = await this.prisma.job_seeker_details.findMany({
@@ -291,6 +294,7 @@ export class CompaniesService {
         experiences: true,
         education: true,
         languages: true,
+        projects: true,
       },
     });
 
@@ -306,21 +310,42 @@ export class CompaniesService {
 
     // Format for Python AI semantic search
     const talents = seekers.map((s) => {
-      const skillsText = s.skills.map((skill) => skill.skill_name).join(', ');
-      const expText = s.experiences
-        .map(
-          (e) =>
-            `${e.experience_title} at ${e.company_name} - ${e.description}`,
-        )
-        .join('; ');
+      let profileParts = [`Name: ${s.job_seeker.full_name}`];
 
-      const latestEdu = s.education && s.education.length > 0 ? s.education[0] : null;
-      const eduText = latestEdu
-        ? `${latestEdu.degree} in ${latestEdu.major} at ${latestEdu.university_name}`
-        : '';
-      const langText = s.languages.map((l) => l.language_name).join(', ');
+      if (criteriaList.includes('skills')) {
+        const skillsText = s.skills.map((skill) => skill.skill_name).join(', ');
+        profileParts.push(`Skills: ${skillsText}`);
+      }
 
-      const profileText = `Name: ${s.job_seeker.full_name}. Skills: ${skillsText}. Languages: ${langText}. Experience: ${expText}. education: ${eduText}. Summary: ${s.personal_summary || ''}`;
+      if (criteriaList.includes('languages')) {
+        const langText = s.languages.map((l) => l.language_name).join(', ');
+        profileParts.push(`Languages: ${langText}`);
+      }
+
+      if (criteriaList.includes('experience')) {
+        const expText = s.experiences
+          .map(
+            (e) =>
+              `${e.experience_title} at ${e.company_name} - ${e.description}`,
+          )
+          .join('; ');
+        profileParts.push(`Experience: ${expText}`);
+      }
+
+      if (criteriaList.includes('education')) {
+        const latestEdu = s.education && s.education.length > 0 ? s.education[0] : null;
+        const eduText = latestEdu
+          ? `${latestEdu.degree} in ${latestEdu.major} at ${latestEdu.university_name}`
+          : '';
+        profileParts.push(`Education: ${eduText}`);
+      }
+
+      if (criteriaList.includes('projects')) {
+        const projText = (s as any).projects?.map((p: any) => `${p.project_name}: ${p.description}`).join('; ') || '';
+        profileParts.push(`Projects: ${projText}`);
+      }
+
+      const profileText = profileParts.join('. ') + `. Summary: ${s.personal_summary || ''}`;
 
       return { id: s.job_seeker_detail_id, profile_text: profileText };
     });
