@@ -521,7 +521,8 @@ async def parse_cv(file: UploadFile = File(...)):
         # Skill Cleanup
         filtered_skills = []
         for s in sections["skills"]:
-            s_clean = s.strip('-• ')
+            # Remove parentheses and surrounding whitespace/symbols
+            s_clean = re.sub(r'[()\-•]', '', s).strip()
             if len(s_clean) < 2 or len(s_clean) > 40: continue
             if phone_regex.match(s_clean): continue
             filtered_skills.append(s_clean)

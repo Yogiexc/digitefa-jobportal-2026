@@ -415,18 +415,28 @@ export class ProfileService {
       }
 
       const normalizeStringArray = (value: unknown): string[] => {
+        let items: string[] = [];
         if (Array.isArray(value)) {
-          return value
-            .map((item) => String(item).trim())
-            .filter(Boolean);
+          items = value.map((item) => String(item));
+        } else if (typeof value === 'string') {
+          // Split by comma, semicolon, or vertical bar
+          items = value.split(/[,;|•]/);
         }
-        if (typeof value === 'string') {
-          return value
-            .split(',')
-            .map((item) => item.trim())
-            .filter(Boolean);
-        }
-        return [];
+
+        return items
+          .map((item) => {
+            let cleaned = item.trim();
+            // Handle parentheses: extract content if it looks like (skill) or just remove them
+            // Prioritize what's inside parentheses if it exists and seems like the main content
+            const match = cleaned.match(/\(([^)]+)\)/);
+            if (match && match[1].trim()) {
+              cleaned = match[1].trim();
+            } else {
+              cleaned = cleaned.replace(/[()]/g, '').trim();
+            }
+            return cleaned;
+          })
+          .filter((item) => item.length > 0);
       };
 
       const skillsFromCv = normalizeStringArray(parsedData.skills);
@@ -450,17 +460,20 @@ export class ProfileService {
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
         });
         const existingSkillNames = existingSkills.map((s) =>
-          s.skill_name.toLowerCase(),
+          s.skill_name.toLowerCase().replace(/[()]/g, '').trim(),
         );
 
         for (const skill of skillsFromCv) {
-          if (!existingSkillNames.includes(skill.toLowerCase())) {
+          const cleanSkill = skill.replace(/[()]/g, '').trim();
+          if (!existingSkillNames.includes(cleanSkill.toLowerCase())) {
             await this.prisma.skills.create({
               data: {
                 skill_name: skill,
                 job_seeker_detail_id: detail.job_seeker_detail_id,
               },
             });
+            // Update local list to avoid duplicates within the same batch
+            existingSkillNames.push(cleanSkill.toLowerCase());
           }
         }
       }
@@ -473,7 +486,18 @@ export class ProfileService {
       };
 
       if (experiencesFromCv.length > 0) {
+        const existingExperiences = await this.prisma.experiences.findMany({
+          where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+        });
+
         for (const exp of experiencesFromCv) {
+          const isDuplicate = existingExperiences.some(existing =>
+            existing.experience_title.toLowerCase() === (exp.title || 'Experience').toLowerCase() &&
+            existing.company_name.toLowerCase() === (exp.company || 'Unknown').toLowerCase()
+          );
+
+          if (isDuplicate) continue;
+
           await this.prisma.experiences.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -489,14 +513,23 @@ export class ProfileService {
           });
         }
       } else if (parsedData.experience) {
-        await this.prisma.experiences.create({
-          data: {
+        const existingExp = await this.prisma.experiences.findFirst({
+          where: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
-            experience_title: 'Experience from CV',
-            company_name: 'Various',
-            description: parsedData.experience.substring(0, 250),
-          },
+            description: { contains: parsedData.experience.substring(0, 50) }
+          }
         });
+
+        if (!existingExp) {
+          await this.prisma.experiences.create({
+            data: {
+              job_seeker_detail_id: detail.job_seeker_detail_id,
+              experience_title: 'Experience from CV',
+              company_name: 'Various',
+              description: parsedData.experience.substring(0, 250),
+            },
+          });
+        }
       }
 
       if (educationFromCv.length > 0) {
@@ -572,7 +605,17 @@ export class ProfileService {
 
       // 5. PROJECTS
       if (projectsFromCv.length > 0) {
+        const existingProjects = await this.prisma.projects.findMany({
+          where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+        });
+
         for (const proj of projectsFromCv) {
+          const isDuplicate = existingProjects.some(existing =>
+            existing.project_name.toLowerCase() === (proj.title || 'Project from CV').toLowerCase()
+          );
+
+          if (isDuplicate) continue;
+
           await this.prisma.projects.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -584,18 +627,38 @@ export class ProfileService {
           });
         }
       } else if (parsedData.projects) {
-        await this.prisma.projects.create({
-          data: {
+        const existingProj = await this.prisma.projects.findFirst({
+          where: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
-            project_name: 'Project from CV',
-            description: parsedData.projects.substring(0, 250),
-          },
+            project_name: 'Project from CV'
+          }
         });
+
+        if (!existingProj) {
+          await this.prisma.projects.create({
+            data: {
+              job_seeker_detail_id: detail.job_seeker_detail_id,
+              project_name: 'Project from CV',
+              description: parsedData.projects.substring(0, 250),
+            },
+          });
+        }
       }
 
       // 6. CERTIFICATIONS
       if (certificationsFromCv.length > 0) {
+        const existingCerts = await this.prisma.certifications.findMany({
+          where: { job_seeker_detail_id: detail.job_seeker_detail_id },
+        });
+
         for (const cert of certificationsFromCv) {
+          const isDuplicate = existingCerts.some(existing =>
+            existing.certification_name.toLowerCase() === (cert.certification_name || cert.title || 'Certification from CV').toLowerCase() &&
+            existing.issuing_organization.toLowerCase() === (cert.issuing_organization || 'Extracted Org').toLowerCase()
+          );
+
+          if (isDuplicate) continue;
+
           await this.prisma.certifications.create({
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -612,15 +675,24 @@ export class ProfileService {
           ? parsedData.certifications.join(' ')
           : String(parsedData.certifications);
 
-        await this.prisma.certifications.create({
-          data: {
+        const existingCert = await this.prisma.certifications.findFirst({
+          where: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
-            certification_name: 'Certification from CV',
-            issuing_organization: 'Extracted Org',
-            credential_url: rawCert.substring(0, 250),
-            issue_date: new Date(),
-          },
+            certification_name: 'Certification from CV'
+          }
         });
+
+        if (!existingCert) {
+          await this.prisma.certifications.create({
+            data: {
+              job_seeker_detail_id: detail.job_seeker_detail_id,
+              certification_name: 'Certification from CV',
+              issuing_organization: 'Extracted Org',
+              credential_url: rawCert.substring(0, 250),
+              issue_date: new Date(),
+            },
+          });
+        }
       }
 
       // 7. LANGUAGES

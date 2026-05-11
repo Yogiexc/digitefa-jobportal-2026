@@ -63,7 +63,7 @@ const Experience = ({ open, setOpen, section, initialValues, resetForm, action }
             className="menu-icon"
             style={{ marginRight: 10, marginBottom: 10, height: 40, width: 40 }}
           />
-          <span>Experience</span>
+          <span>{initialValues && 'experience_id' in initialValues ? 'Edit Experience' : 'Add Experience'}</span>
         </div>
       }
       centered

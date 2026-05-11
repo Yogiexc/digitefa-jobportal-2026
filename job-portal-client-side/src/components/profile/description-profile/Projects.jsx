@@ -10,35 +10,31 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState('');
 
-   const transformInitialValues = (data) => {
-  if (!data) return {};
+  const transformInitialValues = (data) => {
+    if (!data) return {};
 
-  // fungsi bantu parsing tanggal
-  const parseDate = (date) => {
-    if (!date) return null;
+    // fungsi bantu parsing tanggal
+    const parseDate = (date) => {
+      if (!date) return null;
+      const d = dayjs(date);
+      return d.isValid() ? d : null;
+    };
 
-    // kalau cuma tahun → convert ke Januari tahun itu
-    if (/^\d{4}$/.test(date)) {
-      return dayjs(`01-01-${date}`, "DD-MM-YYYY");
+    // bersihin description (hapus tahun & title)
+    let cleanDescription = data.description || "";
+    const pName = data.project_name || data.title || "";
+    if (pName) {
+      cleanDescription = cleanDescription.replace(pName, "");
     }
+    cleanDescription = cleanDescription.replace(/\d{4}\s*-\s*\d{4}/, "").trim();
 
-    return dayjs(date, ["YYYY", "MMM YYYY", "MMMM YYYY"]);
+    return {
+      project_name: pName,
+      description: cleanDescription,
+      start_date: parseDate(data.start_date),
+      end_date: parseDate(data.end_date),
+    };
   };
-
-  // bersihin description (hapus tahun & title)
-  let cleanDescription = data.description || "";
-  if (data.title) {
-    cleanDescription = cleanDescription.replace(data.title, "");
-  }
-  cleanDescription = cleanDescription.replace(/\d{4}\s*-\s*\d{4}/, "").trim();
-
-  return {
-    project_name: data.title || "",
-    description: cleanDescription,
-    start_date: parseDate(data.start_date),
-    end_date: parseDate(data.end_date),
-  };
-};
 
   const closed = () => {
     resetForm({})
@@ -87,7 +83,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
             className="menu-icon"
             style={{ marginRight: 10, marginBottom: 10, height: 40, width: 40 }}
           />
-          <span>Projects</span>
+          <span>{initialValues && 'project_id' in initialValues ? 'Edit Project' : 'Add Project'}</span>
         </div>
       }
       centered
@@ -126,6 +122,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
             <Form.Item
               name="start_date"
               label="Start Date"
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'Start date cannot be empty' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />

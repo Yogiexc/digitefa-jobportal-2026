@@ -37,7 +37,7 @@ const CertificationLicenses = ({ open, setOpen, section, initialValues, resetFor
             className="menu-icon"
             style={{ marginRight: 10, marginBottom: 10, height: 40, width: 40 }}
           />
-          <span>Certifications and Licenses</span>
+          <span>{initialValues && 'certification_id' in initialValues ? 'Edit Certification' : 'Add Certification'}</span>
         </div>
       }
       centered
