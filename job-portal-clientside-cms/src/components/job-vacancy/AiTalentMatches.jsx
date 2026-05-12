@@ -4,6 +4,7 @@ import Api from "../../services/Api";
 import { SparklesIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import JobFallback from "../../assets/images/broken.jpg";
 import AiTalentFilter from "./AiTalentFilter";
+import Pagination from "../Pagination";
 
 const API_URL = import.meta.env.VITE_IMAGE_API;
 
@@ -16,6 +17,10 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState(["skills", "projects", "experience", "education"]);
+    
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
         if (open && jobId) {
@@ -56,6 +61,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
             // Sort matches by AI score descending
             const sortedMatches = (data || []).sort((a, b) => (b.ai_score || 0) - (a.ai_score || 0));
             setMatches(sortedMatches);
+            setPage(1); // Reset page on new fetch
         } catch (error) {
             message.error("Failed to generate AI recommendations.");
             console.error(error);
@@ -104,13 +110,22 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
             return;
         }
         setFilterCriteria(checkedValues);
+        setPage(1); // Reset page on filter change
     };
+
+    const handlePageChange = (newPage, newSize) => {
+        setPage(newPage);
+        setPageSize(newSize);
+    };
+
+    const startIndex = (page - 1) * pageSize;
+    const displayedMatches = matches.slice(startIndex, startIndex + pageSize);
 
     return (
         <Content className="p-6">
             <div className="flex items-center mb-6 border-b pb-4">
-                <div className="bg-purple-100 p-3 rounded-full mr-4">
-                    <SparklesIcon className="h-8 w-8 text-purple-600" />
+                <div className="bg-red-100 p-3 rounded-full mr-4">
+                    <SparklesIcon className="h-8 w-8 text-red-600" />
                 </div>
                 <div>
                     <Title level={3} style={{ marginBottom: 0 }}>AI Talent Matches</Title>
@@ -136,8 +151,9 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                             <Spin size="large" />
                         </div>
                     ) : matches.length > 0 ? (
-                        <Row gutter={[20, 20]}>
-                            {matches.map((record, index) => {
+                        <>
+                            <Row gutter={[20, 20]}>
+                                {displayedMatches.map((record, index) => {
                                 const score = record.ai_score || 0;
                                 const jobSeekerId = record.job_seeker_id || record.job_seeker?.job_seeker_id;
                                 const education = record.education?.[0];
@@ -145,7 +161,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                 return (
                                     <Col key={record.job_seeker_detail_id || index} xs={24} md={12}>
                                         <Card
-                                            className="relative h-full rounded-2xl border-2 border-purple-50 hover:border-purple-200 transition-all duration-300 shadow-sm"
+                                            className="relative h-full rounded-2xl border-2 border-red-50 hover:border-red-200 transition-all duration-300 shadow-sm"
                                             bodyStyle={{ padding: '20px', height: '100%', display: 'flex', flexDirection: 'column' }}
                                         >
                                             {score > 0 && (
@@ -203,13 +219,11 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                                         style={{
                                                             borderRadius: 12,
                                                             height: 36,
-                                                            borderColor: "#BBB",
-                                                            borderWidth: 1,
                                                         }}
                                                         onClick={() => onViewProfile && onViewProfile(jobSeekerId)}
-                                                        className="flex items-center justify-center hover:bg-gray-50"
+                                                        className="flex items-center justify-center"
                                                     >
-                                                        <span className="text-[11px] font-bold text-gray-600">
+                                                        <span className="text-[11px] font-bold">
                                                             View Profile
                                                         </span>
                                                     </Button>
@@ -231,6 +245,16 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                 );
                             })}
                         </Row>
+                        <div className="mt-8">
+                            <Pagination
+                                current={page}
+                                pageSize={pageSize}
+                                total={matches.length}
+                                onPageChange={handlePageChange}
+                                onPageSizeChange={handlePageChange}
+                            />
+                        </div>
+                        </>
                     ) : (
                         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
                             <UserCircleIcon className="size-12 text-gray-300 mx-auto mb-4" />
