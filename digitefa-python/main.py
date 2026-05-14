@@ -778,10 +778,57 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["education"] = " ".join(sections["education"][:10])
         
         sections["full_name"] = sections["name"]
+
+        # Track unread/missing sections with deeper dictionary checks
+        unread_sections = []
+        
+        # 1. Basic Info
+        if not sections["name"]: unread_sections.append("Name")
+        if not sections["personal_summary"]: unread_sections.append("Personal Summary")
+        if not sections["skills"]: unread_sections.append("Skills")
+        if not sections["languages"]: unread_sections.append("Languages")
+
+        # 2. Experience Check
+        if not sections["experience_structured"]:
+            unread_sections.append("Experience")
+        else:
+            for exp in sections["experience_structured"]:
+                if not exp["title"] or not exp["company"] or not exp["start_date"]:
+                    unread_sections.append("Experience (Some details missing)")
+                    break
+
+        # 3. Education Check
+        if not sections["education_structured"]:
+            unread_sections.append("Education")
+        else:
+            for edu in sections["education_structured"]:
+                if not edu["university"] or not edu["major"] or not edu["degree"]:
+                    unread_sections.append("Education (Some details missing)")
+                    break
+
+        # 4. Projects Check
+        if not sections["projects_structured"]:
+            unread_sections.append("Projects")
+        else:
+            for proj in sections["projects_structured"]:
+                if not proj["title"] or not proj["description"]:
+                    unread_sections.append("Projects (Some details missing)")
+                    break
+
+        # 5. Certifications Check
+        if not sections["certifications_structured"]:
+            unread_sections.append("Certifications")
+        else:
+            for cert in sections["certifications_structured"]:
+                if not cert["certification_name"] or not cert["issuing_organization"]:
+                    unread_sections.append("Certifications (Some details missing)")
+                    break
+
         return {
             "parsed_data": {
                 **sections,
-                "full_name": sections["name"]
+                "full_name": sections["name"],
+                "unread_sections": list(set(unread_sections)) # Remove duplicates
             },
             "raw_text": full_text
         }

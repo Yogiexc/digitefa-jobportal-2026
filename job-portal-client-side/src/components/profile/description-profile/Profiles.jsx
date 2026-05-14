@@ -17,7 +17,8 @@ import {
   LinkIcon,
   SparklesIcon,
   DocumentArrowUpIcon,
-  ArrowDownTrayIcon
+  ArrowDownTrayIcon,
+  ExclamationTriangleIcon
 } from "@heroicons/react/24/outline";
 import { message, Upload } from "antd";
 import { useProfile } from "../../../hooks/useProfile";
@@ -57,6 +58,8 @@ const Profiles = () => {
   const [isAutofilling, setIsAutofilling] = useState(false);
   const [linkAccountOpen, setLinkAccountOpen] = useState(false);
   const [isAutofillModalOpen, setIsAutofillModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [emptyFields, setEmptyFields] = useState([]);
 
   const sections = {
     [sectionEnums.PERSONAL_SUMMARY]: {
@@ -154,6 +157,18 @@ const Profiles = () => {
       });
       messageApi.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
       
+      // Check for unread sections from the backend response
+      // We check multiple paths to be sure we catch it regardless of wrapper structure
+      const unreadSections = 
+        response.data?.data?.unread_sections || 
+        response.data?.unread_sections || 
+        response.data?.parsed_data?.unread_sections;
+      
+      if (unreadSections && Array.isArray(unreadSections) && unreadSections.length > 0) {
+        setEmptyFields(unreadSections);
+        setIsErrorModalOpen(true);
+      }
+
       // Refresh section data
       await getAllSectionData();
       
@@ -278,9 +293,9 @@ const Profiles = () => {
 
 
 
-      <LinkAccount 
-        open={linkAccountOpen} 
-        setOpen={setLinkAccountOpen} 
+      <LinkAccount
+        open={linkAccountOpen}
+        setOpen={setLinkAccountOpen}
         onSuccess={getAllSectionData}
       />
 
@@ -355,24 +370,24 @@ const Profiles = () => {
           <p className="text-gray-500 text-sm mb-2">
             Choose an option to automatically populate your profile information using our AI extraction tool.
           </p>
-          
+
           <a href="/template/Digitefa CV Template.docx" download>
-          <Button 
-            type="default" 
-            size="large" 
-            block 
-            className="h-16 flex items-center justify-between px-10 rounded-2xl bg-[#E3FCEC] hover:bg-[#E3FCEC]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-[#06A73B]/10 rounded-xl group-hover:bg-white/20 transition-colors">
-                <ArrowDownTrayIcon className="w-5 h-5 text-[#06A73B] group-hover:text-[#E3FCEC]" />
+            <Button
+              type="default"
+              size="large"
+              block
+              className="h-16 flex items-center justify-between px-10 rounded-2xl bg-[#E3FCEC] hover:bg-[#E3FCEC]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-[#06A73B]/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                  <ArrowDownTrayIcon className="w-5 h-5 text-[#06A73B] group-hover:text-[#E3FCEC]" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-sm text-[#06A73B] group-hover:text-[#E3FCEC]">Download Template</div>
+                  <div className="text-[11px] font-medium text-[#06A73B]/70 group-hover:text-[#E3FCEC]/80">Use our standard format</div>
+                </div>
               </div>
-              <div className="text-left">
-                <div className="font-semibold text-sm text-[#06A73B] group-hover:text-[#E3FCEC]">Download Template</div>
-                <div className="text-[11px] font-medium text-[#06A73B]/70 group-hover:text-[#E3FCEC]/80">Use our standard format</div>
-              </div>
-            </div>
-          </Button>
+            </Button>
           </a>
 
           <div className="flex items-center gap-2 my-1">
@@ -382,17 +397,17 @@ const Profiles = () => {
             </p>
             <div className="flex-1 h-[1px] bg-gray-100"></div>
           </div>
-          
+
           <Upload
             accept=".pdf"
             customRequest={onCvUpload}
             showUploadList={false}
             className="w-full"
           >
-            <Button 
-              type="primary" 
-              size="large" 
-              block 
+            <Button
+              type="primary"
+              size="large"
+              block
               loading={isAutofilling}
               className="h-16 flex items-center justify-between px-14 rounded-2xl bg-purple-100 hover:bg-purple-700"
             >
@@ -407,6 +422,49 @@ const Profiles = () => {
               </div>
             </Button>
           </Upload>
+        </div>
+      </Modal>
+      <Modal
+        title={
+          <div className="flex items-center gap-2 text-red-600">
+            <ExclamationTriangleIcon className="w-6 h-6" />
+            <span className="font-bold">Incomplete Profile Information</span>
+          </div>
+        }
+        open={isErrorModalOpen}
+        onCancel={() => setIsErrorModalOpen(false)}
+        footer={[
+          <Button 
+            key="close" 
+            type="primary" 
+            danger
+            onClick={() => setIsErrorModalOpen(false)}
+            className="rounded-lg px-6"
+          >
+            I'll fix it manually
+          </Button>
+        ]}
+        centered
+        width={450}
+        styles={{ body: { padding: '24px' } }}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
+            <p className="text-red-800 text-sm font-medium mb-3">
+              We successfully processed your CV, but some sections could not be extracted or are still empty:
+            </p>
+            <ul className="grid grid-cols-1 gap-2">
+              {emptyFields.map((field, index) => (
+                <li key={index} className="flex items-center gap-2 text-red-700 text-sm">
+                  <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
+                  {field}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="text-gray-500 text-xs italic">
+            Tip: Make sure your CV follows a standard format for better extraction results. You can download our template for the best experience.
+          </p>
         </div>
       </Modal>
     </div>
@@ -502,9 +560,9 @@ const TextCard = (props) => (
             <p>{props.text}</p>
           ) : (
             <div className="w-4/5" style={{ fontSize: "0.8rem" }}>
-              
+
               <p className="text-xl font-medium leading-7">
-                {props.text?.university_name} 
+                {props.text?.university_name}
               </p>
               <p className="text-[15px]">
                 {props.text?.major}
