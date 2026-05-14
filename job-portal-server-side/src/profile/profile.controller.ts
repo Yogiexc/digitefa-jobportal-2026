@@ -116,7 +116,11 @@ export class ProfileController {
       return await this.profileService.cvAutofillConfirm(req.user, body.parsedData);
     } catch (e) {
       const err = e.response ? e.response : e.message;
-      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\confirm_error.log', JSON.stringify({ err, body }, null, 2)); } catch (fsErr) { }
+      const path = require('path');
+      try { 
+        const logPath = path.join(process.cwd(), 'confirm_error.log');
+        fs.writeFileSync(logPath, JSON.stringify({ err, body }, null, 2)); 
+      } catch (fsErr) { }
       throw e;
     }
   }

@@ -9,7 +9,7 @@ Api.defaults.headers = {
   Accept: "application/json",
 };
 
-Api.defaults.timeout = 20000;
+Api.defaults.timeout = 40000;
 
 Api.interceptors.request.use(
   (config) => {

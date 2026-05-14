@@ -371,6 +371,7 @@ export class ProfileService {
     try {
       const response = await axios.post(`${gpythonUrl}/parse-cv`, formData, {
         headers: formData.getHeaders(),
+        timeout: 60000, // 60 seconds timeout for AI parsing
       });
 
       const parsedData =
@@ -392,7 +393,11 @@ export class ProfileService {
       const errDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
 
       const fs = require('fs');
-      try { fs.writeFileSync('d:\\BelajarCoding\\digitefa-jobportal-2026\\python_error.log', errDetail); } catch (e) { }
+      const path = require('path');
+      try { 
+        const logPath = path.join(process.cwd(), 'python_error.log');
+        fs.writeFileSync(logPath, errDetail); 
+      } catch (e) { }
 
       throw new InternalServerErrorException(
         'Failed to process CV: Python API error: ' + errDetail,
@@ -555,17 +560,38 @@ export class ProfileService {
               }
             });
 
-            await this.prisma.education.create({
-              data: {
+            // Check if education already exists to avoid unique constraint issues
+            const existingEdu = await this.prisma.education.findFirst({
+              where: {
                 job_seeker_detail_id: detail.job_seeker_detail_id,
                 university_name: validUniv ? validUniv.university_name : (edu.university || 'Unknown'),
-                degree: edu.degree || 'Auto-filled',
-                major: edu.major || 'General',
-                grade: edu.grade || null,
-                start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
-                end_date: safeDate(edu.end_date),
-              },
+              }
             });
+
+            if (existingEdu) {
+              await this.prisma.education.update({
+                where: { education_id: existingEdu.education_id },
+                data: {
+                  degree: edu.degree || 'Auto-filled',
+                  major: edu.major || 'General',
+                  grade: edu.grade || null,
+                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
+                  end_date: safeDate(edu.end_date),
+                }
+              });
+            } else {
+              await this.prisma.education.create({
+                data: {
+                  job_seeker_detail_id: detail.job_seeker_detail_id,
+                  university_name: validUniv ? validUniv.university_name : (edu.university || 'Unknown'),
+                  degree: edu.degree || 'Auto-filled',
+                  major: edu.major || 'General',
+                  grade: edu.grade || null,
+                  start_date: safeDate(edu.start_date) || new Date('2020-01-01'),
+                  end_date: safeDate(edu.end_date),
+                },
+              });
+            }
           }
         }
       }
