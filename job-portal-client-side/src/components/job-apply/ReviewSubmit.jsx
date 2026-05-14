@@ -15,6 +15,13 @@ import {
   PaperAirplaneIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
+import { 
+  FilePdfOutlined, 
+  FileWordOutlined, 
+  FileTextOutlined, 
+  FileImageOutlined, 
+  FileOutlined 
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import Api from "../../services/Api";
 import { useJobApply } from "../../pages/job-apply/JobApplyContext";
@@ -22,7 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { useOnMountUnsafe } from "../../hooks/useMountUnsave";
 import { dateToMonthYear, getUserSession, previewImageUrl } from "../../utils";
 import PersonalInformation from "./PersonalInformation";
-import jobIcon from "../../assets/images/job.jpg";
+import brokenIcon from "../../assets/images/broken.jpg";
 import { useProfile } from "../../hooks/useProfile";
 
 const { Panel } = Collapse;
@@ -50,10 +57,20 @@ const ReviewSubmit = ({ onPrevious, jobId, onSuccess }) => {
     }
   }, [formData.upload_resume]);
 
+  const getFileIcon = (fileName) => {
+    if (!fileName) return <FileOutlined style={{ fontSize: '32px' }} />;
+    const ext = fileName.split('.').pop().toLowerCase();
+    if (ext === "pdf") return <FilePdfOutlined style={{ fontSize: '32px', color: '#ff4d4f' }} />;
+    if (ext === "doc" || ext === "docx") return <FileWordOutlined style={{ fontSize: '32px', color: '#1677ff' }} />;
+    if (ext === "txt" || ext === "rtf") return <FileTextOutlined style={{ fontSize: '32px', color: '#8c8c8c' }} />;
+    if (["png", "jpg", "jpeg"].includes(ext)) return <FileImageOutlined style={{ fontSize: '32px', color: '#52c41a' }} />;
+    return <FileOutlined style={{ fontSize: '32px' }} />;
+  };
+
   const props = {
     name: "file",
     multiple: false,
-    listType: "picture",
+    showUploadList: false,
     fileList,
   };
 
@@ -201,12 +218,12 @@ const ReviewSubmit = ({ onPrevious, jobId, onSuccess }) => {
           description={
             <div className="flex justify-between items-center">
               <img
-                src={imageUrl || jobIcon}
+                src={imageUrl || brokenIcon}
                 alt="Profile"
                 className="w-[110px] h-[110px] rounded-full mr-5 ml-1 border border-[#BBBBBB] p-2"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = jobIcon;
+                  e.target.src = brokenIcon;
                 }}
               />
 
@@ -248,7 +265,23 @@ const ReviewSubmit = ({ onPrevious, jobId, onSuccess }) => {
               width: "43%",
             }}
           >
-            <Upload {...props} maxCount={1} disabled></Upload>
+            {formData.upload_resume && (
+              <div className="p-4 border border-dashed border-[#E0E0E0] rounded-2xl flex items-center justify-between bg-[#F9F9F9]">
+                <div className="flex items-center gap-4">
+                  <div className="bg-white p-2 rounded-xl shadow-sm border border-[#EEEEEE]">
+                    {getFileIcon(formData.upload_resume.name)}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-[#232323] truncate max-w-[200px]">
+                      {formData.upload_resume.name}
+                    </span>
+                    <span className="text-[10px] text-[#9A9A9A] font-medium uppercase tracking-wider">
+                      {(formData.upload_resume.size / 1024).toFixed(0)} KB
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </Panel>
       </Collapse>
