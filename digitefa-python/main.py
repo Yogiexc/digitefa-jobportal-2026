@@ -435,6 +435,19 @@ async def parse_cv(file: UploadFile = File(...)):
                 text = page.extract_text()
                 if text:
                     full_text += text + "\n"
+
+        def normalize_month(text):
+            months = {
+                r"\bjanuari\b": "January", r"\bfebruari\b": "February", r"\bmaret\b": "March",
+                r"\bapril\b": "April", r"\bmei\b": "May", r"\bjuni\b": "June",
+                r"\bjuli\b": "July", r"\bagustus\b": "August", r"\bseptember\b": "September",
+                r"\boktober\b": "October", r"\bnovember\b": "November", r"\bdesember\b": "December"
+            }
+            for indo, eng in months.items():
+                text = re.sub(indo, eng, text, flags=re.IGNORECASE)
+            return text
+
+        full_text = normalize_month(full_text)
                     
         cv_lines = full_text.split('\n')
         
@@ -606,20 +619,6 @@ async def parse_cv(file: UploadFile = File(...)):
         # gabung semua jadi 1 string
         text = " ".join(raw_lines)
 
-        # normalize bulan
-        def normalize_month(text):
-            months = {
-                "januari": "January", "februari": "February", "maret": "March",
-                "april": "April", "mei": "May", "juni": "June",
-                "juli": "July", "agustus": "August", "september": "September",
-                "oktober": "October", "november": "November", "desember": "December"
-            }
-            for indo, eng in months.items():
-                text = re.sub(indo, eng, text, flags=re.IGNORECASE)
-            return text
-
-        text = normalize_month(text)
-
         # normalize dash
         text = text.replace("–", "-").replace("—", "-")
 
@@ -783,44 +782,48 @@ async def parse_cv(file: UploadFile = File(...)):
         unread_sections = []
         
         # 1. Basic Info
-        if not sections["name"]: unread_sections.append("Name")
-        if not sections["personal_summary"]: unread_sections.append("Personal Summary")
-        if not sections["skills"]: unread_sections.append("Skills")
-        if not sections["languages"]: unread_sections.append("Languages")
+        if not sections.get("name"): unread_sections.append("Name")
+        if not sections.get("email"): unread_sections.append("Email")
+        if not sections.get("phone"): unread_sections.append("Phone Number")
+        if not sections.get("address"): unread_sections.append("Address")
+        if not sections.get("date_of_birth"): unread_sections.append("Date of Birth")
+        if not sections.get("personal_summary"): unread_sections.append("Personal Summary")
+        if not sections.get("skills"): unread_sections.append("Skills")
+        if not sections.get("languages"): unread_sections.append("Languages")
 
         # 2. Experience Check
-        if not sections["experience_structured"]:
+        if not sections.get("experience_structured"):
             unread_sections.append("Experience")
         else:
             for exp in sections["experience_structured"]:
-                if not exp["title"] or not exp["company"] or not exp["start_date"]:
+                if not exp.get("title") or not exp.get("company") or not exp.get("start_date") or not exp.get("end_date"):
                     unread_sections.append("Experience (Some details missing)")
                     break
 
         # 3. Education Check
-        if not sections["education_structured"]:
+        if not sections.get("education_structured"):
             unread_sections.append("Education")
         else:
             for edu in sections["education_structured"]:
-                if not edu["university"] or not edu["major"] or not edu["degree"]:
+                if not edu.get("university") or not edu.get("major") or not edu.get("degree") or not edu.get("start_date"):
                     unread_sections.append("Education (Some details missing)")
                     break
 
         # 4. Projects Check
-        if not sections["projects_structured"]:
+        if not sections.get("projects_structured"):
             unread_sections.append("Projects")
         else:
             for proj in sections["projects_structured"]:
-                if not proj["title"] or not proj["description"]:
+                if not proj.get("title") or not proj.get("description") or not proj.get("start_date"):
                     unread_sections.append("Projects (Some details missing)")
                     break
 
         # 5. Certifications Check
-        if not sections["certifications_structured"]:
+        if not sections.get("certifications_structured"):
             unread_sections.append("Certifications")
         else:
             for cert in sections["certifications_structured"]:
-                if not cert["certification_name"] or not cert["issuing_organization"]:
+                if not cert.get("certification_name") or not cert.get("issuing_organization") or not cert.get("issue_date"):
                     unread_sections.append("Certifications (Some details missing)")
                     break
 
