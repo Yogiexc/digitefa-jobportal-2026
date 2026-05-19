@@ -8,3 +8,5 @@ torch
 typing-extensions
 pdfplumber
 python-multipart
+wordcloud
+matplotlib
