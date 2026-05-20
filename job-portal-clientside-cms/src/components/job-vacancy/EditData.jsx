@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
+  DatePicker,
   Form,
   Typography,
   Input,
@@ -9,6 +10,7 @@ import {
   Switch,
   Table,
 } from "antd";
+import dayjs from "dayjs";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import BriefcaseIcon from "../../assets/svg/BriefcaseRed.svg";
@@ -121,6 +123,7 @@ const EditData = ({
               .split(" ")
               .map((word) => word.charAt(0).toLowerCase() + word.slice(1))
               .join("_"),
+            expired_at: jobDetail.expired_at ? dayjs(jobDetail.expired_at) : null,
             description: jobDetail.description,
             salary_type: jobDetail.salary_type
               .split(" ")
@@ -189,6 +192,7 @@ const EditData = ({
           employment_type: values.employment_type,
           location: values.location,
           work_type: values.work_type,
+          expired_at: values.expired_at ? values.expired_at.toISOString() : null,
           description: values.description,
           salary_type: values.salary_type,
           ...(values.minimum_salary
@@ -399,6 +403,18 @@ const EditData = ({
               <Select.Option value="remote">Remote</Select.Option>
               <Select.Option value="hybrid">Hybrid</Select.Option>
             </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="expired_at"
+            label="Expired Date"
+            rules={[{ required: true, message: "Please select expired date" }]}
+            style={{ marginTop: "-16px" }}
+          >
+            <DatePicker
+              format="DD MMMM YYYY"
+              style={{ borderColor: "#BBBBBB", height: "56px", width: "100%" }}
+            />
           </Form.Item>
 
           <Form.Item

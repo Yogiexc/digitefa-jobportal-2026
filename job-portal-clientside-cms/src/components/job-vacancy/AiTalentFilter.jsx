@@ -2,13 +2,13 @@ import { Card, Typography, Divider, Checkbox } from "antd";
 
 const { Title, Text } = Typography;
 
-const AiTalentFilter = ({ filterCriteria, onFilterChange }) => {
+const AiTalentFilter = ({ filterCriteria, onFilterChange, showAppliedOnly, setShowAppliedOnly }) => {
     return (
         <Card
             className="rounded-2xl border-gray-100 shadow-sm sticky top-6"
             bodyStyle={{ padding: '24px' }}
         >
-            <Title level={4} className="mb-4">Sort By</Title>
+            <Title level={4} className="mb-4">Sort & Filter</Title>
             <Divider className="my-4" />
 
             <div>
@@ -24,6 +24,18 @@ const AiTalentFilter = ({ filterCriteria, onFilterChange }) => {
                     value={filterCriteria}
                     onChange={onFilterChange}
                 />
+            </div>
+
+            <Divider className="my-4" />
+
+            <div>
+                <Text className="font-bold text-black block mb-4">Application Status</Text>
+                <Checkbox
+                    checked={showAppliedOnly}
+                    onChange={(e) => setShowAppliedOnly(e.target.checked)}
+                >
+                    Show Applied Only
+                </Checkbox>
             </div>
         </Card>
     );

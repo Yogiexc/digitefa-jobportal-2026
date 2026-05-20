@@ -17,6 +17,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState(["skills", "projects", "experience", "education"]);
+    const [showAppliedOnly, setShowAppliedOnly] = useState(false);
     
     // Pagination state
     const [page, setPage] = useState(1);
@@ -118,8 +119,12 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         setPageSize(newSize);
     };
 
+    const filteredMatches = showAppliedOnly
+        ? matches.filter(m => m.is_invited || m.is_applied)
+        : matches;
+
     const startIndex = (page - 1) * pageSize;
-    const displayedMatches = matches.slice(startIndex, startIndex + pageSize);
+    const displayedMatches = filteredMatches.slice(startIndex, startIndex + pageSize);
 
     return (
         <Content className="p-6">
@@ -141,6 +146,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                     <AiTalentFilter 
                         filterCriteria={filterCriteria} 
                         onFilterChange={handleFilterChange} 
+                        showAppliedOnly={showAppliedOnly}
+                        setShowAppliedOnly={setShowAppliedOnly}
                     />
                 </div>
 
@@ -150,7 +157,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                         <div className="flex justify-center items-center py-40 bg-white rounded-2xl shadow-sm border border-gray-100">
                             <Spin size="large" />
                         </div>
-                    ) : matches.length > 0 ? (
+                    ) : filteredMatches.length > 0 ? (
                         <>
                             <Row gutter={[20, 20]}>
                                 {displayedMatches.map((record, index) => {
@@ -229,13 +236,17 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                                     </Button>
                                                     <Button
                                                         type="primary"
-                                                        className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${(record.is_invited || record.is_applied) ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#dd2a2a] hover:bg-[#FF9D98]'}`}
-                                                        onClick={(e) => { e.stopPropagation(); !record.is_invited && !record.is_applied && handleInvite(record); }}
+                                                        className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${(record.is_invited || record.is_applied) ? 'bg-green-600 hover:bg-green-400 text-white cursor-not-allowed' : 'bg-[#dd2a2a] hover:bg-[#FF9D98] text-white'}`}
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            if (!record.is_invited && !record.is_applied) {
+                                                                handleInvite(record); 
+                                                            }
+                                                        }}
                                                         loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
-                                                        disabled={record.is_invited || record.is_applied}
                                                     >
                                                         <span className="text-[11px] font-bold">
-                                                            {record.is_invited ? "Invited" : record.is_applied ? "Applied" : "Invite"}
+                                                            {record.is_invited || record.is_applied ? "Applied" : "Invite"}
                                                         </span>
                                                     </Button>
                                                 </div>
@@ -249,7 +260,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                             <Pagination
                                 current={page}
                                 pageSize={pageSize}
-                                total={matches.length}
+                                total={filteredMatches.length}
                                 onPageChange={handlePageChange}
                                 onPageSizeChange={handlePageChange}
                             />
@@ -258,7 +269,11 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                     ) : (
                         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
                             <UserCircleIcon className="size-12 text-gray-300 mx-auto mb-4" />
-                            <Text type="secondary" className="text-gray-500 font-medium">No suitable talents found for this job description.</Text>
+                            <Text type="secondary" className="text-gray-500 font-medium">
+                                {showAppliedOnly 
+                                    ? "No applied or invited talents found." 
+                                    : "No suitable talents found for this job description."}
+                            </Text>
                         </div>
                     )}
                 </div>
