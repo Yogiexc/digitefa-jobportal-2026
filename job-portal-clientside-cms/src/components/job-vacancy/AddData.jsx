@@ -96,6 +96,7 @@ const AddData = ({
           // position_level: values.position_level,
           location: values.location,
           work_type: values.work_type,
+          expired_at: values.expired_at ? values.expired_at.toISOString() : null,
           description: values.description,
           salary_type: values.salary_type,
           ...(values.minimum_salary

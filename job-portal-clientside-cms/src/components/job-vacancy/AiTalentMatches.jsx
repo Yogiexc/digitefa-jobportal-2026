@@ -17,7 +17,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState(["skills", "projects", "experience", "education"]);
-    
+    const [showAppliedOnly, setShowAppliedOnly] = useState(false);
+
     // Pagination state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -84,7 +85,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         try {
             await Api.post(`/jobs/${jobId}/invite`, { job_seeker_id: jobSeekerId });
             message.success(`Invitation successfully sent to ${candidate.job_seeker?.full_name || "candidate"}!`);
-            
+
             // Update local state to reflect that this candidate is now invited
             setMatches(prev => prev.map(m => {
                 const mId = m.job_seeker_id || m.job_seeker?.job_seeker_id;
@@ -119,13 +120,11 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     };
 
 
-    const filteredMatches = showAppliedOnly
-        ? matches.filter(m => m.is_applied)
-        : matches;
+    const filteredMatches = showAppliedOnly ? matches.filter(m => m.is_applied) : matches;
 
 
     const startIndex = (page - 1) * pageSize;
-    const displayedMatches = matches.slice(startIndex, startIndex + pageSize);
+    const displayedMatches = filteredMatches.slice(startIndex, startIndex + pageSize);
 
     return (
         <Content className="p-6">
@@ -144,9 +143,11 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Sidebar Filter */}
                 <div className="w-full lg:w-1/4">
-                    <AiTalentFilter 
-                        filterCriteria={filterCriteria} 
-                        onFilterChange={handleFilterChange} 
+                    <AiTalentFilter
+                        filterCriteria={filterCriteria}
+                        onFilterChange={handleFilterChange}
+                        showAppliedOnly={showAppliedOnly}
+                        setShowAppliedOnly={setShowAppliedOnly}
                     />
                 </div>
 
@@ -156,128 +157,131 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                         <div className="flex justify-center items-center py-40 bg-white rounded-2xl shadow-sm border border-gray-100">
                             <Spin size="large" />
                         </div>
-                    ) : matches.length > 0 ? (
+                    ) : filteredMatches.length > 0 ? (
                         <>
                             <Row gutter={[20, 20]}>
                                 {displayedMatches.map((record, index) => {
-                                const score = record.ai_score || 0;
-                                const jobSeekerId = record.job_seeker_id || record.job_seeker?.job_seeker_id;
-                                const education = record.education?.[0];
+                                    const score = record.ai_score || 0;
+                                    const jobSeekerId = record.job_seeker_id || record.job_seeker?.job_seeker_id;
+                                    const education = record.education?.[0];
 
-                                return (
-                                    <Col key={record.job_seeker_detail_id || index} xs={24} md={12}>
-                                        <Card
-                                            className="relative h-full rounded-2xl border-2 border-red-50 hover:border-red-200 transition-all duration-300 shadow-sm"
-                                            bodyStyle={{ padding: '20px', height: '100%', display: 'flex', flexDirection: 'column' }}
-                                        >
-                                            {score > 0 && (
-                                                <div className="absolute top-0 right-0 bg-gradient-to-r from-red-600 to-red-400 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl flex flex-row items-center gap-1 z-10">
-                                                    <SparklesIcon className="size-3" />
-                                                    <span>{(score * 100).toFixed(0)}% AI Match</span>
-                                                </div>
-                                            )}
-
-                                            <div className="flex-1">
-                                                <div className="flex justify-between items-start pt-2">
-                                                    <div className="flex gap-4">
-                                                        <div className="w-14 h-14 rounded-xl border border-gray-100 overflow-hidden flex-shrink-0 relative bottom-0">
-                                                            <img
-                                                                src={record.photo_profile ? (record.photo_profile.startsWith('http') ? record.photo_profile : `${API_URL}/${record.photo_profile}`) : JobFallback}
-                                                                alt="Candidate"
-                                                                onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
-                                                                className="w-full h-full object-cover "
-                                                            />
-                                                        </div>
-                                                        <div className="flex flex-col flex-1 min-w-0">
-                                                            <h3 className="text-[16px] font-bold text-gray-900 leading-tight truncate">
-                                                                {record.job_seeker?.full_name || "Unknown Candidate"}
-                                                            </h3>
-                                                            <p className="text-[12px] text-gray-500 mt-1 truncate">
-                                                                {record.job_seeker?.email || "No email provided"}
-                                                            </p>
-                                                            <p className="text-[12px] text-gray-500 mt-1 truncate">
-                                                                {education?.degree || "No email provided"}
-                                                            </p>
-                                                        </div>
+                                    return (
+                                        <Col key={record.job_seeker_detail_id || index} xs={24} md={12}>
+                                            <Card
+                                                className="relative h-full rounded-2xl border-2 border-red-50 hover:border-red-200 transition-all duration-300 shadow-sm"
+                                                bodyStyle={{ padding: '20px', height: '100%', display: 'flex', flexDirection: 'column' }}
+                                            >
+                                                {score > 0 && (
+                                                    <div className="absolute top-0 right-0 bg-gradient-to-r from-red-600 to-red-400 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl flex flex-row items-center gap-1 z-10">
+                                                        <SparklesIcon className="size-3" />
+                                                        <span>{(score * 100).toFixed(0)}% AI Match</span>
                                                     </div>
-                                                </div>
+                                                )}
 
-                                                <div className="mt-4">
-                                                    <div className="flex flex-wrap gap-2 mt-2 min-h-[58px] max-h-[58px] overflow-hidden content-start">
-                                                        {record.skills?.map((skill, sIdx) => (
-                                                            <div key={sIdx} className="bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full px-3 py-1 border border-blue-100 flex items-center">
-                                                                {skill.skill_name}
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-start pt-2">
+                                                        <div className="flex gap-4">
+                                                            <div className="w-14 h-14 rounded-xl border border-gray-100 overflow-hidden flex-shrink-0 relative bottom-0">
+                                                                <img
+                                                                    src={record.photo_profile ? (record.photo_profile.startsWith('http') ? record.photo_profile : `${API_URL}/${record.photo_profile}`) : JobFallback}
+                                                                    alt="Candidate"
+                                                                    onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
+                                                                    className="w-full h-full object-cover "
+                                                                />
                                                             </div>
-                                                        ))}
+                                                            <div className="flex flex-col flex-1 min-w-0">
+                                                                <h3 className="text-[16px] font-bold text-gray-900 leading-tight truncate">
+                                                                    {record.job_seeker?.full_name || "Unknown Candidate"}
+                                                                </h3>
+                                                                <p className="text-[12px] text-gray-500 mt-1 truncate">
+                                                                    {record.job_seeker?.email || "No email provided"}
+                                                                </p>
+                                                                <p className="text-[12px] text-gray-500 mt-1 truncate">
+                                                                    {education?.degree || "No email provided"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-4">
+                                                        <div className="flex flex-wrap gap-2 mt-2 min-h-[58px] max-h-[58px] overflow-hidden content-start">
+                                                            {record.skills?.map((skill, sIdx) => (
+                                                                <div key={sIdx} className="bg-blue-50 text-blue-700 text-[10px] font-semibold rounded-full px-3 py-1 border border-blue-100 flex items-center">
+                                                                    {skill.skill_name}
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-100 gap-2">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">University</span>
-                                                    <span className="text-[11px] text-gray-600 font-medium truncate max-w-[100px] xl:max-w-[150px]">
-                                                        {education?.university_name || "-"}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Button
-                                                        style={{
-                                                            borderRadius: 12,
-                                                            height: 36,
-                                                        }}
-                                                        onClick={() => onViewProfile && onViewProfile(jobSeekerId)}
-                                                        className="flex items-center justify-center"
-                                                    >
-                                                        <span className="text-[11px] font-bold">
-                                                            View Profile
+                                                <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-100 gap-2">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">University</span>
+                                                        <span className="text-[11px] text-gray-600 font-medium truncate max-w-[100px] xl:max-w-[150px]">
+                                                            {education?.university_name || "-"}
                                                         </span>
-                                                    </Button>
-                                                    <Button
-                                                        type="primary"
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button
+                                                            style={{
+                                                                borderRadius: 12,
+                                                                height: 36,
+                                                            }}
+                                                            onClick={() => onViewProfile && onViewProfile(jobSeekerId)}
+                                                            className="flex items-center justify-center"
+                                                        >
+                                                            <span className="text-[11px] font-bold">
+                                                                View Profile
+                                                            </span>
+                                                        </Button>
+                                                        <Button
+                                                            type="primary"
 
-                                                        className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${
-                                                            record.is_applied 
-                                                                ? 'bg-green-600 hover:bg-green-600 text-white cursor-not-allowed' 
-                                                                : record.is_invited 
-                                                                    ? 'bg-gray-400 hover:bg-gray-400 text-white cursor-not-allowed' 
-                                                                    : 'bg-[#dd2a2a] hover:bg-[#FF9D98] text-white'
-                                                        }`}
-                                                        onClick={(e) => { 
-                                                            e.stopPropagation(); 
-                                                            if (!record.is_invited && !record.is_applied) {
-                                                                handleInvite(record); 
-                                                            }
-                                                        }}
-                                                        loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
-                                                        disabled={record.is_invited}
-                                                    >
-                                                        <span className="text-[11px] font-bold">
+                                                            className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${record.is_applied
+                                                                    ? 'bg-green-600 hover:bg-green-600 text-white cursor-not-allowed'
+                                                                    : record.is_invited
+                                                                        ? 'bg-gray-400 hover:bg-gray-400 text-white cursor-not-allowed'
+                                                                        : 'bg-[#dd2a2a] hover:bg-[#FF9D98] text-white'
+                                                                }`}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (!record.is_invited && !record.is_applied) {
+                                                                    handleInvite(record);
+                                                                }
+                                                            }}
+                                                            loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
+                                                            disabled={record.is_invited || record.is_applied}
+                                                        >
+                                                            <span className="text-[11px] font-bold">
 
-                                                            {record.is_applied ? "Applied" : record.is_invited ? "Invited" : "Invite"}
-                                                        </span>
-                                                    </Button>
+                                                                {record.is_applied ? "Applied" : record.is_invited ? "Invited" : "Invite"}
+                                                            </span>
+                                                        </Button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </Card>
-                                    </Col>
-                                );
-                            })}
-                        </Row>
-                        <div className="mt-8">
-                            <Pagination
-                                current={page}
-                                pageSize={pageSize}
-                                total={matches.length}
-                                onPageChange={handlePageChange}
-                                onPageSizeChange={handlePageChange}
-                            />
-                        </div>
+                                            </Card>
+                                        </Col>
+                                    );
+                                })}
+                            </Row>
+                            <div className="mt-8">
+                                <Pagination
+                                    current={page}
+                                    pageSize={pageSize}
+                                    total={filteredMatches.length}
+                                    onPageChange={handlePageChange}
+                                    onPageSizeChange={handlePageChange}
+                                />
+                            </div>
                         </>
                     ) : (
                         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
                             <UserCircleIcon className="size-12 text-gray-300 mx-auto mb-4" />
-                            <Text type="secondary" className="text-gray-500 font-medium">No suitable talents found for this job description.</Text>
+                            <Text type="secondary" className="text-gray-500 font-medium">
+                                {showAppliedOnly 
+                                    ? "No applied candidates found." 
+                                    : "No suitable talents found for this job description."}
+                            </Text>
                         </div>
                     )}
                 </div>

@@ -299,13 +299,17 @@ export class CompaniesService {
     });
 
     // Fetch existing invitations for this job if job_id is provided
-    let invitedJobSeekerIds: string[] = [];
+    let invitations: { job_seeker_id: string; status: string }[] = [];
+    let applications: { job_seeker_id: string }[] = [];
     if (job_id) {
-      const invitations = await (this.prisma as any).request_apply.findMany({
+      invitations = await (this.prisma as any).request_apply.findMany({
+        where: { job_id },
+        select: { job_seeker_id: true, status: true },
+      });
+      applications = await this.prisma.applications.findMany({
         where: { job_id },
         select: { job_seeker_id: true },
       });
-      invitedJobSeekerIds = invitations.map((inv) => inv.job_seeker_id);
     }
 
     // Format for Python AI semantic search
@@ -368,10 +372,13 @@ export class CompaniesService {
               String(s.job_seeker_detail_id) === String(r.talent_id ?? ''),
           );
           if (!seeker) return null;
+          const invitation = invitations.find(inv => inv.job_seeker_id === seeker.job_seeker_id);
+          const hasAppliedDirectly = applications.some(app => app.job_seeker_id === seeker.job_seeker_id);
           return {
             ...seeker,
             ai_score: r.score,
-            is_invited: invitedJobSeekerIds.includes(seeker.job_seeker_id),
+            is_invited: !!invitation,
+            is_applied: (invitation?.status === 'applied') || hasAppliedDirectly,
           };
         })
         .filter(Boolean);
