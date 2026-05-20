@@ -570,6 +570,33 @@ export class ProfileService {
         }
       }
 
+      // 3.4 UPDATE JOB SEEKER NAME AND EMAIL IF EXTRACTED
+      if (parsedData.name || parsedData.full_name) {
+        await this.prisma.job_seekers.update({
+          where: { job_seeker_id: user.job_seeker_id },
+          data: {
+            full_name: parsedData.name || parsedData.full_name,
+          },
+        });
+      }
+
+      if (parsedData.email) {
+        const existingEmail = await this.prisma.job_seekers.findFirst({
+          where: {
+            email: parsedData.email,
+            NOT: { job_seeker_id: user.job_seeker_id },
+          },
+        });
+        if (!existingEmail) {
+          await this.prisma.job_seekers.update({
+            where: { job_seeker_id: user.job_seeker_id },
+            data: {
+              email: parsedData.email,
+            },
+          });
+        }
+      }
+
       // 3.5 PERSONAL_INFO
       if (parsedData.address || parsedData.date_of_birth || parsedData.phone) {
         let dobDate = null;

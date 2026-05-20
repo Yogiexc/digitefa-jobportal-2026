@@ -118,6 +118,12 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
         setPageSize(newSize);
     };
 
+
+    const filteredMatches = showAppliedOnly
+        ? matches.filter(m => m.is_applied)
+        : matches;
+
+
     const startIndex = (page - 1) * pageSize;
     const displayedMatches = matches.slice(startIndex, startIndex + pageSize);
 
@@ -229,13 +235,26 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                                     </Button>
                                                     <Button
                                                         type="primary"
-                                                        className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${record.is_invited ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#dd2a2a] hover:bg-[#FF9D98]'}`}
-                                                        onClick={(e) => { e.stopPropagation(); !record.is_invited && handleInvite(record); }}
+
+                                                        className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${
+                                                            record.is_applied 
+                                                                ? 'bg-green-600 hover:bg-green-600 text-white cursor-not-allowed' 
+                                                                : record.is_invited 
+                                                                    ? 'bg-gray-400 hover:bg-gray-400 text-white cursor-not-allowed' 
+                                                                    : 'bg-[#dd2a2a] hover:bg-[#FF9D98] text-white'
+                                                        }`}
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            if (!record.is_invited && !record.is_applied) {
+                                                                handleInvite(record); 
+                                                            }
+                                                        }}
                                                         loading={invitingId === (record.job_seeker?.job_seeker_id || record.job_seeker_id || record.student_id)}
                                                         disabled={record.is_invited}
                                                     >
                                                         <span className="text-[11px] font-bold">
-                                                            {record.is_invited ? "Invited" : "Invite"}
+
+                                                            {record.is_applied ? "Applied" : record.is_invited ? "Invited" : "Invite"}
                                                         </span>
                                                     </Button>
                                                 </div>

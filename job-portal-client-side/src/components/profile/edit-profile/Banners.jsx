@@ -27,7 +27,9 @@ const Banners = ({ user, profile, onSubmit, onUploadImage, onRemoveImage }) => {
   }, [imageUrl]);
 
   const formatDateOfBirth = (dateString) => {
+    if (!dateString) return "-";
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "-";
     const day = date.getDate();
     const month = date.toLocaleString("en-US", { month: "long" });
     const year = date.getFullYear();
@@ -52,10 +54,10 @@ const Banners = ({ user, profile, onSubmit, onUploadImage, onRemoveImage }) => {
           />
 
           <div className="space-y-1 md:space-y-2">
-            <h1 className="text-[24px] md:text-[32px] font-medium">{profile?.full_name}</h1>
+            <h1 className="text-[24px] md:text-[32px] font-medium">{profile?.full_name || user?.full_name}</h1>
             <div className="flex items-center space-x-2">
               <EnvelopeIcon className="size-5 text-[#232323]" />
-              <span className="text-xs font-medium">{user?.email}</span>
+              <span className="text-xs font-medium">{profile?.email || user?.email}</span>
             </div>
             <div className="flex items-center space-x-2">
               <PhoneIcon className="size-5 text-[#232323]" />
@@ -66,7 +68,7 @@ const Banners = ({ user, profile, onSubmit, onUploadImage, onRemoveImage }) => {
             <div className="flex items-center space-x-2">
               <CalendarIcon className="size-5 text-[#232323]" />
               <span className="text-xs font-medium">
-                {profile?.date_of_birth ? formattedDateOfBirth : "-"}
+                {profile?.date_of_birth && formattedDateOfBirth !== "-" ? formattedDateOfBirth : "-"}
               </span>
             </div>
             <div className="flex items-center space-x-2">

@@ -26,7 +26,7 @@ import { useOnMountUnsafe } from "../../../hooks/useMountUnsave.jsx";
 import { toPascalCase, dateToMonthYear } from "../../../utils";
 import Api from "../../../services/Api";
 
-const Profiles = () => {
+const Profiles = ({ onAutofillSuccess }) => {
   const [profileCompletion, setProfileCompletion] = useState({
     percentage: 30,
     show: false,
@@ -171,6 +171,11 @@ const Profiles = () => {
 
       // Refresh section data
       await getAllSectionData();
+      
+      // Refresh banner data
+      if (onAutofillSuccess) {
+        await onAutofillSuccess();
+      }
       
       // Close modal on success
       setIsAutofillModalOpen(false);

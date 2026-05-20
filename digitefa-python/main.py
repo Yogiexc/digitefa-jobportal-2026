@@ -456,23 +456,92 @@ async def parse_cv(file: UploadFile = File(...)):
             "personal_summary": [], "skills": [], "experience": [], 
             "education": [], "projects": [], "certifications": [], "languages": []
         }
-        
-        email_regex = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
-        phone_regex = re.compile(r"(\+?\d[\d -]{8,15})")
-        dob_regex = re.compile(r"(?i)(?:ttl|lahir|dob|date of birth)[:\s]*(\d{1,2}[\s\-/]+[a-zA-Z0-9]{2,10}[\s\-/]+\d{2,4})")
-        address_regex = re.compile(r"(?i)(?:alamat|address|domisili)[:\s]+([^=\n]{5,50})")
-        
+      # =========================
+        # BASIC REGEX EXTRACTION
+        # =========================
+
+        email_regex = re.compile(
+            r'([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'
+        )
+
+        phone_regex = re.compile(
+            r'(\+?\d[\d\s\-]{8,20}\d)'
+        )
+
+        dob_regex = re.compile(
+            r'(?i)(\d{1,2}\s+[A-Za-z]+\s+\d{4})'
+        )
+
+        location_keywords = [
+            "jakarta", "bandung", "surabaya", "solo", "yogyakarta",
+            "semarang", "bali", "medan", "makassar"
+        ]
+
+        # EMAIL
         emails = email_regex.findall(full_text)
-        if emails: sections["email"] = emails[0]
-            
+        if emails:
+            sections["email"] = emails[0].strip()
+
+        # PHONE
         phones = phone_regex.findall(full_text)
-        if phones: sections["phone"] = phones[0]
-            
+        if phones:
+            sections["phone"] = phones[0].strip()
+
+        # DATE OF BIRTH
         dobs = dob_regex.findall(full_text)
-        if dobs: sections["date_of_birth"] = dobs[0].strip()
-            
-        addresses = address_regex.findall(full_text)
-        if addresses: sections["address"] = addresses[0].strip()
+        if dobs:
+            sections["date_of_birth"] = dobs[0].strip()
+
+        # =========================
+        # LABEL-BASED EXTRACTION
+        # =========================
+
+        for i, line in enumerate(cv_lines):
+            current = line.strip().lower()
+
+            # EMAIL
+            if current in ["email", "e-mail"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    if email_regex.search(next_line):
+                        sections["email"] = next_line
+
+            # PHONE
+            elif current in ["phone", "phone number", "nomor hp", "no hp"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    if phone_regex.search(next_line):
+                        sections["phone"] = next_line
+
+            # DATE OF BIRTH
+            elif current in ["date of birth", "dob", "ttl", "lahir"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    sections["date_of_birth"] = next_line
+
+            # LOCATION / ADDRESS
+            elif current in ["location", "address", "alamat", "domisili"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    # hindari ketuker DOB lagi
+                    if not dob_regex.search(next_line):
+                        sections["address"] = next_line
+
+        # =========================
+        # FALLBACK LOCATION DETECTION
+        # =========================
+
+        if not sections["address"]:
+            for line in cv_lines:
+                clean = line.strip()
+
+                if clean.lower() in location_keywords:
+                    sections["address"] = clean
+                    break
 
         for line in cv_lines[:10]:  # cuma cek 10 baris atas
             line_clean = line.strip()
