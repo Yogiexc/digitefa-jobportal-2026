@@ -1,4 +1,4 @@
-﻿import {
+import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -49,9 +49,11 @@ export class JobsService {
     try {
       if (data.status == 'active') {
         (data as any).published_at = new Date();
-        (data as any).expired_at = new Date(
-          new Date().setDate(new Date().getDate() + 30),
-        );
+        if (!(data as any).expired_at) {
+          (data as any).expired_at = new Date(
+            new Date().setDate(new Date().getDate() + 30),
+          );
+        }
       }
       if (hide_salary === 'true') {
         (data as any).minimum_salary = null;

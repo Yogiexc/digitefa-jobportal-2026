@@ -4,12 +4,20 @@ import { ArrowRightIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { getUserSession, previewImageUrl } from "../../utils";
 import PersonalInformation from "./PersonalInformation";
 import { useJobApply } from "../../pages/job-apply/JobApplyContext";
-import { InboxOutlined } from "@ant-design/icons";
+import {
+  InboxOutlined,
+  UserOutlined,
+  FilePdfOutlined,
+  FileWordOutlined,
+  FileImageOutlined,
+  FileTextOutlined,
+  FileUnknownOutlined,
+} from "@ant-design/icons";
+
 import Api from "../../services/Api";
 import { useOnMountUnsafe } from "../../hooks/useMountUnsave";
-import { UserOutlined } from "@ant-design/icons";
 
-import jobIcon from "../../assets/images/job.jpg";
+import brokenImage from "../../assets/images/broken.jpg";
 
 const { Dragger } = Upload;
 
@@ -43,12 +51,22 @@ const ChooseDocument = ({ onNext }) => {
     }
   }, [formData.upload_resume]);
 
+  const getFileIcon = (file) => {
+    const name = file.name || "";
+    if (name.endsWith(".pdf")) return <FilePdfOutlined style={{ color: "#f5222d", fontSize: "24px" }} />;
+    if (name.match(/\.(doc|docx)$/i)) return <FileWordOutlined style={{ color: "#1890ff", fontSize: "24px" }} />;
+    if (name.match(/\.(png|jpg|jpeg)$/i)) return <FileImageOutlined style={{ color: "#52c41a", fontSize: "24px" }} />;
+    if (name.match(/\.(txt|rtf)$/i)) return <FileTextOutlined style={{ color: "#fa8c16", fontSize: "24px" }} />;
+    return <FileUnknownOutlined style={{ fontSize: "24px" }} />;
+  };
+
   const props = {
     name: "file",
     multiple: false,
     listType: "picture",
     fileList,
     accept: ".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg,",
+    iconRender: getFileIcon,
   
     isImageUrl: () => false,
   
@@ -138,12 +156,12 @@ const ChooseDocument = ({ onNext }) => {
               description={
                 <div className="flex justify-between items-center w-full">
                   <img
-                    src={imageUrl || jobIcon}
+                    src={imageUrl || brokenImage}
                     alt="Profile"
                     className="w-[110px] h-[110px] rounded-full mr-5 ml-1 border border-[#BBBBBB] p-2"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = jobIcon;
+                      e.target.src = brokenImage;
                     }}
                   />
 

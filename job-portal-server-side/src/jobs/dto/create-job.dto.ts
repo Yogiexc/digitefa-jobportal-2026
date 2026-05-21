@@ -130,4 +130,11 @@ export class CreateJobDto {
         default: 'active',
     })
     status: 'active' | 'draft';
+
+    @ApiProperty({
+        type: String,
+        description: 'Optional expired date',
+        required: false,
+    })
+    expired_at?: string;
 }

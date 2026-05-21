@@ -408,12 +408,13 @@ const EditData = ({
 
           <Form.Item
             name="expired_at"
-            label={requiredLabel("Expired Date")}
+            label={requiredLabel("Expired Date & Time")}
             rules={[{ required: true, message: "Please select expired date" }]}
             style={{ marginTop: "-16px" }}
           >
             <DatePicker
-              format="DD MMMM YYYY"
+              showTime
+              format="YYYY-MM-DD HH:mm"
               style={{ borderColor: "#BBBBBB", height: "56px", width: "100%" }}
             />
           </Form.Item>

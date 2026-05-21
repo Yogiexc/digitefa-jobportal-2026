@@ -575,7 +575,7 @@ const ListItemCard = (props) => {
                 <p className="text-xs font-normal">
                   {dateToMonthYear(item?.start_date || item?.issue_date)} -
                   {sectionId === "EXPERIENCE" &&
-                  item?.start_date === item?.end_date
+                    item?.start_date === item?.end_date
                     ? "Now"
                     : dateToMonthYear(item?.end_date || item?.expiration_date)}
                 </p>

@@ -139,7 +139,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
             </>
           )}
 
-          <div className="mt-7" style={{ textAlign: "center" }}>
+          <div className="flex justify-end mt-6">
             <Button
               onClick={handleCancel}
               style={{
@@ -151,7 +151,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
                 borderWidth: "1px",
               }}
             >
-              <span className="font-medium"> Cancel </span>
+              <span className="text-sm font-medium"> Back </span>
             </Button>
             <Button
               type="primary"
@@ -162,7 +162,7 @@ const Approval = ({ open, setOpen, applicantsData, fetchData }) => {
                 borderRadius: "12px",
               }}
             >
-              <span className="font-medium"> Save </span>
+              <span className="text-sm font-medium"> Save </span>
             </Button>
           </div>
         </Form>

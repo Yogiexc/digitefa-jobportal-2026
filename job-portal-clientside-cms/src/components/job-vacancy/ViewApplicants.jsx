@@ -31,7 +31,7 @@ import Pagination from "../Pagination";
 const { Content } = Layout;
 const { RangePicker } = DatePicker;
 
-const ViewApplicants = ({ jobId }) => {
+const ViewApplicants = ({ jobId, onBack }) => {
   const { message } = App.useApp();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -388,6 +388,20 @@ const ViewApplicants = ({ jobId }) => {
               />
             )}
           />
+          <div className="flex justify-end mt-6">
+            <Button
+              style={{
+                width: "120px",
+                height: "40px",
+                borderRadius: "12px",
+                borderColor: "#BBBBBB",
+                borderWidth: "1px",
+              }}
+              onClick={onBack}
+            >
+              <span className="text-sm font-medium"> Back </span>
+            </Button>
+          </div>
         </>
       )}
       {openExportData && (

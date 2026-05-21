@@ -262,6 +262,7 @@ const JobVacancyList = () => {
     setOpenReuploadData(false);
     setOpenAiMatches(false);
     setOpenAiProfile(false);
+    setOpenViewApplicants(false);
   };
 
   const handleViewAiProfile = (id) => {
