@@ -12,8 +12,8 @@ app = FastAPI()
 model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-mpnet-base-v2')
 TOP_N_RECOMMENDATIONS = 5
 MIN_SCORE_THRESHOLD = 0.6
-COURSES_API_URL = "https://bedigi.ammaralamin.my.id/api/courses-all"
-JOB_API_URL = "https://beportal.ammaralamin.my.id/api/jobs/lms" 
+COURSES_API_URL = "http://localhost:8888/api/courses-all"
+JOB_API_URL = "http://localhost:3000/api/jobs/lms" 
 
 # Cache untuk Course
 courses_cache = {
@@ -262,4 +262,4 @@ def compare_two_texts(request: TextComparisonRequest):
         raise HTTPException(status_code=500, detail=f"Terjadi kesalahan saat memproses perbandingan teks: {str(e)}")
 
 # Untuk menjalankan server FastAPI, gunakan perintah berikut di terminal:
-#uvicorn main:app --reload --host 0.0.0.0 --port 9090
+#py -m uvicorn main:app --reload --host 0.0.0.0 --port 9090

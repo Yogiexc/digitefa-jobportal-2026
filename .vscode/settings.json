@@ -1,0 +1,10 @@
+{
+    "python.defaultInterpreterPath": "d:/BelajarCoding/digitefa-jobportal-2026/digitefa-python/venv/Scripts/python.exe",
+    "python.interpreterPath": "d:/BelajarCoding/digitefa-jobportal-2026/digitefa-python/venv/Scripts/python.exe",
+    "python.analysis.extraPaths": [
+        "d:/BelajarCoding/digitefa-jobportal-2026/digitefa-python",
+        "d:/BelajarCoding/digitefa-jobportal-2026/digitefa-python/venv/Lib/site-packages",
+        "./digitefa-python",
+        "./digitefa-python/venv/Lib/site-packages"
+    ]
+}
