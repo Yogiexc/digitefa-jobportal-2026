@@ -792,7 +792,26 @@ async def parse_cv(file: UploadFile = File(...)):
 
         sections["experience_structured"] = exp_list
         sections["experience"] = " ".join(sections["experience"][:20])
+        def normalize_degree(text):
+            text_lower = text.lower()
 
+            # Diploma / D3 / D4
+            if re.search(r'\b(d1|d2|d3|d4|diploma|associate)\b', text_lower):
+                return "Associate Degree"
+
+            # S1
+            elif re.search(r'\b(s1|sarjana|bachelor)\b', text_lower):
+                return "Bachelor Degree"
+
+            # S2
+            elif re.search(r'\b(s2|magister|master)\b', text_lower):
+                return "Master Degree"
+
+            # S3
+            elif re.search(r'\b(s3|doktor|doctor|phd)\b', text_lower):
+                return "Doctoral Degree"
+
+            return text
         edu = {
             "university": "",
             "degree": "",
@@ -820,8 +839,8 @@ async def parse_cv(file: UploadFile = File(...)):
                     edu["end_date"] = dates[1]
 
             # DEGREE
-            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master', line):
-                edu["degree"] = line
+            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master|magister|doktor|phd|s1|s2|s3|d3|d4', line):
+                    edu["degree"] = normalize_degree(line)
 
             # GPA
             elif re.search(r'(?i)(gpa|ipk)?[:\s]*\b\d[.,]\d{1,2}\b', line):
