@@ -192,7 +192,8 @@ export class JobsSearchService {
 
         let dataLMS;
         if (
-          jobSeeker.job_seeker.lmsUserId &&
+          jobSeeker?.job_seeker?.lmsUserId &&
+          Array.isArray(recommendationSort) &&
           recommendationSort.includes('lms')
         ) {
           try {
@@ -226,18 +227,26 @@ export class JobsSearchService {
             : '';
           let profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
 
-          let jobsPayload = [];
+          let requestBody: Record<string, any>;
           if (sortBy === 'most_relevant') {
-            jobsPayload = allJobs.map((j) => ({
-              id: j.job_id,
-              job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}. Work Type: ${j.work_type}. Skills Requirement: ${j.skills_requirement.map((s) => s.skill).join(', ')}`,
-            }));
-          } else if (search) {
-            jobsPayload = allJobs.map((j) => ({
+            requestBody = {
+              user: jobSeeker,
+              jobs: allJobs,
+              is_sort: 'true',
+              sort: recommendationSort || [],
+              filter: 'true',
+              lms: dataLMS || [],
+            };
+          } else {
+            const jobsPayload = allJobs.map((j) => ({
               id: j.job_id,
               job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}`,
             }));
-            profileText = search; // Override profile text with search query
+            profileText = search || '';
+            requestBody = {
+              talent_profile_text: profileText,
+              jobs: jobsPayload,
+            };
           }
 
           try {
@@ -245,10 +254,7 @@ export class JobsSearchService {
             const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                talent_profile_text: profileText,
-                jobs: jobsPayload,
-              }),
+              body: JSON.stringify(requestBody),
             });
 
             if (res.ok) {
@@ -256,7 +262,7 @@ export class JobsSearchService {
               recommendedJobs = parsed.results.map((r: any) => ({
                 job_id: r.job_id,
                 similarity_score: r.score,
-                match_details: { skills_match: r.score },
+                match_details: r.match_details || { skills_match: r.score },
               }));
             }
           } catch (error) {
@@ -443,37 +449,21 @@ export class JobsSearchService {
     let recommendedJobs = [];
 
     if (jobSeeker) {
-      const skillsText =
-        jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
-      const expText =
-        jobSeeker.experiences
-          ?.map(
-            (e) =>
-              `${e.experience_title} at ${e.company_name} - ${e.description}`,
-          )
-          .join('; ') || '';
-      const latestEducation = jobSeeker.education?.[0];
-      const eduText = latestEducation
-        ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
-        : '';
-      const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
-
-      const jobsPayload = [
-        {
-          id: job.job_id,
-          job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
-        },
-      ];
+      const requestBody = {
+        user: jobSeeker,
+        jobs: [job],
+        is_sort: 'false',
+        sort: [],
+        filter: 'true',
+        lms: [],
+      };
 
       try {
         const gpythonUrl = process.env.URL_SERVER_PYTHON;
         const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            talent_profile_text: profileText,
-            jobs: jobsPayload,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         if (res.ok) {
@@ -481,7 +471,7 @@ export class JobsSearchService {
           recommendedJobs = parsed.results.map((r: any) => ({
             job_id: r.job_id,
             similarity_score: r.score,
-            match_details: { skills_match: r.score },
+            match_details: r.match_details || { skills_match: r.score },
           }));
         }
       } catch (error) {

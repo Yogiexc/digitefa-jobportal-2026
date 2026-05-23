@@ -8,3 +8,4 @@ torch
 typing-extensions
 pdfplumber
 python-multipart
+nltk

@@ -98,39 +98,27 @@ export class ApplicantsService {
     let recommendedJobs = [];
 
     if (jobSeeker) {
-      const skillsText =
-        jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
-      const expText =
-        jobSeeker.experiences
-          ?.map(
-            (e) =>
-              `${e.experience_title} at ${e.company_name} - ${e.description}`,
-          )
-          .join('; ') || '';
-      const latestEducation = jobSeeker.education?.[0];
-      const eduText = latestEducation
-        ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
-
-        : '';
-      const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
-
       const jobPayload = {
         title: job.title || '',
         description: job.description || '',
-        skills_requirement: job.skills_requirement.map((s) => s.skill).join(', ') || '',
+        skills_requirement: job.skills_requirement || [],
         education_requirement: job.education_requirement || '',
         experience_requirement: job.experience_requirement || '',
       };
 
       const candidatePayload = {
-        skills: jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '',
-        experience: jobSeeker.experiences?.map((e) => `${e.experience_title} at ${e.company_name} - ${e.description}`).join('; ') || '',
-        summary: jobSeeker.personal_summary || '',
-        education: latestEducation ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}` : '',
-        others: [
-          ...(jobSeeker.projects?.map(p => p.project_name) || []),
-          ...(jobSeeker.certifications?.map(c => c.certification_name) || [])
-        ].join(', ')
+        personal_summary: jobSeeker.personal_summary || '',
+        skills: jobSeeker.skills || [],
+        education: jobSeeker.education?.[0]
+          ? {
+              degree: jobSeeker.education[0].degree || '',
+              major: jobSeeker.education[0].major || '',
+              grade: jobSeeker.education[0].grade || '',
+            }
+          : null,
+        experiences: jobSeeker.experiences || [],
+        projects: jobSeeker.projects || [],
+        certifications: jobSeeker.certifications || [],
       };
 
       try {
@@ -157,8 +145,8 @@ export class ApplicantsService {
                   skills_match: scores.skills,
                   education_match: scores.education,
                   experience_match: scores.experience,
-                  certifications_match: scores.others,
-                  projects_match: scores.others,
+                  certifications_match: scores.certifications,
+                  projects_match: scores.projects,
                 },
               }
             ];
