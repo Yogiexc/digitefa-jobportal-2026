@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { omit } from 'lodash';
