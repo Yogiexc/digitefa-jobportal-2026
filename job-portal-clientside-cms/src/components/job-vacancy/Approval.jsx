@@ -69,7 +69,7 @@ const Approval = ({
             if (isDecisionStage) {
               form.resetFields();
               setOpen(false);
-              openFeedbackModal(res.status, res.message);
+              message.success("Approval status succesfully saved.");
               return;
             }
 
