@@ -1866,18 +1866,12 @@ export class JobsService {
 
     const parsedInterviewDate = interview_date ? new Date(interview_date) : null;
 
-    if (status === 'waiting_interview') {
+if (status === 'waiting_interview') {
       if (!parsedInterviewDate || Number.isNaN(parsedInterviewDate.getTime())) {
         throw new BadRequestException(
           'Interview date is required before scheduling an interview',
         );
       }
-    }
-
-    if (['accepted', 'rejected'].includes(status) && !application.interviews) {
-      throw new BadRequestException(
-        'Interview must be scheduled before setting the final approval status',
-      );
     }
 
     try {
@@ -1914,9 +1908,9 @@ export class JobsService {
         }
       });
 
-      // Keep status update reliable; do invitation sync as best-effort.
+// Keep status update reliable; do invitation sync as best-effort.
       if (['waiting_interview', 'accepted', 'rejected'].includes(status)) {
-        const invitationStatus = status === 'waiting_interview' ? 'waiting_interview' : status;
+        const invitationStatus = status;
 
         try {
           const existingInvitation = await (this.prisma as any).invitations.findFirst({

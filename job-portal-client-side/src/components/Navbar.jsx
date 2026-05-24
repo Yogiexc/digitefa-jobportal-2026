@@ -94,7 +94,7 @@ const Navbar = () => {
         <Link to="/saved-jobs">Saved Jobs</Link>
       </Menu.Item>
       <Menu.Item key="invited-jobs" icon={<BriefcaseIcon className="size-5" />}>
-        <Link to="/invited-jobs">My Invitations (DEMO)</Link>
+        <Link to="/invited-jobs">My Invitations</Link>
       </Menu.Item>
       <Menu.Item
         key="job-history"
