@@ -7,6 +7,7 @@ from sentence_transformers import SentenceTransformer, util
 import time 
 import threading
 from typing import List, Optional
+# pyrefly: ignore [missing-import]
 import pdfplumber
 import re
 import io
@@ -306,21 +307,37 @@ def calculate_match_score(req: MatchScoreRequest):
         except:
             return 0.0
 
-    # 3. MENGHITUNG NILAI KECOCOKAN TIAP KATEGORI (0.0 sampai 1.0)
+    # 3. KUMPULKAN TEKS KANDIDAT & LOWONGAN UNTUK HITUNGAN HOLISTIK
+    candidate_full = f"{req.candidate.summary} {req.candidate.skills} {req.candidate.experience} {req.candidate.education} {req.candidate.others}"
+    job_detail = f"{req.job.description} {req.job.skills_requirement} {req.job.education_requirement} {req.job.experience_requirement}"
+    
+    # 4. HITUNG TITLE & DETAIL SIMILARITY (30% vs 70%)
+    title_score = get_sim(req.job.title, candidate_full)
+    detail_score = get_sim(job_detail, candidate_full)
+    
+    # 5. HITUNG BONUS SKILL MATCHING (Maks +0.30)
+    bonus = 0.0
+    if req.candidate.skills:
+        import re
+        cand_skills = [s.strip().lower() for s in re.split(r'[,;]', req.candidate.skills) if s.strip()]
+        job_text_lower = (req.job.title + " " + job_detail).lower()
+        match_count = 0
+        for skill in cand_skills:
+            if skill in job_text_lower:
+                match_count += 1
+        bonus = min(0.30, match_count * 0.10)
+        
+    # 6. HITUNG OVERALL SCORE (FINAL RUMUS BARU)
+    overall = min(1.0, (title_score * 0.30) + (detail_score * 0.70) + bonus)
+
+    # 7. HITUNG SUB-SCORE UNTUK DITAMPILKAN DI UI (Hanya Informasional)
     skill_score = get_sim(req.job.skills_requirement, req.candidate.skills)
     exp_score = get_sim(req.job.experience_requirement + " " + req.job.description, req.candidate.experience)
     summary_score = get_sim(req.job.description, req.candidate.summary)
     edu_score = get_sim(req.job.education_requirement, req.candidate.education)
     others_score = get_sim(req.job.description, req.candidate.others)
-    
-    # 4. MENGGABUNGKAN SELURUH HASIL MENJADI PERSENTASE TOTAL (OVERALL)
-    overall = (skill_score * 0.40) + \
-              (exp_score * 0.25) + \
-              (summary_score * 0.10) + \
-              (edu_score * 0.10) + \
-              (others_score * 0.15)
 
-    # 5. KEMBALIKAN KE NESTJS CMS COMPANY
+    # 8. KEMBALIKAN KE NESTJS CMS COMPANY
     return {
         "status": "success",
         "data": {
