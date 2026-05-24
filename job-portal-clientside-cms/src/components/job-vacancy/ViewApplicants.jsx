@@ -44,6 +44,7 @@ const ViewApplicants = ({ jobId }) => {
   const [loading, setLoading] = useState(false);
   const [valueSegmented, setValueSegmented] = useState("all");
   const [selectApplicantsData, setSelectedApplicantsData] = useState(null);
+  const [selectedApplicantRecord, setSelectedApplicantRecord] = useState(null);
 
   const [openExportData, setOpenExportData] = useState(false);
   const [openDetailView, setOpenDetailView] = useState(false);
@@ -58,12 +59,15 @@ const ViewApplicants = ({ jobId }) => {
   const handleMenuClick = (record, action) => {
     if (action === "show") {
       setSelectedApplicantsData(record.application_id);
+      setSelectedApplicantRecord(record);
       setOpenDetailView(true);
     } else if (action === "cv_resume") {
       setSelectedApplicantsData(record.application_id);
+      setSelectedApplicantRecord(record);
       setOpenCVResume(true);
     } else if (action === "approval") {
       setSelectedApplicantsData(record.application_id);
+      setSelectedApplicantRecord(record);
       setOpenApproval(true);
     }
   };
@@ -273,6 +277,24 @@ const ViewApplicants = ({ jobId }) => {
     setOpenDetailView(false);
   };
 
+  const handleApplicantStatusUpdated = (applicationId, nextStatus) => {
+    const normalizedStatus = (nextStatus || "").replace(/\s+/g, "_");
+
+    setData((prev) =>
+      prev.map((item) =>
+        item.application_id === applicationId
+          ? { ...item, status: normalizedStatus }
+          : item
+      )
+    );
+
+    setSelectedApplicantRecord((prev) =>
+      prev && prev.application_id === applicationId
+        ? { ...prev, status: normalizedStatus }
+        : prev
+    );
+  };
+
   return (
     <Content>
       {openDetailView ? (
@@ -409,8 +431,9 @@ const ViewApplicants = ({ jobId }) => {
         <Approval
           open={openApproval}
           setOpen={setOpenApproval}
-          applicantsData={selectApplicantsData}
+          applicantsData={selectedApplicantRecord}
           fetchData={fetchData}
+          onStatusUpdated={handleApplicantStatusUpdated}
         />
       )}
     </Content>

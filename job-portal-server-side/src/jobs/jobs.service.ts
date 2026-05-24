@@ -1,4 +1,5 @@
 ﻿import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -1841,6 +1842,7 @@ export class JobsService {
     const application = await this.prisma.applications.findUnique({
       where: { application_id },
       include: {
+        interviews: true,
         job: {
           include: {
             company: {
@@ -1861,6 +1863,23 @@ export class JobsService {
         `Application with ID ${application_id} not found`,
       );
     }
+
+    const parsedInterviewDate = interview_date ? new Date(interview_date) : null;
+
+    if (status === 'waiting_interview') {
+      if (!parsedInterviewDate || Number.isNaN(parsedInterviewDate.getTime())) {
+        throw new BadRequestException(
+          'Interview date is required before scheduling an interview',
+        );
+      }
+    }
+
+    if (['accepted', 'rejected'].includes(status) && !application.interviews) {
+      throw new BadRequestException(
+        'Interview must be scheduled before setting the final approval status',
+      );
+    }
+
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.applications.update({
@@ -1877,7 +1896,7 @@ export class JobsService {
             await (tx as any).interviews.update({
               where: { application_id },
               data: {
-                interview_date: interview_date ? new Date(interview_date) : new Date(),
+                interview_date: parsedInterviewDate,
                 meeting_link,
                 notes
               }
@@ -1886,45 +1905,51 @@ export class JobsService {
             await (tx as any).interviews.create({
               data: {
                 application_id,
-                interview_date: interview_date ? new Date(interview_date) : new Date(),
+                interview_date: parsedInterviewDate,
                 meeting_link,
                 notes
               }
             });
           }
         }
+      });
 
-        // Sync to invitations table per user request
-        if (['waiting_interview', 'accepted', 'rejected'].includes(status)) {
-          const invitationStatus = status === 'waiting_interview' ? 'waiting_interview' : status;
+      // Keep status update reliable; do invitation sync as best-effort.
+      if (['waiting_interview', 'accepted', 'rejected'].includes(status)) {
+        const invitationStatus = status === 'waiting_interview' ? 'waiting_interview' : status;
 
-          const existingInvitation = await (tx as any).invitations.findFirst({
+        try {
+          const existingInvitation = await (this.prisma as any).invitations.findFirst({
             where: {
               job_id: application.job_id,
               job_seeker_id: application.job_seeker_id
             }
           });
 
+          const invitationPayload = {
+            status: invitationStatus,
+            interview_dates:
+              parsedInterviewDate || application.interviews?.interview_date || null
+          };
+
           if (existingInvitation) {
-            await (tx as any).invitations.update({
+            await (this.prisma as any).invitations.update({
               where: { invitation_id: existingInvitation.invitation_id },
-              data: {
-                status: invitationStatus,
-                interview_dates: interview_date ? new Date(interview_date) : null
-              }
+              data: invitationPayload
             });
           } else {
-            await (tx as any).invitations.create({
+            await (this.prisma as any).invitations.create({
               data: {
                 job_id: application.job_id,
                 job_seeker_id: application.job_seeker_id,
-                status: invitationStatus,
-                interview_dates: interview_date ? new Date(interview_date) : null
+                ...invitationPayload
               }
             });
           }
+        } catch (invitationError) {
+          console.error('Failed to sync invitation status:', invitationError);
         }
-      });
+      }
 
       if (application.job_seeker?.email) {
         const companyName = application.job.company?.company_detail?.market_name || 'DigiTefa Company';
