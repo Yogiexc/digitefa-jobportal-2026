@@ -44,7 +44,7 @@ const RequestedJobList = () => {
   return (
     <div className="py-8 md:px-12">
       <div className="container mx-auto">
-        <h2 className="text-2xl font-bold mb-6 mx-2 text-[#06A73B]">My Invitations (DEMO)</h2>
+        <h2 className="text-2xl font-bold mb-6 mx-2 text-[#06A73B]">My Invitations</h2>
         <Card className="relative rounded-[20px] shadow-lg ">
           {jobs.length === 0 ? (
             <div className="flex flex-col justify-center items-center h-64">
