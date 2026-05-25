@@ -1,4 +1,4 @@
-import pandas as pd
+﻿import pandas as pd
 import requests
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -261,20 +261,44 @@ def compare_two_texts(request: TextComparisonRequest):
 # ---------------------------------------------------------
 # NEW ENHANCEMENT ENDPOINTS 
 # ---------------------------------------------------------
-
 class MatchScoreJobData(BaseModel):
     title: str = ""
     description: str = ""
-    skills_requirement: str = ""
+    skills_requirement: List[dict] = Field(default_factory=list)
     education_requirement: str = ""
     experience_requirement: str = ""
 
+class MatchScoreCandidateSkill(BaseModel):
+    skill_name: str = ""
+
+
+class MatchScoreCandidateEducation(BaseModel):
+    degree: str = ""
+    major: str = ""
+    grade: str = ""
+
+
+class MatchScoreCandidateExperience(BaseModel):
+    experience_title: str = ""
+    description: str = ""
+
+
+class MatchScoreCandidateProject(BaseModel):
+    project_name: str = ""
+    description: str = ""
+
+
+class MatchScoreCandidateCertification(BaseModel):
+    certification_name: str = ""
+
+
 class MatchScoreCandidateData(BaseModel):
-    skills: str = ""
-    experience: str = ""
-    summary: str = ""
-    education: str = ""
-    others: str = ""
+    personal_summary: str = ""
+    skills: List[MatchScoreCandidateSkill] = Field(default_factory=list)
+    education: Optional[MatchScoreCandidateEducation] = None
+    experiences: List[MatchScoreCandidateExperience] = Field(default_factory=list)
+    projects: List[MatchScoreCandidateProject] = Field(default_factory=list)
+    certifications: List[MatchScoreCandidateCertification] = Field(default_factory=list)
 
 class MatchScoreRequest(BaseModel):
     job: MatchScoreJobData
@@ -283,53 +307,71 @@ class MatchScoreRequest(BaseModel):
 @app.post("/calculate-match-score")
 def calculate_match_score(req: MatchScoreRequest):
     """
-    ENDPOINT INI MENGHITUNG KECOCOKAN (MATCH SCORE) ANTARA KANDIDAT & LOWONGAN.
-    Ini BUKAN sekadar pencocokan kata (word matching) biasa!
-    Ini menggunakan AI model (all-MiniLM-L6-v2) untuk mencocokkan "MAKNA" kalimat (Semantic Embedding).
-    
-    Hitungan Bobot:
-    - Skill (40%), Experience (25%), Summary (10%), Education (10%), Others (15%)
+    Mirror rumus talent match legacy dari branch file-asli-banget,
+    tetapi tetap memakai kontrak HTTP yang dipakai branch ael-bagas.
     """
-    def get_sim(text1, text2):
-        if not text1.strip() or not text2.strip():
-            return 0.0
-        try:
-            # 1. AI MENGUBAH TEKS MENJADI ANGKA (VECTOR)
-            emb1 = model.encode(text1, convert_to_tensor=True)
-            emb2 = model.encode(text2, convert_to_tensor=True)
-            
-            # 2. MENGHITUNG KEMIRIPAN SUDUT ANGKA (Cosine Similarity)
-            # Semakin dekat maknanya, semakin mendekati angka 1.0 (100% Cocok)
-            score = float(util.cos_sim(emb1, emb2)[0][0].cpu().numpy())
-            return max(0.0, score) # Hindari nilai minus
+    candidate_data = model_to_dict(req.candidate)
+    job_data = model_to_dict(req.job)
 
-        except:
-            return 0.0
+    skills_text = legacy_process_skills(candidate_data.get("skills", []))
+    education_text = legacy_process_education(candidate_data.get("education") or {})
+    experience_text = legacy_process_experience(candidate_data.get("experiences", []))
+    projects_text = legacy_process_projects(candidate_data.get("projects", []))
+    certifications_text = legacy_process_certifications(candidate_data.get("certifications", []))
+    personal_summary = candidate_data.get("personal_summary", "")
 
-    # 3. MENGHITUNG NILAI KECOCOKAN TIAP KATEGORI (0.0 sampai 1.0)
-    skill_score = get_sim(req.job.skills_requirement, req.candidate.skills)
-    exp_score = get_sim(req.job.experience_requirement + " " + req.job.description, req.candidate.experience)
-    summary_score = get_sim(req.job.description, req.candidate.summary)
-    edu_score = get_sim(req.job.education_requirement, req.candidate.education)
-    others_score = get_sim(req.job.description, req.candidate.others)
-    
-    # 4. MENGGABUNGKAN SELURUH HASIL MENJADI PERSENTASE TOTAL (OVERALL)
-    overall = (skill_score * 0.40) + \
-              (exp_score * 0.25) + \
-              (summary_score * 0.10) + \
-              (edu_score * 0.10) + \
-              (others_score * 0.15)
+    user_details_text = ". ".join(
+        text for text in [
+            personal_summary,
+            education_text,
+            experience_text,
+            projects_text,
+            skills_text,
+            certifications_text,
+        ] if text
+    ).strip()
 
-    # 5. KEMBALIKAN KE NESTJS CMS COMPANY
+    if not user_details_text:
+        return {
+            "status": "success",
+            "data": {
+                "overall": 0.0,
+                "summary": 0.0,
+                "skills": 0.0,
+                "education": 0.0,
+                "experience": 0.0,
+                "projects": 0.0,
+                "certifications": 0.0,
+            }
+        }
+
+    user_embedding = legacy_encode_text(user_details_text)
+    job_title_text = legacy_get_job_title_text(job_data)
+    job_details_text = legacy_get_job_details_text(job_data)
+    job_details_embedding = legacy_encode_text(job_details_text)
+
+    title_similarity = legacy_compute_similarity_score(user_embedding, job_title_text)
+    detail_similarity = util.pytorch_cos_sim(user_embedding, job_details_embedding).item()
+    bonus = legacy_compute_common_word_bonus(skills_text, job_title_text)
+    overall = (0.3 * title_similarity) + (0.7 * detail_similarity) + bonus
+
+    summary_score = legacy_component_match_score(personal_summary, job_details_embedding)
+    skills_score = legacy_component_match_score(skills_text, job_details_embedding)
+    education_score = legacy_component_match_score(education_text, job_details_embedding)
+    experience_score = legacy_component_match_score(experience_text, job_details_embedding)
+    projects_score = legacy_component_match_score(projects_text, job_details_embedding)
+    certifications_score = legacy_component_match_score(certifications_text, job_details_embedding)
+
     return {
         "status": "success",
         "data": {
             "overall": round(overall, 4),
-            "skills": round(skill_score, 4),
-            "experience": round(exp_score, 4),
             "summary": round(summary_score, 4),
-            "education": round(edu_score, 4),
-            "others": round(others_score, 4)
+            "skills": round(skills_score, 4),
+            "education": round(education_score, 4),
+            "experience": round(experience_score, 4),
+            "projects": round(projects_score, 4),
+            "certifications": round(certifications_score, 4),
         }
     }
 
@@ -373,12 +415,42 @@ def search_talents(req: TalentSearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 class JobItem(BaseModel):
-    id: str
-    job_text: str
+    id: str = ""
+    job_id: str = ""
+    job_text: str = ""
+    title: str = ""
+    description: str = ""
+    location: str = ""
+    work_type: str = ""
+    category: str = ""
+    education_requirement: str = ""
+    experience_requirement: str = ""
+    skills_requirement: List[dict] = Field(default_factory=list)
+
+
+class RecommendationUser(BaseModel):
+    personal_summary: str = ""
+    skills: List[dict] = Field(default_factory=list)
+    education: List[dict] = Field(default_factory=list)
+    experiences: List[dict] = Field(default_factory=list)
+    projects: List[dict] = Field(default_factory=list)
+    certifications: List[dict] = Field(default_factory=list)
+
+
+class RecommendationLmsCourse(BaseModel):
+    title: str = ""
+    description: str = ""
+    category: str = ""
 
 class JobRecommendationRequest(BaseModel):
-    talent_profile_text: str
+    talent_profile_text: str = ""
+    search_text: str = ""
+    user: Optional[RecommendationUser] = None
     jobs: List[JobItem]
+    sort: List[str] = Field(default_factory=list)
+    is_sort: str = "false"
+    filter: str = "true"
+    lms: List[RecommendationLmsCourse] = Field(default_factory=list)
 
 @app.post("/recommend-jobs")
 def recommend_jobs(req: JobRecommendationRequest):
@@ -386,10 +458,98 @@ def recommend_jobs(req: JobRecommendationRequest):
     Given a talent profile block and a list of job postings,
     ranks the jobs based on semantic fit for that exact talent.
     """
-    if not req.talent_profile_text.strip() or not req.jobs:
+    if not req.jobs:
         return {"results": []}
 
     try:
+        if req.user:
+            user_data = model_to_dict(req.user)
+            jobs_data = [model_to_dict(job) for job in req.jobs]
+            lms_data = [model_to_dict(course) for course in req.lms]
+
+            personal_summary = user_data.get("personal_summary", "")
+            skills_text = legacy_process_skills(user_data.get("skills", []))
+
+            education_source = user_data.get("education", [])
+            if isinstance(education_source, list):
+                latest_education = education_source[0] if education_source else {}
+            else:
+                latest_education = education_source or {}
+
+            education_text = legacy_process_education(latest_education)
+            experience_text = legacy_process_experience(user_data.get("experiences", []))
+            projects_text = legacy_process_projects(user_data.get("projects", []))
+            certifications_text = legacy_process_certifications(user_data.get("certifications", []))
+            lms_text = legacy_process_lms(lms_data)
+
+            component_texts = {
+                "personal_summary": personal_summary,
+                "skills": skills_text,
+                "education": education_text,
+                "experience": experience_text,
+                "projects": projects_text,
+                "certifications": certifications_text,
+                "lms": lms_text,
+            }
+
+            if req.sort and req.is_sort == "true":
+                selected_texts = [
+                    component_texts[field_name]
+                    for field_name in req.sort
+                    if component_texts.get(field_name)
+                ]
+                user_details_text = " ".join(selected_texts).strip()
+            else:
+                user_details_text = legacy_get_user_details_text(user_data, lms_data)
+
+            if not user_details_text:
+                return {"results": []}
+
+            user_embedding = legacy_encode_text(user_details_text)
+            minimum_similarity = 0.0 if req.filter == "false" else 0.44
+            results = []
+
+            for job_data in jobs_data:
+                job_id = job_data.get("job_id") or job_data.get("id")
+                if not job_id:
+                    continue
+
+                job_title_text = legacy_get_job_title_text(job_data)
+                job_details_text = legacy_get_job_details_text(job_data)
+                job_details_embedding = legacy_encode_text(job_details_text)
+
+                title_similarity = legacy_compute_similarity_score(user_embedding, job_title_text)
+                detail_similarity = util.pytorch_cos_sim(user_embedding, job_details_embedding).item()
+                bonus = legacy_compute_common_word_bonus(skills_text, job_title_text)
+                raw_score = (0.3 * title_similarity) + (0.7 * detail_similarity) + bonus
+
+                component_matches = {}
+                for key, text in component_texts.items():
+                    if req.is_sort == "true" and req.filter == "true" and req.sort and key not in req.sort:
+                        continue
+
+                    match_key = f"{key}_match"
+                    if text:
+                        component_matches[match_key] = round(
+                            legacy_component_match_score(text, job_details_embedding) * 100,
+                            2,
+                        )
+                    else:
+                        component_matches[match_key] = 0.0
+
+                if raw_score >= minimum_similarity:
+                    results.append({
+                        "job_id": job_id,
+                        "score": round(float(raw_score), 4),
+                        "match_details": component_matches,
+                    })
+
+            results = sorted(results, key=lambda x: x["score"], reverse=True)
+            return {"results": results}
+
+        if not req.talent_profile_text.strip():
+            return {"results": []}
+
         profile_embedding = model.encode(req.talent_profile_text, convert_to_tensor=True)
         
         job_texts = [j.job_text for j in req.jobs]
