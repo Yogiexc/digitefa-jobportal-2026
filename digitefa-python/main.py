@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import requests
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,6 +11,7 @@ import pdfplumber
 import re
 import io
 import os
+import string
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from fastapi.responses import StreamingResponse
@@ -256,6 +257,180 @@ def compare_two_texts(request: TextComparisonRequest):
     except Exception as e:
         print(f"Error in /compare-texts endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Terjadi kesalahan saat memproses perbandingan teks: {str(e)}")
+
+
+# ---------------------------------------------------------
+# LEGACY HELPER FUNCTIONS
+# Ported from ZeroMQ-based job_recommender_server.py
+# ---------------------------------------------------------
+
+def model_to_dict(obj):
+    """Convert Pydantic model to dict recursively."""
+    if hasattr(obj, 'model_dump'):
+        return obj.model_dump()
+    elif hasattr(obj, 'dict'):
+        return obj.dict()
+    return obj
+
+def _remap_similarity(raw, raw_min=-0.2, raw_max=1.0):
+    """Remap raw cosine similarity from [raw_min..raw_max] to [0..1]."""
+    scaled = (raw - raw_min) / (raw_max - raw_min)
+    return min(max(scaled, 0.0), 1.0)
+
+def legacy_preprocess_text(text):
+    """Basic text preprocessing: lowercase, remove punctuation and digits."""
+    if not text:
+        return ""
+    text = text.replace("\n", ". ")
+    text = text.lower().strip()
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = re.sub(r'\d+', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
+def legacy_encode_text(text):
+    """Encode text after preprocessing."""
+    preprocessed = legacy_preprocess_text(text)
+    return model.encode(preprocessed, convert_to_tensor=True)
+
+def legacy_process_skills(skills):
+    """Convert skills list to text string."""
+    skill_list = []
+    if isinstance(skills, list):
+        for s in skills:
+            if isinstance(s, dict) and "skill_name" in s:
+                skill_list.append(s["skill_name"])
+    return ". ".join(skill_list)
+
+def legacy_process_education(education):
+    """Convert education dict to text string."""
+    if not education or not isinstance(education, dict):
+        return ""
+    degree = education.get("degree", "")
+    major = education.get("major", "")
+    grade = education.get("grade", "")
+    parts = []
+    if degree: parts.append(degree)
+    if major: parts.append(major)
+    if grade: parts.append(f"Grade: {grade}")
+    return ", ".join(parts)
+
+def legacy_process_experience(experiences):
+    """Convert experiences list to text string."""
+    exp_list = []
+    if isinstance(experiences, list):
+        for exp in experiences:
+            title = exp.get("experience_title", "")
+            desc = exp.get("description", "")
+            if title and desc:
+                exp_list.append(f"{title} - {desc}")
+            else:
+                text = title or desc
+                if text: exp_list.append(text)
+    return ". ".join(exp_list)
+
+def legacy_process_projects(projects):
+    """Convert projects list to text string."""
+    proj_list = []
+    if isinstance(projects, list):
+        for p in projects:
+            name = p.get("project_name", "")
+            desc = p.get("description", "")
+            if name and desc:
+                proj_list.append(f"{name} - {desc}")
+            else:
+                text = name or desc
+                if text: proj_list.append(text)
+    return ". ".join(proj_list)
+
+def legacy_process_certifications(certifications):
+    """Convert certifications list to text string."""
+    cert_list = []
+    if isinstance(certifications, list):
+        for c in certifications:
+            name = c.get("certification_name", "")
+            if name: cert_list.append(name)
+    return ". ".join(cert_list)
+
+def legacy_process_lms(lms_data):
+    """Convert LMS course data to text string."""
+    lms_list = []
+    if isinstance(lms_data, list):
+        for course in lms_data:
+            title = course.get("title", "")
+            desc = course.get("description", "")
+            cat = course.get("category", "")
+            if title and desc:
+                lms_list.append(f"{title} - {desc} ({cat})")
+    return ". ".join(lms_list)
+
+def legacy_get_user_details_text(user, lms_data=None):
+    """Combine all user profile components into a single text string."""
+    personal_summary = user.get("personal_summary", "")
+    education_source = user.get("education", [])
+    if isinstance(education_source, list):
+        latest_edu = education_source[0] if education_source else {}
+    else:
+        latest_edu = education_source or {}
+    education = legacy_process_education(latest_edu)
+    experience = legacy_process_experience(user.get("experiences", []))
+    projects = legacy_process_projects(user.get("projects", []))
+    skills = legacy_process_skills(user.get("skills", []))
+    certifications = legacy_process_certifications(user.get("certifications", []))
+    lms = legacy_process_lms(lms_data or [])
+    return f"{personal_summary}. {education}. {experience}. {projects}. {skills}. {certifications}. {lms}".strip()
+
+def legacy_process_skills_requirement(skills):
+    """Convert skills requirement list (from job) to text string."""
+    skill_list = []
+    if isinstance(skills, list):
+        for s in skills:
+            if isinstance(s, dict) and "skill" in s:
+                skill_list.append(s["skill"])
+    return ". ".join(skill_list)
+
+def legacy_get_job_details_text(job):
+    """Get combined job details text from description, requirements, and skills."""
+    desc = legacy_preprocess_text(job.get("description", ""))
+    edu = legacy_preprocess_text(job.get("education_requirement", ""))
+    exp = legacy_preprocess_text(job.get("experience_requirement", ""))
+    skills_text = legacy_process_skills_requirement(job.get("skills_requirement", []))
+    return f"{desc}. {edu}. {exp}. {skills_text}".strip()
+
+def legacy_get_job_title_text(job):
+    """Get preprocessed job title text."""
+    return legacy_preprocess_text(job.get("title", ""))
+
+def legacy_compute_similarity_score(ref_embedding, text):
+    """Compute cosine similarity between a reference embedding and text."""
+    if not text:
+        return 0.0
+    text_embedding = legacy_encode_text(text)
+    sim = util.pytorch_cos_sim(ref_embedding, text_embedding).item()
+    sim = _remap_similarity(sim)
+    return max(sim, 0.0)
+
+def legacy_compute_common_word_bonus(text1, text2):
+    """Compute bonus based on common segments between two texts."""
+    if not text1 or not text2:
+        return 0.0
+    segments = [s.strip() for s in text1.split('.') if s.strip()]
+    total_bonus = 0.0
+    for seg in segments:
+        score = legacy_compute_similarity_score(legacy_encode_text(seg), text2)
+        if score >= 0.5:
+            bonus = (score - 0.5) * 0.6
+            total_bonus += bonus
+    return min(total_bonus, 0.3)
+
+def legacy_component_match_score(text, job_embedding):
+    """Compute component match score between text and job embedding. Returns 0-1."""
+    if not text:
+        return 0.0
+    text_embedding = legacy_encode_text(text)
+    sim = util.pytorch_cos_sim(text_embedding, job_embedding).item()
+    sim = _remap_similarity(sim)
+    return max(sim, 0.0)
 
 
 # ---------------------------------------------------------

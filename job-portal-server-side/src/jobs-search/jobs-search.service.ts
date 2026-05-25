@@ -1,4 +1,4 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
@@ -211,33 +211,46 @@ export class JobsSearchService {
         let recommendedJobs = [];
 
         if (jobSeeker) {
-          const skillsText =
-            jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
-          const expText =
-            jobSeeker.experiences
-              ?.map(
-                (e) =>
-                  `${e.experience_title} at ${e.company_name} - ${e.description}`,
-              )
-              .join('; ') || '';
-          const latestEducation = jobSeeker.education?.[0];
-          const eduText = latestEducation
-            ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
-            : '';
-          let profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
+          let requestBody: any;
 
-          let jobsPayload = [];
           if (sortBy === 'most_relevant') {
-            jobsPayload = allJobs.map((j) => ({
-              id: j.job_id,
-              job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}. Work Type: ${j.work_type}. Skills Requirement: ${j.skills_requirement.map((s) => s.skill).join(', ')}`,
+            // Send full user data for comprehensive matching
+            const jobsPayload = allJobs.map((j) => ({
+              job_id: j.job_id,
+              title: j.title,
+              description: j.description || '',
+              location: j.location || '',
+              work_type: j.work_type || '',
+              category: j.category || '',
+              education_requirement: j.education_requirement || '',
+              experience_requirement: j.experience_requirement || '',
+              skills_requirement: j.skills_requirement || [],
             }));
+
+            requestBody = {
+              user: {
+                personal_summary: jobSeeker.personal_summary || '',
+                skills: jobSeeker.skills || [],
+                education: jobSeeker.education || [],
+                experiences: jobSeeker.experiences || [],
+                projects: jobSeeker.projects || [],
+                certifications: jobSeeker.certifications || [],
+              },
+              jobs: jobsPayload,
+              lms: dataLMS || [],
+              sort: recommendationSort || [],
+              is_sort: recommendationSort?.length ? 'true' : 'false',
+            };
           } else if (search) {
-            jobsPayload = allJobs.map((j) => ({
+            // Simple search by text
+            const jobsPayload = allJobs.map((j) => ({
               id: j.job_id,
               job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}`,
             }));
-            profileText = search; // Override profile text with search query
+            requestBody = {
+              talent_profile_text: search,
+              jobs: jobsPayload,
+            };
           }
 
           try {
@@ -245,10 +258,7 @@ export class JobsSearchService {
             const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                talent_profile_text: profileText,
-                jobs: jobsPayload,
-              }),
+              body: JSON.stringify(requestBody),
             });
 
             if (res.ok) {
@@ -256,7 +266,7 @@ export class JobsSearchService {
               recommendedJobs = parsed.results.map((r: any) => ({
                 job_id: r.job_id,
                 similarity_score: r.score,
-                match_details: { skills_match: r.score },
+                match_details: r.match_details || { skills_match: r.score },
               }));
             }
           } catch (error) {
@@ -443,25 +453,14 @@ export class JobsSearchService {
     let recommendedJobs = [];
 
     if (jobSeeker) {
-      const skillsText =
-        jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
-      const expText =
-        jobSeeker.experiences
-          ?.map(
-            (e) =>
-              `${e.experience_title} at ${e.company_name} - ${e.description}`,
-          )
-          .join('; ') || '';
-      const latestEducation = jobSeeker.education?.[0];
-      const eduText = latestEducation
-        ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
-        : '';
-      const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
-
       const jobsPayload = [
         {
-          id: job.job_id,
-          job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
+          job_id: job.job_id,
+          title: job.title,
+          description: job.description || '',
+          education_requirement: job.education_requirement || '',
+          experience_requirement: job.experience_requirement || '',
+          skills_requirement: job.skills_requirement || [],
         },
       ];
 
@@ -471,8 +470,16 @@ export class JobsSearchService {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            talent_profile_text: profileText,
+            user: {
+              personal_summary: jobSeeker.personal_summary || '',
+              skills: jobSeeker.skills || [],
+              education: jobSeeker.education || [],
+              experiences: jobSeeker.experiences || [],
+              projects: jobSeeker.projects || [],
+              certifications: jobSeeker.certifications || [],
+            },
             jobs: jobsPayload,
+            filter: 'false',
           }),
         });
 
@@ -481,7 +488,7 @@ export class JobsSearchService {
           recommendedJobs = parsed.results.map((r: any) => ({
             job_id: r.job_id,
             similarity_score: r.score,
-            match_details: { skills_match: r.score },
+            match_details: r.match_details || { skills_match: r.score },
           }));
         }
       } catch (error) {
