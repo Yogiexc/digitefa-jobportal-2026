@@ -1,6 +1,7 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { App, Button, DatePicker, Form, Modal, Select } from "antd";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
+import dayjs from "dayjs";
 import Api from "../../services/Api";
 import StatusModal from "../StatusModal";
 import ApprovalIcon from "../../assets/svg/Status.svg";
@@ -175,15 +176,6 @@ const Approval = ({
                 Rejected
               </Button>
             </div>
-
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <Button
-                onClick={handleCancel}
-                style={{ borderRadius: 12, borderColor: "#BBBBBB", width: 120 }}
-              >
-                Cancel
-              </Button>
-            </div>
           </>
         ) : (
           <Form form={form} layout="vertical" requiredMark={false}>
@@ -220,6 +212,7 @@ const Approval = ({
                   showTime
                   style={{ width: "100%", height: 40 }}
                   format="YYYY-MM-DD HH:mm"
+                  disabledDate={(current) => current && current < dayjs().startOf("day")}
                 />
               </Form.Item>
             )}
