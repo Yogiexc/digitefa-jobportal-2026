@@ -480,7 +480,11 @@ export class ProfileService {
 
       // 3. EXPERIENCE
       const safeDate = (dateStr: string) => {
-        if (!dateStr || dateStr.toLowerCase() === 'present' || dateStr.toLowerCase() === 'sekarang') return null;
+        if (!dateStr) return null;
+        const lower = dateStr.toLowerCase().trim();
+        if (['present', 'sekarang', 'current', 'ongoing', 'now', 'active', 'aktif'].includes(lower)) {
+          return new Date();
+        }
         const d = new Date(dateStr);
         return isNaN(d.getTime()) ? null : d;
       };
