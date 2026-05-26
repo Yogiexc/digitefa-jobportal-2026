@@ -1,9 +1,1 @@
-Failed to confirm CV data: 
-Invalid `this.prisma.education.create()` invocation in
-D:\BelajarCoding\digitefa-jobportal-2026\job-portal-server-side\src\profile\profile.service.ts:491:41
-
-  488   }
-  489 });
-  490 
-→ 491 await this.prisma.education.create(
-Unique constraint failed on the constraint: `education_job_seeker_detail_id_key`
+Failed to confirm CV data: parsedData.projects.substring is not a function

@@ -1,4 +1,4 @@
-﻿import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { omit } from 'lodash';
 import * as ExcelJS from 'exceljs';
@@ -107,7 +107,7 @@ export class StudentService {
 
   async getStudentByJobSeekerId(user: any, job_seeker_id: string) {
     try {
-      let student = await this.prisma.job_seeker_details.findFirst({
+      let student: any = await this.prisma.job_seeker_details.findFirst({
         where: { job_seeker_id, education: { some: { university_id: user.university_id } } },
         include: {
           job_seeker: true,
@@ -274,7 +274,7 @@ export class StudentService {
         }
       });
 
-      const responseData = students.map(student => {
+      const responseData = students.map((student: any) => {
         console.log(student.job_seeker.job_seeker_detail.education?.[0]?.start_date)
         return {
           application_id: student.application_id,
@@ -330,12 +330,12 @@ export class StudentService {
       const validEnd = end ? (end > validStart ? end : validStart) : null; // Ensure end >= start
       const take = validStart !== null && validEnd !== null ? (validEnd - validStart) : null; // Number of rows to take
 
-      const students = await this.prisma.job_seeker_details.findMany({
+      const students: any[] = await this.prisma.job_seeker_details.findMany({
         where: {
           education: {
             some: { university_id: user.university_id },
           }
-        },
+        } as any,
         orderBy: {
           ['created_at']: 'desc',
         },
@@ -448,7 +448,7 @@ export class StudentService {
               },
             }
           }
-        },
+        } as any,
         orderBy: {
           ['applied_at']: 'desc',
         },
@@ -485,7 +485,7 @@ export class StudentService {
         }
       });
 
-      const responseData = students.map(student => {
+      const responseData = students.map((student: any) => {
         return {
           application_id: student.application_id,
           applied_at: student.applied_at,

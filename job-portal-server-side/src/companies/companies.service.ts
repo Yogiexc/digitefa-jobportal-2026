@@ -319,53 +319,21 @@ export class CompaniesService {
     }
 
     // Format for Python AI semantic search
-    const talents = seekers.map((s) => {
-      let profileParts = [`Name: ${s.job_seeker.full_name}`];
+    const talents = seekers;
 
-      if (criteriaList.includes('skills')) {
-        const skillsText = s.skills.map((skill) => skill.skill_name).join(', ');
-        profileParts.push(`Skills: ${skillsText}`);
-      }
-
-      if (criteriaList.includes('languages')) {
-        const langText = s.languages.map((l) => l.language_name).join(', ');
-        profileParts.push(`Languages: ${langText}`);
-      }
-
-      if (criteriaList.includes('experience')) {
-        const expText = s.experiences
-          .map(
-            (e) =>
-              `${e.experience_title} at ${e.company_name} - ${e.description}`,
-          )
-          .join('; ');
-        profileParts.push(`Experience: ${expText}`);
-      }
-
-      if (criteriaList.includes('education')) {
-        const latestEdu = s.education && s.education.length > 0 ? s.education[0] : null;
-        const eduText = latestEdu
-          ? `${latestEdu.degree} in ${latestEdu.major} at ${latestEdu.university_name}`
-          : '';
-        profileParts.push(`Education: ${eduText}`);
-      }
-
-      if (criteriaList.includes('projects')) {
-        const projText = (s as any).projects?.map((p: any) => `${p.project_name}: ${p.description}`).join('; ') || '';
-        profileParts.push(`Projects: ${projText}`);
-      }
-
-      const profileText = profileParts.join('. ') + `. Summary: ${s.personal_summary || ''}`;
-
-      return { id: s.job_seeker_detail_id, profile_text: profileText };
-    });
-
-    const gpythonUrl = process.env.URL_SERVER_PYTHON;
+    const gpythonUrl = process.env.URL_SERVER_PYTHON?.replace('localhost', '127.0.0.1') || 'http://127.0.0.1:9090';
     try {
       const response = await fetch(`${gpythonUrl}/search-talents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, talents }),
+        body: JSON.stringify({ 
+            job: { title: query, description: query }, 
+            talents,
+            data_lms: [],
+            sort_fields: criteriaList,
+            is_sort: criteriaList.length > 0 ? "true" : "false",
+            is_filter: "false"
+        }),
       });
 
       if (!response.ok) throw new InternalServerErrorException('AI API error');
@@ -375,19 +343,26 @@ export class CompaniesService {
         .map((r: any) => {
           const seeker = seekers.find(
             (s) =>
-              String(s.job_seeker_detail_id) === String(r.talent_id ?? ''),
+              String(s.job_seeker_detail_id) === String(r.job_seeker_id ?? ''),
           );
           if (!seeker) return null;
           const invitation = invitations.find(inv => inv.job_seeker_id === seeker.job_seeker_id);
           const hasAppliedDirectly = applications.some(app => app.job_seeker_id === seeker.job_seeker_id);
           return {
             ...seeker,
-            ai_score: r.score,
+            ai_score: r.similarity_score,
+            match_details: r.match_details,
             is_invited: invitedJobSeekerIds.includes(seeker.job_seeker_id),
             is_applied: appliedJobSeekerIds.includes(seeker.job_seeker_id),
           };
         })
         .filter(Boolean);
+
+      console.log('finalResults AI Match Details:', finalResults.map(r => ({
+        job_seeker_id: r.job_seeker_detail_id,
+        ai_score: r.ai_score,
+        match_details: r.match_details
+      })));
 
       return { status: 'success', data: finalResults };
     } catch (e) {

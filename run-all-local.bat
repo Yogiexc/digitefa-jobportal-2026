@@ -8,12 +8,8 @@ echo ==========================================
 
 set BASE_DIR=%~dp0
 
-:: 1. Python AI Socket Server
-echo [1/7] Starting AI Python Socket Server (5555)...
-start "AI Socket Server" cmd /k "cd /d %BASE_DIR%job-portal-server-side\python && (python job_recommender_server.py || py job_recommender_server.py) || (echo ERROR: Failed to start Python Socket Server && pause)"
-
-:: 2. AI HTTP Server
-echo [2/7] Starting AI HTTP Server (9090)...
+:: 1. AI HTTP Server
+echo [1/6] Starting AI HTTP Server (9090)...
 start "AI HTTP Server" cmd /k "cd /d %BASE_DIR%digitefa-python && (python -m uvicorn main:app --port 9090 --reload || py -m uvicorn main:app --port 9090 --reload) || (echo ERROR: Failed to start AI HTTP Server && pause)"
 
 :: Give AI servers a moment to initialize
