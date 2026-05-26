@@ -1,4 +1,4 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
@@ -191,15 +191,13 @@ export class JobsSearchService {
         });
 
         let dataLMS;
-        if (
-          jobSeeker.job_seeker.lmsUserId &&
-          recommendationSort.includes('lms')
-        ) {
+        if (jobSeeker.job_seeker.lmsUserId) {
           try {
+            const lmsUrl = process.env.URL_API_LMS?.replace('localhost', '127.0.0.1') || 'http://127.0.0.1:8888/api';
             const response = await firstValueFrom(
               this.httpService.get(
-                `${process.env.URL_API_LMS}/lms/students/${jobSeeker.job_seeker.lmsUserId}/completed-courses`,
-                { timeout: 2000 },
+                `${lmsUrl}/lms/students/${jobSeeker.job_seeker.lmsUserId}/completed-courses`,
+                { timeout: 5000 },
               ),
             );
 
@@ -211,43 +209,26 @@ export class JobsSearchService {
         let recommendedJobs = [];
 
         if (jobSeeker) {
-          const skillsText =
-            jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
-          const expText =
-            jobSeeker.experiences
-              ?.map(
-                (e) =>
-                  `${e.experience_title} at ${e.company_name} - ${e.description}`,
-              )
-              .join('; ') || '';
-          const latestEducation = jobSeeker.education?.[0];
-          const eduText = latestEducation
-            ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
-            : '';
-          let profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
-
           let jobsPayload = [];
           if (sortBy === 'most_relevant') {
-            jobsPayload = allJobs.map((j) => ({
-              id: j.job_id,
-              job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}. Work Type: ${j.work_type}. Skills Requirement: ${j.skills_requirement.map((s) => s.skill).join(', ')}`,
-            }));
+            jobsPayload = allJobs;
           } else if (search) {
-            jobsPayload = allJobs.map((j) => ({
-              id: j.job_id,
-              job_text: `Title: ${j.title}. Description: ${j.description}. Location: ${j.location}`,
-            }));
-            profileText = search; // Override profile text with search query
+            jobsPayload = allJobs;
+            jobSeeker.personal_summary = search; // Override summary with search query
           }
 
           try {
-            const gpythonUrl = process.env.URL_SERVER_PYTHON;
+            const gpythonUrl = process.env.URL_SERVER_PYTHON?.replace('localhost', '127.0.0.1') || 'http://127.0.0.1:9090';
             const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                talent_profile_text: profileText,
+                talent: jobSeeker,
                 jobs: jobsPayload,
+                data_lms: dataLMS || [],
+                sort_fields: recommendationSort,
+                is_sort: recommendationSort && recommendationSort.length > 0 ? "true" : "false",
+                is_filter: "false"
               }),
             });
 
@@ -255,8 +236,8 @@ export class JobsSearchService {
               const parsed = await res.json();
               recommendedJobs = parsed.results.map((r: any) => ({
                 job_id: r.job_id,
-                similarity_score: r.score,
-                match_details: { skills_match: r.score },
+                similarity_score: r.similarity_score,
+                match_details: r.match_details,
               }));
             }
           } catch (error) {
@@ -267,7 +248,11 @@ export class JobsSearchService {
         // Filter, mapping, dan sorting job berdasarkan relevansi
         let filteredJobs = [];
 
-        console.log('recommendedJobs', recommendedJobs);
+        console.log('finalResults AI Match Details:', recommendedJobs.map(r => ({
+          job_id: r.job_id,
+          ai_score: r.similarity_score,
+          match_details: r.match_details
+        })));
 
         if (Array.isArray(recommendedJobs) && recommendedJobs.length > 0) {
           filteredJobs = jobs
@@ -443,36 +428,34 @@ export class JobsSearchService {
     let recommendedJobs = [];
 
     if (jobSeeker) {
-      const skillsText =
-        jobSeeker.skills?.map((skill) => skill.skill_name).join(', ') || '';
-      const expText =
-        jobSeeker.experiences
-          ?.map(
-            (e) =>
-              `${e.experience_title} at ${e.company_name} - ${e.description}`,
-          )
-          .join('; ') || '';
-      const latestEducation = jobSeeker.education?.[0];
-      const eduText = latestEducation
-        ? `${latestEducation.degree} in ${latestEducation.major} at ${latestEducation.university_name}`
-        : '';
-      const profileText = `Skills: ${skillsText}. Experience: ${expText}. Education: ${eduText}. Summary: ${jobSeeker.personal_summary || ''}`;
-
-      const jobsPayload = [
-        {
-          id: job.job_id,
-          job_text: `Title: ${job.title}. Description: ${job.description}. Skills Requirement: ${job.skills_requirement.map((s) => s.skill).join(', ')}`,
-        },
-      ];
+      let dataLMS;
+      if (jobSeeker.job_seeker.lmsUserId) {
+        try {
+          const lmsUrl = process.env.URL_API_LMS?.replace('localhost', '127.0.0.1') || 'http://127.0.0.1:8888/api';
+          const response = await firstValueFrom(
+            this.httpService.get(
+              `${lmsUrl}/lms/students/${jobSeeker.job_seeker.lmsUserId}/completed-courses`,
+              { timeout: 5000 },
+            ),
+          );
+          dataLMS = response.data.data;
+        } catch (error) {
+          console.error('Error fetching LMS data:', error);
+        }
+      }
 
       try {
-        const gpythonUrl = process.env.URL_SERVER_PYTHON;
+        const gpythonUrl = process.env.URL_SERVER_PYTHON?.replace('localhost', '127.0.0.1') || 'http://127.0.0.1:9090';
         const res = await fetch(`${gpythonUrl}/recommend-jobs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            talent_profile_text: profileText,
-            jobs: jobsPayload,
+            talent: jobSeeker,
+            jobs: [job],
+            data_lms: dataLMS || [],
+            sort_fields: [],
+            is_sort: "false",
+            is_filter: "false"
           }),
         });
 
@@ -480,8 +463,8 @@ export class JobsSearchService {
           const parsed = await res.json();
           recommendedJobs = parsed.results.map((r: any) => ({
             job_id: r.job_id,
-            similarity_score: r.score,
-            match_details: { skills_match: r.score },
+            similarity_score: r.similarity_score,
+            match_details: r.match_details,
           }));
         }
       } catch (error) {

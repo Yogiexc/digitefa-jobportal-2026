@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "postbuild": "cp -r public dist/public",
+    "postbuild": "xcopy public dist\\public /E /I /Y",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
@@ -42,7 +42,7 @@
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/swagger": "^7.3.1",
     "@prisma/client": "^5.17.0",
-    "@scalar/nestjs-api-reference": "^1.1.7",
+    "@scalar/nestjs-api-reference": "^1.1.19",
     "axios": "^1.15.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",

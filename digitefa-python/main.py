@@ -15,10 +15,163 @@ import os
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from fastapi.responses import StreamingResponse
+from contextlib import asynccontextmanager
+import nltk
+from nltk.corpus import stopwords
+import string
+from functools import lru_cache
+
+try:
+    stop_words_en = set(stopwords.words('english'))
+    stop_words_id = set(stopwords.words('indonesian'))
+except LookupError:
+    nltk.download('stopwords')
+    stop_words_en = set(stopwords.words('english'))
+    stop_words_id = set(stopwords.words('indonesian'))
+STOP_WORDS = stop_words_en.union(stop_words_id)
+
+def preprocess_text(text: str) -> str:
+    if not text:
+        return ""
+    text = text.replace("\n", ". ")
+    text = text.lower().strip()
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = re.sub(r'\d+', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    words = text.split()
+    filtered_words = [w for w in words if w not in STOP_WORDS]
+    return ' '.join(filtered_words)
+
+@lru_cache(maxsize=512)
+def encode_text(text: str):
+    preprocessed_text = preprocess_text(text)
+    embedding = model.encode(preprocessed_text, convert_to_tensor=True)
+    return embedding
+
+def _remap_similarity(raw: float, raw_min: float = -0.2, raw_max: float = 1.0) -> float:
+    scaled = (raw - raw_min) / (raw_max - raw_min)
+    return min(max(scaled, 0.0), 1.0)
+
+def compute_similarity_score(emb1, text2: str) -> float:
+    if not text2.strip():
+        return 0.0
+    emb2 = encode_text(text2)
+    score = util.pytorch_cos_sim(emb1, emb2).item()
+    return _remap_similarity(score)
+
+def compute_common_word_bonus(text1: str, text2: str) -> float:
+    if not text1 or not text2:
+        return 0.0
+    words1 = set(preprocess_text(text1).split())
+    words2 = set(preprocess_text(text2).split())
+    common_words = words1.intersection(words2)
+    bonus = len(common_words) * 0.01
+    return min(bonus, 0.05)
+
+def process_skills(skills):
+    skill_text_list = []
+    if isinstance(skills, list):
+        for skill_item in skills:
+            if isinstance(skill_item, dict) and "skill_name" in skill_item:
+                skill_text_list.append(skill_item["skill_name"])
+            elif isinstance(skill_item, dict) and "skill" in skill_item:
+                skill_text_list.append(skill_item["skill"])
+            elif isinstance(skill_item, str):
+                skill_text_list.append(skill_item)
+    return ". ".join(skill_text_list)
+
+def process_education(education):
+    edu_text_list = []
+    if isinstance(education, list):
+        for edu_item in education:
+            if isinstance(edu_item, dict):
+                degree = edu_item.get("degree", "")
+                major = edu_item.get("major", "")
+                grade = edu_item.get("grade", "")
+                edu_text = f"{degree} in {major} with grade {grade}".strip()
+                if edu_text:
+                    edu_text_list.append(edu_text)
+    return ". ".join(edu_text_list)
+
+def process_experience(experiences):
+    exp_text_list = []
+    if isinstance(experiences, list):
+        for exp in experiences:
+            if isinstance(exp, dict):
+                title = exp.get("experience_title", "")
+                company = exp.get("company_name", "")
+                desc = exp.get("description", "")
+                exp_text = f"{title} at {company}. {desc}".strip()
+                if exp_text:
+                    exp_text_list.append(exp_text)
+    return ". ".join(exp_text_list)
+
+def process_project(projects):
+    proj_text_list = []
+    if isinstance(projects, list):
+        for proj in projects:
+            if isinstance(proj, dict):
+                name = proj.get("project_name", "")
+                desc = proj.get("description", "")
+                proj_text = f"{name}. {desc}".strip()
+                if proj_text:
+                    proj_text_list.append(proj_text)
+    return ". ".join(proj_text_list)
+
+def process_certifications(certifications):
+    cert_text_list = []
+    if isinstance(certifications, list):
+        for cert in certifications:
+            if isinstance(cert, dict):
+                name = cert.get("certificate_name", "")
+                desc = cert.get("description", "")
+                cert_text = f"{name}. {desc}".strip()
+                if cert_text:
+                    cert_text_list.append(cert_text)
+    return ". ".join(cert_text_list)
+
+def process_lms(data_lms):
+    lms_text_list = []
+    if isinstance(data_lms, list):
+        for course in data_lms:
+            if isinstance(course, dict):
+                title = course.get("title", "")
+                desc = course.get("description", "")
+                skills = ", ".join(course.get("skills", []))
+                lms_text = f"Course: {title}. Description: {desc}. Skills: {skills}".strip()
+                if lms_text:
+                    lms_text_list.append(lms_text)
+    return ". ".join(lms_text_list)
+
+def get_job_title_text(job: dict) -> str:
+    return job.get("title", "")
+
+def get_job_details_text(job: dict) -> str:
+    desc = job.get("description", "")
+    req_skills = process_skills(job.get("skills_requirement", []))
+    edu = job.get("education_requirement", "")
+    exp = job.get("experience_requirement", "")
+    return f"{desc} {req_skills} {edu} {exp}".strip()
+
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Startup: Memuat data kursus awal...")
+    try:
+        get_all_courses_with_cache()
+        thread = threading.Thread(target=refresh_courses_cache_background, daemon=True)
+        thread.start()
+        print("Startup berhasil: Background refresh berjalan.")
+    except Exception as e:
+        print(f"Error saat startup: {e}")
+    yield
+
 app = FastAPI(
     title="Digitefa AI API",
     description="API for AI-based features like CV Parsing, Job Matching, Course Recommendation, and Talent Search.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 app.add_middleware(
     CORSMiddleware,
@@ -92,16 +245,7 @@ def ensure_courses_available():
         get_all_courses_with_cache()
     return courses_cache["data"]
 
-@app.on_event("startup")
-def load_courses_on_startup():
-    print("Startup: Memuat data kursus awal...")
-    try:
-        get_all_courses_with_cache()
-        thread = threading.Thread(target=refresh_courses_cache_background, daemon=True)
-        thread.start()
-        print("Background cache refresh dimulai")
-    except Exception as e:
-        print(f"Warning: Gagal memuat data kursus saat startup: {str(e)}")
+
 
 @app.get("/health/courses-cache")
 def get_courses_cache_status():
@@ -284,160 +428,287 @@ class MatchScoreRequest(BaseModel):
 @app.post("/calculate-match-score")
 def calculate_match_score(req: MatchScoreRequest):
     """
-    ENDPOINT INI MENGHITUNG KECOCOKAN (MATCH SCORE) ANTARA KANDIDAT & LOWONGAN.
-    Ini BUKAN sekadar pencocokan kata (word matching) biasa!
-    Ini menggunakan AI model (all-MiniLM-L6-v2) untuk mencocokkan "MAKNA" kalimat (Semantic Embedding).
-    
-    Hitungan Bobot:
-    - Skill (40%), Experience (25%), Summary (10%), Education (10%), Others (15%)
+    Mirror rumus talent match legacy dari branch file-asli-banget,
+    tetapi tetap memakai kontrak HTTP yang dipakai branch ael-bagas.
     """
+    def _remap_similarity(raw: float, raw_min=-0.2, raw_max=1.0) -> float:
+        scaled = (raw - raw_min) / (raw_max - raw_min)
+        return min(max(scaled, 0.0), 1.0)
+
     def get_sim(text1, text2):
         if not text1.strip() or not text2.strip():
             return 0.0
         try:
-            # 1. AI MENGUBAH TEKS MENJADI ANGKA (VECTOR)
             emb1 = model.encode(text1, convert_to_tensor=True)
             emb2 = model.encode(text2, convert_to_tensor=True)
-            
-            # 2. MENGHITUNG KEMIRIPAN SUDUT ANGKA (Cosine Similarity)
-            # Semakin dekat maknanya, semakin mendekati angka 1.0 (100% Cocok)
             score = float(util.cos_sim(emb1, emb2)[0][0].cpu().numpy())
-            return max(0.0, score) # Hindari nilai minus
-
+            return _remap_similarity(score)
         except:
             return 0.0
 
-    # 3. KUMPULKAN TEKS KANDIDAT & LOWONGAN UNTUK HITUNGAN HOLISTIK
-    candidate_full = f"{req.candidate.summary} {req.candidate.skills} {req.candidate.experience} {req.candidate.education} {req.candidate.others}"
-    job_detail = f"{req.job.description} {req.job.skills_requirement} {req.job.education_requirement} {req.job.experience_requirement}"
-    
-    # 4. HITUNG TITLE & DETAIL SIMILARITY (30% vs 70%)
-    title_score = get_sim(req.job.title, candidate_full)
-    detail_score = get_sim(job_detail, candidate_full)
-    
-    # 5. HITUNG BONUS SKILL MATCHING (Maks +0.30)
-    bonus = 0.0
-    if req.candidate.skills:
-        import re
-        cand_skills = [s.strip().lower() for s in re.split(r'[,;]', req.candidate.skills) if s.strip()]
-        job_text_lower = (req.job.title + " " + job_detail).lower()
-        match_count = 0
-        for skill in cand_skills:
-            if skill in job_text_lower:
-                match_count += 1
-        bonus = min(0.30, match_count * 0.10)
-        
-    # 6. HITUNG OVERALL SCORE (FINAL RUMUS BARU)
-    overall = min(1.0, (title_score * 0.30) + (detail_score * 0.70) + bonus)
+    def compute_common_word_bonus(text1: str, text2: str) -> float:
+        if not text1 or not text2:
+            return 0.0
+        segments1 = [seg.strip() for seg in text1.split('.') if seg.strip()]
+        total_bonus = 0.0
+        for seg1 in segments1:
+            score = get_sim(seg1, text2)
+            if score >= 0.5:
+                bonus = (score - 0.5) * 0.6
+                total_bonus += bonus
+        return min(total_bonus, 0.3)
 
-    # 7. HITUNG SUB-SCORE UNTUK DITAMPILKAN DI UI (Hanya Informasional)
-    skill_score = get_sim(req.job.skills_requirement, req.candidate.skills)
-    exp_score = get_sim(req.job.experience_requirement + " " + req.job.description, req.candidate.experience)
-    summary_score = get_sim(req.job.description, req.candidate.summary)
-    edu_score = get_sim(req.job.education_requirement, req.candidate.education)
-    others_score = get_sim(req.job.description, req.candidate.others)
+    user_details_text = ". ".join(
+        text for text in [
+            req.candidate.summary,
+            req.candidate.education,
+            req.candidate.experience,
+            req.candidate.others,
+            req.candidate.skills,
+        ] if text
+    ).strip()
 
-    # 8. KEMBALIKAN KE NESTJS CMS COMPANY
+    if not user_details_text:
+        return {
+            "status": "success",
+            "data": {
+                "overall": 0.0,
+                "summary": 0.0,
+                "skills": 0.0,
+                "education": 0.0,
+                "experience": 0.0,
+                "projects": 0.0,
+                "certifications": 0.0,
+            }
+        }
+
+    job_title_text = req.job.title
+    job_details_text = f"{req.job.description} {req.job.skills_requirement} {req.job.education_requirement} {req.job.experience_requirement}".strip()
+    
+    title_similarity = get_sim(user_details_text, job_title_text)
+    detail_similarity = get_sim(user_details_text, job_details_text)
+    bonus = compute_common_word_bonus(req.candidate.skills, job_title_text)
+    
+    overall = (0.3 * title_similarity) + (0.7 * detail_similarity) + bonus
+    overall = min(max(overall, 0.0), 1.0)
+
+    summary_score = get_sim(req.candidate.summary, job_details_text)
+    skills_score = get_sim(req.candidate.skills, job_details_text)
+    education_score = get_sim(req.candidate.education, job_details_text)
+    experience_score = get_sim(req.candidate.experience, job_details_text)
+    projects_score = get_sim(req.candidate.others, job_details_text)
+    certifications_score = 0.0
+
     return {
         "status": "success",
         "data": {
             "overall": round(overall, 4),
-            "skills": round(skill_score, 4),
-            "experience": round(exp_score, 4),
             "summary": round(summary_score, 4),
-            "education": round(edu_score, 4),
-            "others": round(others_score, 4)
+            "skills": round(skills_score, 4),
+            "education": round(education_score, 4),
+            "experience": round(experience_score, 4),
+            "projects": round(projects_score, 4),
+            "certifications": round(certifications_score, 4),
         }
     }
 
-class TalentProfile(BaseModel):
-
-    id: str
-    profile_text: str
-
-class TalentSearchRequest(BaseModel):
-    query: str
-    talents: List[TalentProfile]
-
-@app.post("/search-talents")
-def search_talents(req: TalentSearchRequest):
-    """
-    Given a job requirement query and a list of talent profiles,
-    ranks the talents based on semantic similarity.
-    """
-    if not req.query.strip() or not req.talents:
-        return {"results": []}
-
-    try:
-        query_embedding = model.encode(req.query, convert_to_tensor=True)
-        
-        talent_texts = [t.profile_text for t in req.talents]
-        talent_embeddings = model.encode(talent_texts, convert_to_tensor=True)
-
-        cosine_scores = util.cos_sim(query_embedding, talent_embeddings)[0]
-        
-        results = []
-        for idx, score in enumerate(cosine_scores.cpu().numpy()):
-            results.append({
-                "talent_id": req.talents[idx].id,
-                "score": round(float(score), 4)
-            })
-
-        # Urutkan dari tertinggi ke terendah
-        results = sorted(results, key=lambda x: x["score"], reverse=True)
-        return {"results": results}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-class JobItem(BaseModel):
-    id: str
-    job_text: str
-
 class JobRecommendationRequest(BaseModel):
-    talent_profile_text: str
-    jobs: List[JobItem]
+    talent: dict
+    jobs: list
+    data_lms: Optional[list] = []
+    sort_fields: Optional[List[str]] = None
+    is_sort: Optional[str] = "false"
+    is_filter: Optional[str] = "false"
 
 @app.post("/recommend-jobs")
 def recommend_jobs(req: JobRecommendationRequest):
-    """
-    Given a talent profile block and a list of job postings,
-    ranks the jobs based on semantic fit for that exact talent.
-    """
-    if not req.talent_profile_text.strip() or not req.jobs:
-        return {"results": []}
-
     try:
-        profile_embedding = model.encode(req.talent_profile_text, convert_to_tensor=True)
+        title_weight = 0.3
+        detail_weight = 0.7
+        minimum_similarity = 0.44 if req.is_filter == "true" else 0.0
         
-        job_texts = [j.job_text for j in req.jobs]
-        job_embeddings = model.encode(job_texts, convert_to_tensor=True)
+        user = req.talent
+        jobs = req.jobs
+        data_lms = req.data_lms
+        
+        personal_summary = user.get("personal_summary", "")
+        skills_text = process_skills(user.get("skills", []))
+        education_text = process_education(user.get("education", []))
+        experience_text = process_experience(user.get("experiences", []))
+        projects_text = process_project(user.get("projects", []))
+        certifications_text = process_certifications(user.get("certifications", []))
+        lms_text = process_lms(data_lms)
 
-        cosine_scores = util.cos_sim(profile_embedding, job_embeddings)[0]
-        
+        component_texts = {
+            "personal_summary": personal_summary,
+            "skills": skills_text,
+            "education": education_text,
+            "experience": experience_text,
+            "projects": projects_text,
+            "certifications": certifications_text,
+            "lms": lms_text
+        }
+
+        if req.sort_fields and req.is_sort == "true":
+            selected_texts = [
+                component_texts[f] for f in req.sort_fields
+                if component_texts.get(f)
+            ]
+            if not selected_texts:
+                return {"results": []}
+            user_details_text = " ".join(selected_texts)
+        else:
+            user_details_text = " ".join([t for t in component_texts.values() if t])
+            
+        if not user_details_text:
+            return {"results": []}
+            
+        user_embedding = encode_text(user_details_text)
         results = []
-        for idx, score in enumerate(cosine_scores.cpu().numpy()):
-            results.append({
-                "job_id": req.jobs[idx].id,
-                "score": round(float(score), 4)
-            })
-
-        results = sorted(results, key=lambda x: x["score"], reverse=True)
-        return {"results": results[:15]} # Return top 15 recommendations
+        combined_text_for_bonus = skills_text
+        
+        for job in jobs:
+            job_title_text = get_job_title_text(job)
+            job_details_text = get_job_details_text(job)
+            job_details_embedding = encode_text(job_details_text)
+                        
+            title_similarity = compute_similarity_score(user_embedding, job_title_text)
+            detail_similarity = util.pytorch_cos_sim(user_embedding, job_details_embedding).item()
+            bonus = compute_common_word_bonus(combined_text_for_bonus, job_title_text)
+            final_similarity = round((title_weight * title_similarity) + (detail_weight * detail_similarity) + bonus, 4)
+            
+            component_matches = {}
+            for key, text in component_texts.items():
+                match_key = f"{key}_match"
+                if text:
+                    emb = encode_text(text)
+                    sim = util.pytorch_cos_sim(emb, job_details_embedding).item()
+                    sim = _remap_similarity(sim)
+                    component_matches[match_key] = round(sim * 100, 2)
+                else:
+                    component_matches[match_key] = 0.0
+            
+            job_result = {
+                "job_id": job.get("job_id") or job.get("id"),
+                "title": job.get("title", ""),
+                "similarity_score": final_similarity,
+                "bonus": bonus,
+                "match_details": component_matches
+            }
+            results.append(job_result)
+            
+        filtered_jobs = [job for job in results if job.get("similarity_score", 0) >= minimum_similarity]
+        sorted_jobs = sorted(filtered_jobs, key=lambda x: x["similarity_score"], reverse=True)
+        return {"results": sorted_jobs}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+class TalentSearchRequest(BaseModel):
+    job: dict
+    talents: list
+    data_lms: Optional[list] = []
+    sort_fields: Optional[List[str]] = None
+    is_sort: Optional[str] = "false"
+    is_filter: Optional[str] = "false"
+
+@app.post("/search-talents")
+def search_talents(req: TalentSearchRequest):
+    try:
+        title_weight = 0.3
+        detail_weight = 0.7
+        minimum_similarity = 0.44 if req.is_filter == "true" else 0.0
+        
+        job = req.job
+        talents = req.talents
+        data_lms = req.data_lms
+        
+        job_title_text = get_job_title_text(job)
+        job_details_text = get_job_details_text(job)
+        job_embedding = encode_text(job_details_text)
+        
+        results = []
+        for talent in talents:
+            talent_id = talent.get("job_seeker_detail_id") or talent.get("job_seeker_id") or talent.get("id")
+            personal_summary = talent.get("personal_summary", "")
+            skills_text = process_skills(talent.get("skills", []))
+            education_text = process_education(talent.get("education", []))
+            experience_text = process_experience(talent.get("experiences", []))
+            projects_text = process_project(talent.get("projects", []))
+            certifications_text = process_certifications(talent.get("certifications", []))
+            lms_text = process_lms(data_lms)
+
+            component_texts = {
+                "personal_summary": personal_summary,
+                "skills": skills_text,
+                "education": education_text,
+                "experience": experience_text,
+                "projects": projects_text,
+                "certifications": certifications_text,
+                "lms": lms_text
+            }
+            
+            if req.sort_fields and req.is_sort == "true":
+                selected_texts = [
+                    component_texts[f] for f in req.sort_fields
+                    if component_texts.get(f)
+                ]
+                if not selected_texts:
+                    continue
+                user_details_text = " ".join(selected_texts)
+            else:
+                user_details_text = " ".join([t for t in component_texts.values() if t])
+                
+            if not user_details_text:
+                continue
+                
+            user_embedding = encode_text(user_details_text)
+            
+            title_similarity = compute_similarity_score(user_embedding, job_title_text)
+            detail_similarity = util.pytorch_cos_sim(user_embedding, job_embedding).item()
+            bonus = compute_common_word_bonus(skills_text, job_title_text)
+            final_similarity = round((title_weight * title_similarity) + (detail_weight * detail_similarity) + bonus, 4)
+            
+            component_matches = {}
+            for key, text in component_texts.items():
+                match_key = f"{key}_match"
+                if text:
+                    emb = encode_text(text)
+                    sim = util.pytorch_cos_sim(emb, job_embedding).item()
+                    sim = _remap_similarity(sim)
+                    component_matches[match_key] = round(sim * 100, 2)
+                else:
+                    component_matches[match_key] = 0.0
+            
+            talent_result = {
+                "job_seeker_id": talent_id,
+                "full_name": talent.get("full_name", ""),
+                "similarity_score": final_similarity,
+                "bonus": bonus,
+                "match_details": component_matches
+            }
+            results.append(talent_result)
+            
+        filtered_talents = [t for t in results if t.get("similarity_score", 0) >= minimum_similarity]
+        sorted_talents = sorted(filtered_talents, key=lambda x: x["similarity_score"], reverse=True)
+        return {"results": sorted_talents}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/parse-cv")
 async def parse_cv(file: UploadFile = File(...)):
     """
-    ENDPOINT INI BERFUNGSI SEBAGAI OTAR UTAMA FITUR AUTOFILL CV.
+    ENDPOINT INI BERFUNGSI SEBAGAI OTAK UTAMA FITUR AUTOFILL CV.
     Alur Kerja:
     1. Menerima file PDF dari backend (NestJS).
     2. Membaca teks mentah dari PDF menggunakan library pdfplumber.
     3. Mengekstrak informasi penting (Nama, Email, HP, Pengalaman, dll) menggunakan Regex (Pola Teks).
     4. Mengembalikan data terstruktur dalam bentuk JSON kembali ke NestJS.
     """
-    if not file.filename.lower().endswith('.pdf'):
+    if not file.filename or not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="File must be a PDF")
 
     try:
@@ -452,6 +723,72 @@ async def parse_cv(file: UploadFile = File(...)):
                 text = page.extract_text()
                 if text:
                     full_text += text + "\n"
+
+
+        def standardize_date(date_str):
+            if not date_str:
+                return ""
+            
+            from datetime import datetime
+            date_str = date_str.strip().lower()
+            
+            # Present / sekarang -> dynamic current month & year
+            if date_str in ["present", "sekarang", "current", "ongoing", "now", "active", "aktif"]:
+                return datetime.now().strftime("%B %Y")
+                
+            # 1. Check numeric format like MM/YYYY or MM-YYYY
+            numeric_match = re.search(r'\b(\d{1,2})\s*[/-]\s*(\d{2,4})\b', date_str)
+            if numeric_match:
+                month_num = int(numeric_match.group(1))
+                year_num = int(numeric_match.group(2))
+                if year_num < 100:
+                    year_num += 2000
+                months_list = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ]
+                if 1 <= month_num <= 12:
+                    return f"{months_list[month_num - 1]} {year_num}"
+                    
+            # 2. Check year-only format like YYYY
+            year_match = re.search(r'\b(\d{4})\b', date_str)
+            if year_match and not re.search(r'[a-z]', date_str):
+                return f"January {year_match.group(1)}"
+                
+            # 3. Month name and year format
+            months_map = {
+                "jan": "January", "january": "January", "januari": "January",
+                "feb": "February", "february": "February", "februari": "February",
+                "mar": "March", "march": "March", "maret": "March",
+                "apr": "April", "april": "April",
+                "may": "May", "mei": "May",
+                "jun": "June", "june": "June", "juni": "June",
+                "jul": "July", "july": "July", "juli": "July",
+                "aug": "August", "august": "August", "agt": "August", "agu": "August", "agustus": "August",
+                "sep": "September", "september": "September",
+                "oct": "October", "october": "October", "okt": "October", "oktober": "October",
+                "nov": "November", "november": "November",
+                "dec": "December", "december": "December", "des": "December", "desember": "December"
+            }
+            
+            words = re.findall(r'[a-z]+', date_str)
+            year_match = re.search(r'\b(\d{2,4})\b', date_str)
+            
+            if year_match:
+                year_num = int(year_match.group(1))
+                if year_num < 100:
+                    year_num += 2000
+                for w in words:
+                    if w in months_map:
+                        return f"{months_map[w]} {year_num}"
+            
+            return date_str.title()
+
+        # Compile powerful unified date range patterns
+        DATE_PATTERN = r'(?:(?:jan(?:uari|uary)?|feb(?:ruari|ruary)?|mar(?:et|ch)?|apr(?:il)?|mei|may|jun(?:i|e)?|jul(?:i|y)?|agustus|agu(?:stus)?|agt|aug(?:ust)?|sep(?:tember)?|okt(?:ober)?|oct(?:ober)?|nov(?:ember)?|des(?:ember)?|dec(?:ember)?)\s+\d{2,4})|(?:\d{1,2}\s*[/-]\s*\d{2,4})|(?:\b\d{4}\b)'
+        END_DATE_PATTERN = rf'(?:{DATE_PATTERN})|(?:present|sekarang|current|now|ongoing|active|aktif)'
+
+        date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[–-]|—|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
                     
         cv_lines = full_text.split('\n')
         
@@ -460,23 +797,92 @@ async def parse_cv(file: UploadFile = File(...)):
             "personal_summary": [], "skills": [], "experience": [], 
             "education": [], "projects": [], "certifications": [], "languages": []
         }
-        
-        email_regex = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
-        phone_regex = re.compile(r"(\+?\d[\d -]{8,15})")
-        dob_regex = re.compile(r"(?i)(?:ttl|lahir|dob|date of birth)[:\s]*(\d{1,2}[\s\-/]+[a-zA-Z0-9]{2,10}[\s\-/]+\d{2,4})")
-        address_regex = re.compile(r"(?i)(?:alamat|address|domisili)[:\s]+([^=\n]{5,50})")
-        
+      # =========================
+        # BASIC REGEX EXTRACTION
+        # =========================
+
+        email_regex = re.compile(
+            r'([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'
+        )
+
+        phone_regex = re.compile(
+            r'(\+?\d[\d\s\-]{8,20}\d)'
+        )
+
+        dob_regex = re.compile(
+            r'(?i)(\d{1,2}\s+[A-Za-z]+\s+\d{4})'
+        )
+
+        location_keywords = [
+            "jakarta", "bandung", "surabaya", "solo", "yogyakarta",
+            "semarang", "bali", "medan", "makassar"
+        ]
+
+        # EMAIL
         emails = email_regex.findall(full_text)
-        if emails: sections["email"] = emails[0]
-            
+        if emails:
+            sections["email"] = emails[0].strip()
+
+        # PHONE
         phones = phone_regex.findall(full_text)
-        if phones: sections["phone"] = phones[0]
-            
+        if phones:
+            sections["phone"] = phones[0].strip()
+
+        # DATE OF BIRTH
         dobs = dob_regex.findall(full_text)
-        if dobs: sections["date_of_birth"] = dobs[0].strip()
-            
-        addresses = address_regex.findall(full_text)
-        if addresses: sections["address"] = addresses[0].strip()
+        if dobs:
+            sections["date_of_birth"] = dobs[0].strip()
+
+        # =========================
+        # LABEL-BASED EXTRACTION
+        # =========================
+
+        for i, line in enumerate(cv_lines):
+            current = line.strip().lower()
+
+            # EMAIL
+            if current in ["email", "e-mail"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    if email_regex.search(next_line):
+                        sections["email"] = next_line
+
+            # PHONE
+            elif current in ["phone", "phone number", "nomor hp", "no hp"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    if phone_regex.search(next_line):
+                        sections["phone"] = next_line
+
+            # DATE OF BIRTH
+            elif current in ["date of birth", "dob", "ttl", "lahir"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    sections["date_of_birth"] = next_line
+
+            # LOCATION / ADDRESS
+            elif current in ["location", "address", "alamat", "domisili"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    # hindari ketuker DOB lagi
+                    if not dob_regex.search(next_line):
+                        sections["address"] = next_line
+
+        # =========================
+        # FALLBACK LOCATION DETECTION
+        # =========================
+
+        if not sections["address"]:
+            for line in cv_lines:
+                clean = line.strip()
+
+                if clean.lower() in location_keywords:
+                    sections["address"] = clean
+                    break
 
         for line in cv_lines[:10]:  # cuma cek 10 baris atas
             line_clean = line.strip()
@@ -530,11 +936,13 @@ async def parse_cv(file: UploadFile = File(...)):
 
             # MASUKKAN DATA
             if current_section and line.strip():
-                if current_section in ["skills", "languages"]:
-                    parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]
-                    sections[current_section].extend(parts)
-                else:
-                    sections[current_section].append(line.strip())
+                target_section = sections[current_section]
+                if isinstance(target_section, list):
+                    if current_section in ["skills", "languages"]:
+                        parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]
+                        target_section.extend(parts)
+                    else:
+                        target_section.append(line.strip())
         # Skill Cleanup
         filtered_skills = []
         for s in sections["skills"]:
@@ -564,19 +972,17 @@ async def parse_cv(file: UploadFile = File(...)):
         projects = []
         current_proj = None
 
-        date_regex = re.compile(r'(?i)([a-z]+\s+\d{4})\s*[–-]\s*([a-z]+\s+\d{4})')
-
         for line in sections["projects"]:
             line = line.strip('-• ').strip()
             if not line:
                 continue
 
             # 1. DATE
-            date_match = date_regex.search(line)
+            date_match = date_range_regex.search(line)
             if date_match:
                 if current_proj:
-                    current_proj["start_date"] = date_match.group(1)
-                    current_proj["end_date"] = date_match.group(2)
+                    current_proj["start_date"] = standardize_date(date_match.group(1))
+                    current_proj["end_date"] = standardize_date(date_match.group(2))
                 continue
 
             # 2. TITLE → HANYA kalau BELUM ADA project
@@ -623,25 +1029,11 @@ async def parse_cv(file: UploadFile = File(...)):
         # gabung semua jadi 1 string
         text = " ".join(raw_lines)
 
-        # normalize bulan
-        def normalize_month(text):
-            months = {
-                "januari": "January", "februari": "February", "maret": "March",
-                "april": "April", "mei": "May", "juni": "June",
-                "juli": "July", "agustus": "August", "september": "September",
-                "oktober": "October", "november": "November", "desember": "December"
-            }
-            for indo, eng in months.items():
-                text = re.sub(indo, eng, text, flags=re.IGNORECASE)
-            return text
-
-        text = normalize_month(text)
-
         # normalize dash
         text = text.replace("–", "-").replace("—", "-")
 
         # regex ambil semua field
-        pattern = r'(.+?)\s*-\s*(.+?)\s+([A-Za-z]+\s+\d{4})\s*-\s*([A-Za-z]+\s+\d{4})\s+(https?://\S+|www\.\S+)'
+        pattern = r'(.+?)\s*-\s*(.+?)\s+((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s*-\s*((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s+(https?://\S+|www\.\S+)'
 
         matches = re.findall(pattern, text)
 
@@ -651,8 +1043,8 @@ async def parse_cv(file: UploadFile = File(...)):
             cert = {
                 "certification_name": m[0].strip(),
                 "issuing_organization": m[1].strip(),
-                "issue_date": m[2].strip(),
-                "expiration_date": m[3].strip(),
+                "issue_date": standardize_date(m[2]),
+                "expiration_date": standardize_date(m[3]),
                 "credential_url": m[4].rstrip('.,);')
             }
             cert_list.append(cert)
@@ -669,8 +1061,6 @@ async def parse_cv(file: UploadFile = File(...)):
         current_exp = None
         prev_line = ""
 
-        date_regex = re.compile(r'(?i)[a-z]+\s+\d{4}\s*[–-]\s*[a-z]+\s+\d{4}')
-
         for line in sections["experience"]:
             line = line.strip()
             if not line:
@@ -681,8 +1071,10 @@ async def parse_cv(file: UploadFile = File(...)):
                 continue
 
             # DETECT DATE 
-            if date_regex.search(line):
-                dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
+            match = date_range_regex.search(line)
+            if match:
+                start_raw = match.group(1)
+                end_raw = match.group(2)
 
                 # simpan sebelumnya
                 if current_exp:
@@ -695,8 +1087,8 @@ async def parse_cv(file: UploadFile = File(...)):
                     "location_type": "",
                     "location": "",
                     "description": "",
-                    "start_date": dates[0] if len(dates) > 0 else "",
-                    "end_date": dates[1] if len(dates) > 1 else ""
+                    "start_date": standardize_date(start_raw),
+                    "end_date": standardize_date(end_raw)
                 }
 
                 prev_line = line
@@ -741,7 +1133,26 @@ async def parse_cv(file: UploadFile = File(...)):
 
         sections["experience_structured"] = exp_list
         sections["experience"] = " ".join(sections["experience"][:20])
+        def normalize_degree(text):
+            text_lower = text.lower()
 
+            # Diploma / D3 / D4
+            if re.search(r'\b(d1|d2|d3|d4|diploma|associate)\b', text_lower):
+                return "Associate Degree"
+
+            # S1
+            elif re.search(r'\b(s1|sarjana|bachelor)\b', text_lower):
+                return "Bachelor Degree"
+
+            # S2
+            elif re.search(r'\b(s2|magister|master)\b', text_lower):
+                return "Master Degree"
+
+            # S3
+            elif re.search(r'\b(s3|doktor|doctor|phd)\b', text_lower):
+                return "Doctoral Degree"
+
+            return text
         edu = {
             "university": "",
             "degree": "",
@@ -762,15 +1173,15 @@ async def parse_cv(file: UploadFile = File(...)):
                 edu["university"] = line
 
             # DATE
-            elif re.search(r'(?i)[a-z]+\s+\d{4}\s*-\s*[a-z]+\s+\d{4}', line):
-                dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
-                if len(dates) >= 2:
-                    edu["start_date"] = dates[0]
-                    edu["end_date"] = dates[1]
+            elif date_range_regex.search(line):
+                match = date_range_regex.search(line)
+                if match:
+                    edu["start_date"] = standardize_date(match.group(1))
+                    edu["end_date"] = standardize_date(match.group(2))
 
             # DEGREE
-            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master', line):
-                edu["degree"] = line
+            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master|magister|doktor|phd|s1|s2|s3|d3|d4', line):
+                    edu["degree"] = normalize_degree(line)
 
             # GPA
             elif re.search(r'(?i)(gpa|ipk)?[:\s]*\b\d[.,]\d{1,2}\b', line):
@@ -785,9 +1196,12 @@ async def parse_cv(file: UploadFile = File(...)):
         # LENGTH
         if edu["start_date"] and edu["end_date"]:
             try:
-                start_year = re.search(r'\d{4}', edu["start_date"]).group()
-                end_year = re.search(r'\d{4}', edu["end_date"]).group()
-                edu["length_of_study"] = f"{int(end_year) - int(start_year)} years"
+                start_match = re.search(r'\d{4}', edu["start_date"])
+                end_match = re.search(r'\d{4}', edu["end_date"])
+                if start_match and end_match:
+                    start_year = start_match.group()
+                    end_year = end_match.group()
+                    edu["length_of_study"] = f"{int(end_year) - int(start_year)} years"
             except:
                 pass
 
@@ -795,10 +1209,61 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["education"] = " ".join(sections["education"][:10])
         
         sections["full_name"] = sections["name"]
+
+        # Track unread/missing sections with deeper dictionary checks
+        unread_sections = []
+        
+        # 1. Basic Info
+        if not sections.get("name"): unread_sections.append("Name")
+        if not sections.get("email"): unread_sections.append("Email")
+        if not sections.get("phone"): unread_sections.append("Phone Number")
+        if not sections.get("address"): unread_sections.append("Address")
+        if not sections.get("date_of_birth"): unread_sections.append("Date of Birth")
+        if not sections.get("personal_summary"): unread_sections.append("Personal Summary")
+        if not sections.get("skills"): unread_sections.append("Skills")
+        if not sections.get("languages"): unread_sections.append("Languages")
+
+        # 2. Experience Check
+        if not sections.get("experience_structured"):
+            unread_sections.append("Experience")
+        else:
+            for exp in sections["experience_structured"]:
+                if not exp.get("title") or not exp.get("company") or not exp.get("start_date") or not exp.get("end_date"):
+                    unread_sections.append("Experience (Some details missing)")
+                    break
+
+        # 3. Education Check
+        if not sections.get("education_structured"):
+            unread_sections.append("Education")
+        else:
+            for edu in sections["education_structured"]:
+                if not edu.get("university") or not edu.get("major") or not edu.get("degree") or not edu.get("start_date"):
+                    unread_sections.append("Education (Some details missing)")
+                    break
+
+        # 4. Projects Check
+        if not sections.get("projects_structured"):
+            unread_sections.append("Projects")
+        else:
+            for proj in sections["projects_structured"]:
+                if not proj.get("title") or not proj.get("description") or not proj.get("start_date"):
+                    unread_sections.append("Projects (Some details missing)")
+                    break
+
+        # 5. Certifications Check
+        if not sections.get("certifications_structured"):
+            unread_sections.append("Certifications")
+        else:
+            for cert in sections["certifications_structured"]:
+                if not cert.get("certification_name") or not cert.get("issuing_organization") or not cert.get("issue_date"):
+                    unread_sections.append("Certifications (Some details missing)")
+                    break
+
         return {
             "parsed_data": {
                 **sections,
-                "full_name": sections["name"]
+                "full_name": sections["name"],
+                "unread_sections": list(set(unread_sections)) # Remove duplicates
             },
             "raw_text": full_text
         }

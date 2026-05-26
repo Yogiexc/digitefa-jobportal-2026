@@ -24,9 +24,8 @@ async function bootstrap() {
   app.use('/public', new StaticFilesMiddleware().use);
   app.setGlobalPrefix('api');
   app.enableCors({
-    allowedHeaders: '*',
-    origin: '*',
-    methods: '*',
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
   // Swagger Configuration

@@ -17,7 +17,8 @@ import {
   LinkIcon,
   SparklesIcon,
   DocumentArrowUpIcon,
-  ArrowDownTrayIcon
+  ArrowDownTrayIcon,
+  ExclamationTriangleIcon
 } from "@heroicons/react/24/outline";
 import { message, Upload } from "antd";
 import { useProfile } from "../../../hooks/useProfile";
@@ -25,7 +26,7 @@ import { useOnMountUnsafe } from "../../../hooks/useMountUnsave.jsx";
 import { toPascalCase, dateToMonthYear } from "../../../utils";
 import Api from "../../../services/Api";
 
-const Profiles = () => {
+const Profiles = ({ onAutofillSuccess }) => {
   const [profileCompletion, setProfileCompletion] = useState({
     percentage: 30,
     show: false,
@@ -57,6 +58,8 @@ const Profiles = () => {
   const [isAutofilling, setIsAutofilling] = useState(false);
   const [linkAccountOpen, setLinkAccountOpen] = useState(false);
   const [isAutofillModalOpen, setIsAutofillModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [emptyFields, setEmptyFields] = useState([]);
 
   const sections = {
     [sectionEnums.PERSONAL_SUMMARY]: {
@@ -154,8 +157,25 @@ const Profiles = () => {
       });
       messageApi.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
       
+      // Check for unread sections from the backend response
+      // We check multiple paths to be sure we catch it regardless of wrapper structure
+      const unreadSections = 
+        response.data?.data?.unread_sections || 
+        response.data?.unread_sections || 
+        response.data?.parsed_data?.unread_sections;
+      
+      if (unreadSections && Array.isArray(unreadSections) && unreadSections.length > 0) {
+        setEmptyFields(unreadSections);
+        setIsErrorModalOpen(true);
+      }
+
       // Refresh section data
       await getAllSectionData();
+      
+      // Refresh banner data
+      if (onAutofillSuccess) {
+        await onAutofillSuccess();
+      }
       
       // Close modal on success
       setIsAutofillModalOpen(false);
@@ -407,6 +427,50 @@ const Profiles = () => {
               </div>
             </Button>
           </Upload>
+        </div>
+      </Modal>
+
+      <Modal
+        title={
+          <div className="flex items-center gap-2 text-red-600">
+            <ExclamationTriangleIcon className="w-6 h-6" />
+            <span className="font-bold">Incomplete Profile Information</span>
+          </div>
+        }
+        open={isErrorModalOpen}
+        onCancel={() => setIsErrorModalOpen(false)}
+        footer={[
+          <Button 
+            key="close" 
+            type="primary" 
+            danger
+            onClick={() => setIsErrorModalOpen(false)}
+            className="rounded-lg px-6"
+          >
+            I'll fix it manually
+          </Button>
+        ]}
+        centered
+        width={450}
+        styles={{ body: { padding: '24px' } }}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
+            <p className="text-red-800 text-sm font-medium mb-3">
+              We successfully processed your CV, but some sections could not be extracted or are still empty:
+            </p>
+            <ul className="grid grid-cols-1 gap-2">
+              {emptyFields.map((field, index) => (
+                <li key={index} className="flex items-center gap-2 text-red-700 text-sm">
+                  <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
+                  {field}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="text-gray-500 text-xs italic">
+            Tip: Make sure your CV follows a standard format for better extraction results. You can download our template for the best experience.
+          </p>
         </div>
       </Modal>
     </div>
