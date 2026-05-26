@@ -258,8 +258,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                 onPageSizeChange={handlePageChange}
                             />
                         </div>
-
-                      (
+                        </>
+                      ) : (
                         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
                             <UserCircleIcon className="size-12 text-gray-300 mx-auto mb-4" />
                             <Text type="secondary" className="text-gray-500 font-medium">
@@ -268,7 +268,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                     : "No suitable talents found for this job description."}
                             </Text>
                         </div>
-                    )
+                    )}
                 </div>
             </div>
 

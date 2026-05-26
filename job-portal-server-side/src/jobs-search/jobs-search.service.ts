@@ -192,8 +192,8 @@ export class JobsSearchService {
 
         let dataLMS;
         if (
-          jobSeeker.job_seeker.lmsUserId &&
-          recommendationSort.includes('lms')
+          jobSeeker?.job_seeker?.lmsUserId &&
+          recommendationSort?.includes('lms')
         ) {
           try {
             const response = await firstValueFrom(
@@ -307,13 +307,13 @@ export class JobsSearchService {
 
       const responseData = sortedJobs.map((job) => {
         let savedJob;
-        if (jobSeeker) {
+        if (jobSeeker && jobSeeker.job_seeker?.saved_jobs) {
           savedJob = jobSeeker.job_seeker.saved_jobs.find(
             (savedJob) => savedJob.job_id === job.job_id,
           );
         }
         let appliedJob;
-        if (jobSeeker) {
+        if (jobSeeker && jobSeeker.job_seeker?.applications) {
           appliedJob = jobSeeker.job_seeker.applications.find(
             (appliedJob) => appliedJob.job_id === job.job_id,
           );
@@ -328,15 +328,15 @@ export class JobsSearchService {
           title: job.title,
           published_at: job.published_at,
           expired_at: job.expired_at,
-          employment_type: job.employment_type
+          employment_type: (job.employment_type || '')
             .split('_')
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' '),
-          work_type: job.work_type
+          work_type: (job.work_type || '')
             .split('_')
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' '),
-          category: job.category
+          category: (job.category || '')
             .split('_')
             .map((word) =>
               word.toLowerCase() === 'and'
@@ -345,7 +345,7 @@ export class JobsSearchService {
             )
             .join(' '),
           education_requirement: job.education_requirement,
-          salary_type: job.salary_type
+          salary_type: (job.salary_type || '')
             .split('_')
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' '),
@@ -354,12 +354,12 @@ export class JobsSearchService {
           experience_requirement: job.experience_requirement,
           location: job.location,
           company: {
-            company_id: job.company.company_id,
-            logo_url: job.company.company_detail.logo_url,
-            legal_name: job.company.company_detail.legal_name,
-            market_name: job.company.company_detail.market_name,
-            city: job.company.company_detail.city,
-            country: job.company.company_detail.country,
+            company_id: job.company?.company_id,
+            logo_url: job.company?.company_detail?.logo_url,
+            legal_name: job.company?.company_detail?.legal_name,
+            market_name: job.company?.company_detail?.market_name,
+            city: job.company?.company_detail?.city,
+            country: job.company?.company_detail?.country,
           },
         };
       });

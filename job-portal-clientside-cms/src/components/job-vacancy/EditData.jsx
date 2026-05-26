@@ -9,7 +9,6 @@ import {
   Select,
   Switch,
   Table,
-  DatePicker,
 } from "antd";
 import dayjs from "dayjs";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
