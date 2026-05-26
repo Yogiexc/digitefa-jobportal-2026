@@ -12,6 +12,7 @@ import {
   FileImageOutlined,
   FileTextOutlined,
   FileUnknownOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 
 import Api from "../../services/Api";
