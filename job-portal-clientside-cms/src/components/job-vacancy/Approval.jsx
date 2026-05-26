@@ -217,6 +217,7 @@ const Approval = ({
               </Form.Item>
             )}
 
+
             <div className="mt-7" style={{ textAlign: "center" }}>
               <Button
                 onClick={handleCancel}
@@ -241,6 +242,7 @@ const Approval = ({
             </div>
           </Form>
         )}
+
       </Modal>
 
       <StatusModal

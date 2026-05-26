@@ -4,20 +4,20 @@ import { ArrowRightIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { getUserSession, previewImageUrl } from "../../utils";
 import PersonalInformation from "./PersonalInformation";
 import { useJobApply } from "../../pages/job-apply/JobApplyContext";
-import { 
-  InboxOutlined, 
+import {
+  InboxOutlined,
   UserOutlined,
   FilePdfOutlined,
   FileWordOutlined,
-  FileTextOutlined,
   FileImageOutlined,
-  FileOutlined,
-  DeleteOutlined
+  FileTextOutlined,
+  FileUnknownOutlined,
 } from "@ant-design/icons";
+
 import Api from "../../services/Api";
 import { useOnMountUnsafe } from "../../hooks/useMountUnsave";
 
-import brokenIcon from "../../assets/images/broken.jpg";
+import brokenImage from "../../assets/images/broken.jpg";
 
 const { Dragger } = Upload;
 
@@ -50,15 +50,13 @@ const ChooseDocument = ({ onNext }) => {
       setFileList([]);
     }
   }, [formData.upload_resume]);
-
-  const getFileIcon = (fileName) => {
-    if (!fileName) return <FileOutlined style={{ fontSize: '32px' }} />;
-    const ext = fileName.split('.').pop().toLowerCase();
-    if (ext === "pdf") return <FilePdfOutlined style={{ fontSize: '32px', color: '#ff4d4f' }} />;
-    if (ext === "doc" || ext === "docx") return <FileWordOutlined style={{ fontSize: '32px', color: '#1677ff' }} />;
-    if (ext === "txt" || ext === "rtf") return <FileTextOutlined style={{ fontSize: '32px', color: '#8c8c8c' }} />;
-    if (["png", "jpg", "jpeg"].includes(ext)) return <FileImageOutlined style={{ fontSize: '32px', color: '#52c41a' }} />;
-    return <FileOutlined style={{ fontSize: '32px' }} />;
+  const getFileIcon = (file) => {
+    const name = file.name || "";
+    if (name.endsWith(".pdf")) return <FilePdfOutlined style={{ color: "#f5222d", fontSize: "24px" }} />;
+    if (name.match(/\.(doc|docx)$/i)) return <FileWordOutlined style={{ color: "#1890ff", fontSize: "24px" }} />;
+    if (name.match(/\.(png|jpg|jpeg)$/i)) return <FileImageOutlined style={{ color: "#52c41a", fontSize: "24px" }} />;
+    if (name.match(/\.(txt|rtf)$/i)) return <FileTextOutlined style={{ color: "#fa8c16", fontSize: "24px" }} />;
+    return <FileUnknownOutlined style={{ fontSize: "24px" }} />;
   };
 
   const props = {
@@ -66,7 +64,8 @@ const ChooseDocument = ({ onNext }) => {
     multiple: false,
     showUploadList: false,
     fileList,
-    accept: ".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg",
+    accept: ".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg,",
+    iconRender: getFileIcon,
   
     beforeUpload(file) {
       updateFormData("upload_resume", file);
@@ -152,12 +151,12 @@ const ChooseDocument = ({ onNext }) => {
               description={
                 <div className="flex justify-between items-center w-full">
                   <img
-                    src={imageUrl || brokenIcon}
+                    src={imageUrl || brokenImage}
                     alt="Profile"
                     className="w-[110px] h-[110px] rounded-full mr-5 ml-1 border border-[#BBBBBB] p-2"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = brokenIcon;
+                      e.target.src = brokenImage;
                     }}
                   />
 

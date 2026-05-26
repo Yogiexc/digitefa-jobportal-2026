@@ -1,3 +1,4 @@
+
 ﻿import {
   BadRequestException,
   ConflictException,
@@ -50,9 +51,11 @@ export class JobsService {
     try {
       if (data.status == 'active') {
         (data as any).published_at = new Date();
-        (data as any).expired_at = new Date(
-          new Date().setDate(new Date().getDate() + 30),
-        );
+        if (!(data as any).expired_at) {
+          (data as any).expired_at = new Date(
+            new Date().setDate(new Date().getDate() + 30),
+          );
+        }
       }
       if (hide_salary === 'true') {
         (data as any).minimum_salary = null;
@@ -1147,18 +1150,14 @@ export class JobsService {
         },
       });
 
-      if (
-        !jobDescription &&
-        applicantsFromDb.length > 0 &&
-        applicantsFromDb[0].job?.description
-      ) {
-        jobDescription = applicantsFromDb[0].job.description;
-      }
+      if (!jobDescription && job?.description) {
+          jobDescription = job.description;
+        }
 
       const applicantsWithCoursesAndSuitability = await Promise.all(
         applicantsFromDb.map(async (applicant) => {
           let completed_courses = [];
-          if (applicant.job_seeker.lmsUserId) {
+          if (applicant.job_seeker?.lmsUserId) {
             try {
               const lmsCoursesUrl = `${this.lmsApiBaseUrl}/lms/students/${applicant.job_seeker.lmsUserId}/completed-courses`;
               const lmsResponse = await firstValueFrom(
@@ -1175,16 +1174,16 @@ export class JobsService {
                 }));
               } else {
                 console.warn(
-                  `Gagal mengambil atau mem-parse completed courses untuk LMS User ID ${applicant.job_seeker.lmsUserId}: `,
+                  `Gagal mengambil atau mem-parse completed courses untuk LMS User ID ${applicant.job_seeker?.lmsUserId}: `,
                   lmsResponse.data?.message || 'Respons tidak terduga dari LMS',
                 );
               }
-            } catch (error) {
-              console.error(
-                `Error mengambil completed courses untuk LMS User ID ${applicant.job_seeker.lmsUserId}:`,
-                error.response?.data || error.message || error,
-              );
-            }
+             } catch (error) {
+               console.error(
+                 `Error mengambil completed courses untuk LMS User ID ${applicant.job_seeker?.lmsUserId}:`,
+                 error.response?.data || error.message || error,
+               );
+             }
           }
 
           let suitability_score = 0.0;
@@ -1216,13 +1215,13 @@ export class JobsService {
                     suitabilityResponse.data.suitability_score;
                 } else {
                   console.warn(
-                    `Invalid suitability score response for applicant ${applicant.job_seeker.job_seeker_id}:`,
+                    `Invalid suitability score response for applicant ${applicant.job_seeker?.job_seeker_id}:`,
                     suitabilityResponse.data,
                   );
                 }
               } catch (pyError) {
                 console.error(
-                  `Error calculating suitability for applicant ${applicant.job_seeker.job_seeker_id} (LMS User ID ${applicant.job_seeker.lmsUserId}):`,
+                  `Error calculating suitability for applicant ${applicant.job_seeker?.job_seeker_id} (LMS User ID ${applicant.job_seeker?.lmsUserId}):`,
                   pyError.response?.data || pyError.message || pyError,
                 );
               }
@@ -1261,7 +1260,7 @@ export class JobsService {
         job: {
           experience_requirement: app.job.experience_requirement,
         },
-        match_scores: app.match_scores ? app.match_scores : null,
+        match_scores: app.match_scores ?? null,
       }));
 
       // Calculate total data

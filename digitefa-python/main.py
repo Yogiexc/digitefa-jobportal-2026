@@ -770,6 +770,85 @@ async def parse_cv(file: UploadFile = File(...)):
                 text = page.extract_text()
                 if text:
                     full_text += text + "\n"
+
+        def normalize_month(text):
+            # We normalize full Indonesian month names globally to avoid abbreviation conflicts
+            months = {
+                r"\bjanuari\b": "January", r"\bfebruari\b": "February", r"\bmaret\b": "March",
+                r"\bapril\b": "April", r"\bmei\b": "May", r"\bjuni\b": "June",
+                r"\bjuli\b": "July", r"\bagustus\b": "August", r"\bseptember\b": "September",
+                r"\boktober\b": "October", r"\bnovember\b": "November", r"\bdesember\b": "December"
+            }
+            for indo, eng in months.items():
+                text = re.sub(indo, eng, text, flags=re.IGNORECASE)
+            return text
+
+        def standardize_date(date_str):
+            if not date_str:
+                return ""
+            
+            from datetime import datetime
+            date_str = date_str.strip().lower()
+            
+            # Present / sekarang -> dynamic current month & year
+            if date_str in ["present", "sekarang", "current", "ongoing", "now", "active", "aktif"]:
+                return datetime.now().strftime("%B %Y")
+                
+            # 1. Check numeric format like MM/YYYY or MM-YYYY
+            numeric_match = re.search(r'\b(\d{1,2})\s*[/-]\s*(\d{2,4})\b', date_str)
+            if numeric_match:
+                month_num = int(numeric_match.group(1))
+                year_num = int(numeric_match.group(2))
+                if year_num < 100:
+                    year_num += 2000
+                months_list = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ]
+                if 1 <= month_num <= 12:
+                    return f"{months_list[month_num - 1]} {year_num}"
+                    
+            # 2. Check year-only format like YYYY
+            year_match = re.search(r'\b(\d{4})\b', date_str)
+            if year_match and not re.search(r'[a-z]', date_str):
+                return f"January {year_match.group(1)}"
+                
+            # 3. Month name and year format
+            months_map = {
+                "jan": "January", "january": "January", "januari": "January",
+                "feb": "February", "february": "February", "februari": "February",
+                "mar": "March", "march": "March", "maret": "March",
+                "apr": "April", "april": "April",
+                "may": "May", "mei": "May",
+                "jun": "June", "june": "June", "juni": "June",
+                "jul": "July", "july": "July", "juli": "July",
+                "aug": "August", "august": "August", "agt": "August", "agu": "August", "agustus": "August",
+                "sep": "September", "september": "September",
+                "oct": "October", "october": "October", "okt": "October", "oktober": "October",
+                "nov": "November", "november": "November",
+                "dec": "December", "december": "December", "des": "December", "desember": "December"
+            }
+            
+            words = re.findall(r'[a-z]+', date_str)
+            year_match = re.search(r'\b(\d{2,4})\b', date_str)
+            
+            if year_match:
+                year_num = int(year_match.group(1))
+                if year_num < 100:
+                    year_num += 2000
+                for w in words:
+                    if w in months_map:
+                        return f"{months_map[w]} {year_num}"
+            
+            return date_str.title()
+
+        # Compile powerful unified date range patterns
+        DATE_PATTERN = r'(?:(?:jan(?:uari|uary)?|feb(?:ruari|ruary)?|mar(?:et|ch)?|apr(?:il)?|mei|may|jun(?:i|e)?|jul(?:i|y)?|agustus|agu(?:stus)?|agt|aug(?:ust)?|sep(?:tember)?|okt(?:ober)?|oct(?:ober)?|nov(?:ember)?|des(?:ember)?|dec(?:ember)?)\s+\d{2,4})|(?:\d{1,2}\s*[/-]\s*\d{2,4})|(?:\b\d{4}\b)'
+        END_DATE_PATTERN = rf'(?:{DATE_PATTERN})|(?:present|sekarang|current|now|ongoing|active|aktif)'
+
+        date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[–-]|—|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
+
+        full_text = normalize_month(full_text)
                     
         cv_lines = full_text.split('\n')
         
@@ -778,23 +857,92 @@ async def parse_cv(file: UploadFile = File(...)):
             "personal_summary": [], "skills": [], "experience": [], 
             "education": [], "projects": [], "certifications": [], "languages": []
         }
-        
-        email_regex = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
-        phone_regex = re.compile(r"(\+?\d[\d -]{8,15})")
-        dob_regex = re.compile(r"(?i)(?:ttl|lahir|dob|date of birth)[:\s]*(\d{1,2}[\s\-/]+[a-zA-Z0-9]{2,10}[\s\-/]+\d{2,4})")
-        address_regex = re.compile(r"(?i)(?:alamat|address|domisili)[:\s]+([^=\n]{5,50})")
-        
+      # =========================
+        # BASIC REGEX EXTRACTION
+        # =========================
+
+        email_regex = re.compile(
+            r'([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'
+        )
+
+        phone_regex = re.compile(
+            r'(\+?\d[\d\s\-]{8,20}\d)'
+        )
+
+        dob_regex = re.compile(
+            r'(?i)(\d{1,2}\s+[A-Za-z]+\s+\d{4})'
+        )
+
+        location_keywords = [
+            "jakarta", "bandung", "surabaya", "solo", "yogyakarta",
+            "semarang", "bali", "medan", "makassar"
+        ]
+
+        # EMAIL
         emails = email_regex.findall(full_text)
-        if emails: sections["email"] = emails[0]
-            
+        if emails:
+            sections["email"] = emails[0].strip()
+
+        # PHONE
         phones = phone_regex.findall(full_text)
-        if phones: sections["phone"] = phones[0]
-            
+        if phones:
+            sections["phone"] = phones[0].strip()
+
+        # DATE OF BIRTH
         dobs = dob_regex.findall(full_text)
-        if dobs: sections["date_of_birth"] = dobs[0].strip()
-            
-        addresses = address_regex.findall(full_text)
-        if addresses: sections["address"] = addresses[0].strip()
+        if dobs:
+            sections["date_of_birth"] = dobs[0].strip()
+
+        # =========================
+        # LABEL-BASED EXTRACTION
+        # =========================
+
+        for i, line in enumerate(cv_lines):
+            current = line.strip().lower()
+
+            # EMAIL
+            if current in ["email", "e-mail"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    if email_regex.search(next_line):
+                        sections["email"] = next_line
+
+            # PHONE
+            elif current in ["phone", "phone number", "nomor hp", "no hp"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    if phone_regex.search(next_line):
+                        sections["phone"] = next_line
+
+            # DATE OF BIRTH
+            elif current in ["date of birth", "dob", "ttl", "lahir"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    sections["date_of_birth"] = next_line
+
+            # LOCATION / ADDRESS
+            elif current in ["location", "address", "alamat", "domisili"]:
+                if i + 1 < len(cv_lines):
+                    next_line = cv_lines[i + 1].strip()
+
+                    # hindari ketuker DOB lagi
+                    if not dob_regex.search(next_line):
+                        sections["address"] = next_line
+
+        # =========================
+        # FALLBACK LOCATION DETECTION
+        # =========================
+
+        if not sections["address"]:
+            for line in cv_lines:
+                clean = line.strip()
+
+                if clean.lower() in location_keywords:
+                    sections["address"] = clean
+                    break
 
         for line in cv_lines[:10]:  # cuma cek 10 baris atas
             line_clean = line.strip()
@@ -882,19 +1030,17 @@ async def parse_cv(file: UploadFile = File(...)):
         projects = []
         current_proj = None
 
-        date_regex = re.compile(r'(?i)([a-z]+\s+\d{4})\s*[–-]\s*([a-z]+\s+\d{4})')
-
         for line in sections["projects"]:
             line = line.strip('-• ').strip()
             if not line:
                 continue
 
             # 1. DATE
-            date_match = date_regex.search(line)
+            date_match = date_range_regex.search(line)
             if date_match:
                 if current_proj:
-                    current_proj["start_date"] = date_match.group(1)
-                    current_proj["end_date"] = date_match.group(2)
+                    current_proj["start_date"] = standardize_date(date_match.group(1))
+                    current_proj["end_date"] = standardize_date(date_match.group(2))
                 continue
 
             # 2. TITLE → HANYA kalau BELUM ADA project
@@ -941,25 +1087,11 @@ async def parse_cv(file: UploadFile = File(...)):
         # gabung semua jadi 1 string
         text = " ".join(raw_lines)
 
-        # normalize bulan
-        def normalize_month(text):
-            months = {
-                "januari": "January", "februari": "February", "maret": "March",
-                "april": "April", "mei": "May", "juni": "June",
-                "juli": "July", "agustus": "August", "september": "September",
-                "oktober": "October", "november": "November", "desember": "December"
-            }
-            for indo, eng in months.items():
-                text = re.sub(indo, eng, text, flags=re.IGNORECASE)
-            return text
-
-        text = normalize_month(text)
-
         # normalize dash
         text = text.replace("–", "-").replace("—", "-")
 
         # regex ambil semua field
-        pattern = r'(.+?)\s*-\s*(.+?)\s+([A-Za-z]+\s+\d{4})\s*-\s*([A-Za-z]+\s+\d{4})\s+(https?://\S+|www\.\S+)'
+        pattern = r'(.+?)\s*-\s*(.+?)\s+((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s*-\s*((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s+(https?://\S+|www\.\S+)'
 
         matches = re.findall(pattern, text)
 
@@ -969,8 +1101,8 @@ async def parse_cv(file: UploadFile = File(...)):
             cert = {
                 "certification_name": m[0].strip(),
                 "issuing_organization": m[1].strip(),
-                "issue_date": m[2].strip(),
-                "expiration_date": m[3].strip(),
+                "issue_date": standardize_date(m[2]),
+                "expiration_date": standardize_date(m[3]),
                 "credential_url": m[4].rstrip('.,);')
             }
             cert_list.append(cert)
@@ -987,8 +1119,6 @@ async def parse_cv(file: UploadFile = File(...)):
         current_exp = None
         prev_line = ""
 
-        date_regex = re.compile(r'(?i)[a-z]+\s+\d{4}\s*[–-]\s*[a-z]+\s+\d{4}')
-
         for line in sections["experience"]:
             line = line.strip()
             if not line:
@@ -999,8 +1129,10 @@ async def parse_cv(file: UploadFile = File(...)):
                 continue
 
             # DETECT DATE 
-            if date_regex.search(line):
-                dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
+            match = date_range_regex.search(line)
+            if match:
+                start_raw = match.group(1)
+                end_raw = match.group(2)
 
                 # simpan sebelumnya
                 if current_exp:
@@ -1013,8 +1145,8 @@ async def parse_cv(file: UploadFile = File(...)):
                     "location_type": "",
                     "location": "",
                     "description": "",
-                    "start_date": dates[0] if len(dates) > 0 else "",
-                    "end_date": dates[1] if len(dates) > 1 else ""
+                    "start_date": standardize_date(start_raw),
+                    "end_date": standardize_date(end_raw)
                 }
 
                 prev_line = line
@@ -1059,7 +1191,26 @@ async def parse_cv(file: UploadFile = File(...)):
 
         sections["experience_structured"] = exp_list
         sections["experience"] = " ".join(sections["experience"][:20])
+        def normalize_degree(text):
+            text_lower = text.lower()
 
+            # Diploma / D3 / D4
+            if re.search(r'\b(d1|d2|d3|d4|diploma|associate)\b', text_lower):
+                return "Associate Degree"
+
+            # S1
+            elif re.search(r'\b(s1|sarjana|bachelor)\b', text_lower):
+                return "Bachelor Degree"
+
+            # S2
+            elif re.search(r'\b(s2|magister|master)\b', text_lower):
+                return "Master Degree"
+
+            # S3
+            elif re.search(r'\b(s3|doktor|doctor|phd)\b', text_lower):
+                return "Doctoral Degree"
+
+            return text
         edu = {
             "university": "",
             "degree": "",
@@ -1080,15 +1231,15 @@ async def parse_cv(file: UploadFile = File(...)):
                 edu["university"] = line
 
             # DATE
-            elif re.search(r'(?i)[a-z]+\s+\d{4}\s*-\s*[a-z]+\s+\d{4}', line):
-                dates = re.findall(r'(?i)[a-z]+\s+\d{4}', line)
-                if len(dates) >= 2:
-                    edu["start_date"] = dates[0]
-                    edu["end_date"] = dates[1]
+            elif date_range_regex.search(line):
+                match = date_range_regex.search(line)
+                if match:
+                    edu["start_date"] = standardize_date(match.group(1))
+                    edu["end_date"] = standardize_date(match.group(2))
 
             # DEGREE
-            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master', line):
-                edu["degree"] = line
+            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master|magister|doktor|phd|s1|s2|s3|d3|d4', line):
+                    edu["degree"] = normalize_degree(line)
 
             # GPA
             elif re.search(r'(?i)(gpa|ipk)?[:\s]*\b\d[.,]\d{1,2}\b', line):
@@ -1113,10 +1264,61 @@ async def parse_cv(file: UploadFile = File(...)):
         sections["education"] = " ".join(sections["education"][:10])
         
         sections["full_name"] = sections["name"]
+
+        # Track unread/missing sections with deeper dictionary checks
+        unread_sections = []
+        
+        # 1. Basic Info
+        if not sections.get("name"): unread_sections.append("Name")
+        if not sections.get("email"): unread_sections.append("Email")
+        if not sections.get("phone"): unread_sections.append("Phone Number")
+        if not sections.get("address"): unread_sections.append("Address")
+        if not sections.get("date_of_birth"): unread_sections.append("Date of Birth")
+        if not sections.get("personal_summary"): unread_sections.append("Personal Summary")
+        if not sections.get("skills"): unread_sections.append("Skills")
+        if not sections.get("languages"): unread_sections.append("Languages")
+
+        # 2. Experience Check
+        if not sections.get("experience_structured"):
+            unread_sections.append("Experience")
+        else:
+            for exp in sections["experience_structured"]:
+                if not exp.get("title") or not exp.get("company") or not exp.get("start_date") or not exp.get("end_date"):
+                    unread_sections.append("Experience (Some details missing)")
+                    break
+
+        # 3. Education Check
+        if not sections.get("education_structured"):
+            unread_sections.append("Education")
+        else:
+            for edu in sections["education_structured"]:
+                if not edu.get("university") or not edu.get("major") or not edu.get("degree") or not edu.get("start_date"):
+                    unread_sections.append("Education (Some details missing)")
+                    break
+
+        # 4. Projects Check
+        if not sections.get("projects_structured"):
+            unread_sections.append("Projects")
+        else:
+            for proj in sections["projects_structured"]:
+                if not proj.get("title") or not proj.get("description") or not proj.get("start_date"):
+                    unread_sections.append("Projects (Some details missing)")
+                    break
+
+        # 5. Certifications Check
+        if not sections.get("certifications_structured"):
+            unread_sections.append("Certifications")
+        else:
+            for cert in sections["certifications_structured"]:
+                if not cert.get("certification_name") or not cert.get("issuing_organization") or not cert.get("issue_date"):
+                    unread_sections.append("Certifications (Some details missing)")
+                    break
+
         return {
             "parsed_data": {
                 **sections,
-                "full_name": sections["name"]
+                "full_name": sections["name"],
+                "unread_sections": list(set(unread_sections)) # Remove duplicates
             },
             "raw_text": full_text
         }

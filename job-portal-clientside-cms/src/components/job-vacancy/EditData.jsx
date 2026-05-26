@@ -9,6 +9,7 @@ import {
   Select,
   Switch,
   Table,
+  DatePicker,
 } from "antd";
 import dayjs from "dayjs";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -32,6 +33,7 @@ const EditData = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [statusJob, setStatusJob] = useState(null);
+  const requiredLabel = (text) => (<span><span className="text-red-500">*</span> {text}</span>);
 
   const [dataSource, setDataSource] = useState([]);
   const [skillsData, setSkillsData] = useState([]);
@@ -316,7 +318,7 @@ const EditData = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
           <Form.Item
             name="title"
-            label="Job Title"
+            label={requiredLabel("Job Title")}
             rules={[{ required: true, message: "Please enter job title" }]}
           >
             <Input style={{ borderColor: "#BBBBBB", height: "56px" }} />
@@ -324,7 +326,7 @@ const EditData = ({
 
           <Form.Item
             name="category"
-            label="Job Category"
+            label={requiredLabel("Job Category")}
             rules={[{ required: true, message: "Please select job category" }]}
           >
             <Select style={{ borderColor: "#BBBBBB", height: "56px" }}>
@@ -370,7 +372,7 @@ const EditData = ({
 
           <Form.Item
             name="employment_type"
-            label="Employment Type"
+            label={requiredLabel("Employment Type")}
             rules={[
               { required: true, message: "Please select employment type" },
             ]}
@@ -385,7 +387,7 @@ const EditData = ({
 
           <Form.Item
             name="location"
-            label="Location"
+            label={requiredLabel("Location")}
             rules={[{ required: true, message: "Please enter location" }]}
             style={{ marginTop: "-16px" }}
           >
@@ -394,7 +396,7 @@ const EditData = ({
 
           <Form.Item
             name="work_type"
-            label="Work Type"
+            label={requiredLabel("Work Type")}
             rules={[{ required: true, message: "Please select work type" }]}
             style={{ marginTop: "-16px" }}
           >
@@ -407,19 +409,20 @@ const EditData = ({
 
           <Form.Item
             name="expired_at"
-            label="Expired Date"
+            label={requiredLabel("Expired Date & Time")}
             rules={[{ required: true, message: "Please select expired date" }]}
             style={{ marginTop: "-16px" }}
           >
             <DatePicker
-              format="DD MMMM YYYY"
+              showTime
+              format="YYYY-MM-DD HH:mm"
               style={{ borderColor: "#BBBBBB", height: "56px", width: "100%" }}
             />
           </Form.Item>
 
           <Form.Item
             name="description"
-            label="Job Description"
+            label={requiredLabel("Job Description")}
             rules={[
               { required: true, message: "Please enter job description" },
             ]}
@@ -444,7 +447,7 @@ const EditData = ({
         <div className="grid grid-cols-2 gap-4 mb-4">
           <Form.Item
             name="salary_type"
-            label="Salary Based"
+            label={requiredLabel("Salary Based")}
             rules={[{ required: true, message: "Please select salary based" }]}
             style={{ gridColumn: "span 1" }}
           >
@@ -460,7 +463,7 @@ const EditData = ({
           >
             <Form.Item
               name="minimum_salary"
-              label="Minimum Salary"
+              label={requiredLabel("Minimum Salary")}
               rules={[
                 {
                   required: !isSalaryHidden,
@@ -478,7 +481,7 @@ const EditData = ({
 
             <Form.Item
               name="maximum_salary"
-              label="Maximum Salary"
+              label={requiredLabel("Maximum Salary")}
               rules={[
                 {
                   required: !isSalaryHidden,
@@ -521,7 +524,7 @@ const EditData = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Form.Item
               name="skills_category"
-              label="Skills Category"
+              label={requiredLabel("Skills Category")}
               rules={[
                 { required: true, message: "Please select skills category" },
               ]}
@@ -543,7 +546,7 @@ const EditData = ({
 
             <Form.Item
               name="skills_requirement"
-              label="Skills"
+              label={requiredLabel("Skills")}
               rules={[
                 { required: true, message: "Please select skills requirement" },
               ]}
@@ -602,7 +605,7 @@ const EditData = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Form.Item
               name="education_requirement"
-              label="Education Level"
+              label={requiredLabel("Education Level")}
               rules={[
                 { required: true, message: "Please select education level" },
               ]}
@@ -637,7 +640,7 @@ const EditData = ({
 
             <Form.Item
               name="experience_requirement"
-              label="Experience Level"
+              label={requiredLabel("Experience Level")}
               rules={[
                 { required: true, message: "Please select experience level" },
               ]}

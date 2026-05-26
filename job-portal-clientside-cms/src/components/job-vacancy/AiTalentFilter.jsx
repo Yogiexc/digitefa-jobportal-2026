@@ -24,6 +24,12 @@ const AiTalentFilter = ({ filterCriteria, onFilterChange, showAppliedOnly, setSh
                     value={filterCriteria}
                     onChange={onFilterChange}
                 />
+                {/* Show Applied Only checkbox */}
+                <div className="mt-4">
+                    <Checkbox checked={showAppliedOnly} onChange={e => setShowAppliedOnly(e.target.checked)}>
+                        Show Applied Only
+                    </Checkbox>
+                </div>
             </div>
 
             <Divider className="my-4" />

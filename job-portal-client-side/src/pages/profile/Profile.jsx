@@ -83,7 +83,7 @@ const Profile = () => {
           onUploadImage={onUploadImage}
           onRemoveImage={onRemoveImage}
         />
-        <Profiles />
+        <Profiles onAutofillSuccess={getUserInfo} />
         <Footers />
       </Layout>
     </HelmetProvider>
