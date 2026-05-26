@@ -240,6 +240,7 @@ export class JobsSearchService {
               lms: dataLMS || [],
               sort: recommendationSort || [],
               is_sort: recommendationSort?.length ? 'true' : 'false',
+              filter: 'false',
             };
           } else if (search) {
             // Simple search by text

@@ -771,17 +771,6 @@ async def parse_cv(file: UploadFile = File(...)):
                 if text:
                     full_text += text + "\n"
 
-        def normalize_month(text):
-            # We normalize full Indonesian month names globally to avoid abbreviation conflicts
-            months = {
-                r"\bjanuari\b": "January", r"\bfebruari\b": "February", r"\bmaret\b": "March",
-                r"\bapril\b": "April", r"\bmei\b": "May", r"\bjuni\b": "June",
-                r"\bjuli\b": "July", r"\bagustus\b": "August", r"\bseptember\b": "September",
-                r"\boktober\b": "October", r"\bnovember\b": "November", r"\bdesember\b": "December"
-            }
-            for indo, eng in months.items():
-                text = re.sub(indo, eng, text, flags=re.IGNORECASE)
-            return text
 
         def standardize_date(date_str):
             if not date_str:
@@ -847,8 +836,6 @@ async def parse_cv(file: UploadFile = File(...)):
         END_DATE_PATTERN = rf'(?:{DATE_PATTERN})|(?:present|sekarang|current|now|ongoing|active|aktif)'
 
         date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[–-]|—|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
-
-        full_text = normalize_month(full_text)
                     
         cv_lines = full_text.split('\n')
         

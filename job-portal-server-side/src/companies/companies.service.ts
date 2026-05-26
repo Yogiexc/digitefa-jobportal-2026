@@ -301,24 +301,21 @@ export class CompaniesService {
     // Fetch existing invitations for this job if job_id is provided
     let invitedJobSeekerIds: string[] = [];
     let appliedJobSeekerIds: string[] = [];
+    let invitations: any[] = [];
+    let applications: any[] = [];
 
     if (job_id) {
       invitations = await (this.prisma as any).request_apply.findMany({
         where: { job_id },
         select: { job_seeker_id: true, status: true },
       });
+      invitedJobSeekerIds = invitations.map((inv) => inv.job_seeker_id);
+
       applications = await this.prisma.applications.findMany({
         where: { job_id },
         select: { job_seeker_id: true },
       });
-      invitedJobSeekerIds = invitations.map((inv) => inv.job_seeker_id);
-
-      const applications = await this.prisma.applications.findMany({
-        where: { job_id },
-        select: { job_seeker_id: true },
-      });
       appliedJobSeekerIds = applications.map((app) => app.job_seeker_id);
-
     }
 
     // Format for Python AI semantic search
