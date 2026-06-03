@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Button, Card, List, Progress, Modal, Typography, Divider } from "antd";
 import PersonalSummary from "./PersonalSummary";
 import Education from "./Education";
@@ -9,6 +9,8 @@ import CertificationsLicenses from "./CertificationsLicenses";
 import Languages from "./Languages";
 import LinkAccount from "./LinkAccount";
 import WebChart from "./WebChart";
+import RecommendedJobs from "./RecommendedJobs";
+
 import {
   CheckCircleIcon,
   XCircleIcon,
@@ -194,8 +196,8 @@ const Profiles = ({ onAutofillSuccess }) => {
   return (
     <div className="bg-white min-h-screen px-4 md:px-[110px] py-6 md:py-10">
       {contextHolder}
-      <div className="flex flex-col md:flex-row md:justify-between w-full">
-        <div className="space-y-8 md:space-y-[40px] w-full">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-6 w-full">
+        <div className="space-y-8 md:space-y-[40px] flex-1 min-w-0">
           <Section
             title={sections.ACCOUNT_INTEGRATION.title}
             description={sections.ACCOUNT_INTEGRATION.description}
@@ -221,8 +223,8 @@ const Profiles = ({ onAutofillSuccess }) => {
             );
           })}
         </div>
-        <div className="mt-8 md:mt-0 md:ml-20">
-          <Card className="shadow-lg rounded-[20px] md:rounded-[40px] md:ml-48 w-full md:w-[276px]">
+        <div className="mt-8 lg:mt-0 w-full lg:w-[300px] flex-shrink-0 flex flex-col gap-4">
+          <Card className="shadow-lg rounded-[20px] w-full">
             <div className="flex flex-col items-center h-full justify-center p-4">
               <div className="text-base font-semibold mb-6 md:mb-8">
                 Profile Completion
@@ -293,11 +295,9 @@ const Profiles = ({ onAutofillSuccess }) => {
             )}
             <WebChart sectionItems={sectionItems} />
           </Card>
+          <RecommendedJobs jobs={[]} />
         </div>
       </div>
-
-
-
       <LinkAccount
         open={linkAccountOpen}
         setOpen={setLinkAccountOpen}
@@ -628,12 +628,12 @@ const ListItemCard = (props) => {
                 </p>
                 {sectionId === "EXPERIENCE" && (
                   <p className="text-sm">
-                    {item?.company_name} • {item.employment_type}
+                    {item?.company_name} â€¢ {item.employment_type}
                   </p>
                 )}
                 {sectionId === "EDUCATION" && (
                   <p className="text-sm">
-                    {item?.major} • {item?.degree}
+                    {item?.major} â€¢ {item?.degree}
                   </p>
                 )}
                 <p className="text-xs">
@@ -694,3 +694,4 @@ const ListItemCard = (props) => {
 };
 
 export default Profiles;
+

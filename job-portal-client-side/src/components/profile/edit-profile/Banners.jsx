@@ -42,7 +42,7 @@ const Banners = ({ user, profile, onSubmit, onUploadImage, onRemoveImage }) => {
   return (
     <>
       <div
-        className="px-4 sm:px-10 md:px-[160px] h-[295px] flex flex-col md:flex-row items-center justify-between p-6 bg-cover bg-center"
+        className="px-4 sm:px-10 md:px-[160px] min-h-[295px] py-8 md:py-0 flex flex-col md:flex-row items-center justify-between p-6 bg-cover bg-center"
         style={{ backgroundImage: `url(${Background})` }}
       >
         <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
@@ -53,7 +53,7 @@ const Banners = ({ user, profile, onSubmit, onUploadImage, onRemoveImage }) => {
             className="w-[150px] h-[150px] md:w-[195px] md:h-[195px] rounded-full bg-gray-200 object-cover flex items-center justify-center"
           />
 
-          <div className="space-y-1 md:space-y-2">
+          <div className="space-y-1 md:space-y-2 flex flex-col items-center md:items-start text-center md:text-left">
             <h1 className="text-[24px] md:text-[32px] font-medium">{profile?.full_name || user?.full_name}</h1>
             <div className="flex items-center space-x-2">
               <EnvelopeIcon className="size-5 text-[#232323]" />
@@ -77,16 +77,18 @@ const Banners = ({ user, profile, onSubmit, onUploadImage, onRemoveImage }) => {
                 {profile?.address ? profile?.address : "-"}
               </span>
             </div>
+
+            {/* Tombol Edit diletakkan di bawah detail profil */}
+            <Button
+              type="default"
+              icon={<PencilSquareIcon className="size-4" />}
+              className="mt-3 w-[120px] h-[40px] border-green-600 text-green-600 rounded-[12px] hover:bg-green-600 hover:text-white flex items-center justify-center"
+              onClick={() => setOpenPersonalInformation(true)}
+            >
+              <span className="text-[#06A73B] text-[14px] font-medium"> Edit </span>
+            </Button>
           </div>
         </div>
-        <Button
-          type="default"
-          icon={<PencilSquareIcon className="size-4" />}
-          className="mt-4 md:mt-0 w-[120px] h-[40px] border-green-600 text-green-600 rounded-[12px] hover:bg-green-600 hover:text-white"
-          onClick={() => setOpenPersonalInformation(true)}
-        >
-          <span className="text-[#06A73B] text-[14px] font-medium"> Edit </span>
-        </Button>
       </div>
       <PersonalInformation
         onSubmit={onSubmit}

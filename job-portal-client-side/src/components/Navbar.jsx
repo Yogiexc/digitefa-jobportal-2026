@@ -132,6 +132,12 @@ const Navbar = () => {
       <Menu.Item key="profile" icon={<UserCircleIcon className="size-5" />}>
         <Link to="/profile">Profile</Link>
       </Menu.Item>
+       <Menu.Item
+        key="recommended-jobs"
+        icon={<ClipboardDocumentCheckIcon className="size-5" />}
+      >
+        <Link to="/recommended-jobs">Recommended Jobs</Link>
+      </Menu.Item>
       <Menu.Item key="saved-jobs" icon={<BriefcaseIcon className="size-5" />}>
         <Link to="/saved-jobs">Saved Jobs</Link>
       </Menu.Item>

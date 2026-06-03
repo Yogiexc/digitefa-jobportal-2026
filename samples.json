@@ -1,0 +1,556 @@
+{
+    "jobs": [
+        {
+            "job_id": "1c40c27d-128d-4900-a6ad-0acc8834a165",
+            "is_saved": false,
+            "is_applied": false,
+            "application_status": null,
+            "interview": null,
+            "title": "Web Developer",
+            "published_at": "2026-05-26 13:25:19",
+            "expired_at": "2026-06-10 00:00:00",
+            "employment_type": "Freelance",
+            "work_type": "On Site",
+            "category": "Information and Communication Technology",
+            "education_requirement": "Bachelor's Degree",
+            "salary_type": "Project Based",
+            "minimum_salary": 50000000,
+            "maximum_salary": 10000000,
+            "experience_requirement": "3 YoE",
+            "location": "Surakarta",
+            "description": "We need developer",
+            "skills_requirement": [
+                "vue.js",
+                "react",
+                "laravel",
+                "Mysql"
+            ],
+            "benefits": [
+                "Health Insurance"
+            ],
+            "company": {
+                "company_id": "8043ebe7-6743-4fcd-8a4f-cc8238872d57",
+                "logo_url": "http://example.com/logo1.png",
+                "legal_name": "PT. Company 1",
+                "market_name": "Company 1",
+                "city": "Surakarta",
+                "province": "Central Java",
+                "country": "Indonesia",
+                "description": "Description 1"
+            },
+            "recommendation": {
+                "matched_job": false,
+                "matched_section": null,
+                "match_description": null
+            }
+        },
+        {
+            "job_id": "00251e5e-e2a9-425d-8887-3c1359cfebd2",
+            "is_saved": false,
+            "is_applied": false,
+            "application_status": null,
+            "interview": null,
+            "title": "Embedded System Engineer",
+            "published_at": "2026-05-26 12:46:13",
+            "expired_at": "2026-06-10 00:00:00",
+            "employment_type": "Full Time",
+            "work_type": "On Site",
+            "category": "Information and Communication Technology",
+            "education_requirement": "Bachelor's Degree",
+            "salary_type": "Project Based",
+            "minimum_salary": 7000000,
+            "maximum_salary": 12000000,
+            "experience_requirement": "3 YoE",
+            "location": "Semarang",
+            "description": "We are looking for a passionate and detail-oriented Embedded Systems Engineer to join our team. The ideal candidate will be responsible for designing, developing, testing, and optimizing embedded systems and IoT-based solutions for real-world applications.\n\nResponsibilities\nDesign and develop embedded systems using microcontrollers such as ESP32 and Arduino.\nDevelop, test, and optimize firmware using C/C++.\nIntegrate sensors, communication modules, and hardware peripherals.\nImplement real-time communication protocols such as MQTT, UART, I2C, and SPI.\nCollaborate with software and hardware teams to build reliable IoT solutions.\nTroubleshoot, debug, and improve system performance and stability.\nCreate technical documentation for system architecture, firmware, and deployment processes.\nSupport deployment and maintenance of embedded and IoT infrastructure.",
+            "skills_requirement": [
+                "C++",
+                "MQTT Protokol",
+                "Hardware Troubleshooting",
+                "Arduino",
+                "ESP32",
+                "Debugging & Testing",
+                "IoT System Integration"
+            ],
+            "benefits": [
+                "Health Insurrance"
+            ],
+            "company": {
+                "company_id": "8043ebe7-6743-4fcd-8a4f-cc8238872d57",
+                "logo_url": "http://example.com/logo1.png",
+                "legal_name": "PT. Company 1",
+                "market_name": "Company 1",
+                "city": "Surakarta",
+                "province": "Central Java",
+                "country": "Indonesia",
+                "description": "Description 1"
+            },
+            "recommendation": {
+                "matched_job": false,
+                "matched_section": null,
+                "match_description": null
+            }
+        },
+        {
+            "job_id": "a3bf84a7-0317-4fb7-a478-a9547ab7c5c9",
+            "is_saved": false,
+            "is_applied": false,
+            "application_status": null,
+            "interview": null,
+            "title": "Web developer",
+            "published_at": "2026-05-12 11:34:34",
+            "expired_at": "2026-08-10 00:00:00",
+            "employment_type": "Full Time",
+            "work_type": "On Site",
+            "category": "Information and Communication Technology",
+            "education_requirement": "Bachelor's Degree",
+            "salary_type": "Monthly Based",
+            "minimum_salary": 5000000,
+            "maximum_salary": 100000000,
+            "experience_requirement": "<1 YoE",
+            "location": "Surakarta",
+            "description": "DEVELOPPING THE WEBSITE",
+            "skills_requirement": [
+                "vue.js",
+                "Mysql",
+                "laravel",
+                "react"
+            ],
+            "benefits": [
+                "sallary bonus"
+            ],
+            "company": {
+                "company_id": "8043ebe7-6743-4fcd-8a4f-cc8238872d57",
+                "logo_url": "http://example.com/logo1.png",
+                "legal_name": "PT. Company 1",
+                "market_name": "Company 1",
+                "city": "Surakarta",
+                "province": "Central Java",
+                "country": "Indonesia",
+                "description": "Description 1"
+            },
+            "recommendation": {
+                "matched_job": false,
+                "matched_section": null,
+                "match_description": null
+            }
+        }
+    ],
+    "talents": [
+        {
+            "full_name": "Shana Shanon",
+            "email": "jobseeker11@mail.com",
+            "address": "Bali",
+            "phone_number": "085791551234",
+            "date_of_birth": "2000-01-01 00:00:00",
+            "personal_summary": "Detail-oriented Computer Engineering graduate with over 2 years of hands-on experience designing and deploying end-to-end IoT solutions and embedded systems. Proficient in programming microcontrollers (ESP32, Arduino), optimizing firmware in C++, and implementing real-time communication protocols like MQTT. Proven track record of bridging the gap between physical hardware and software systems to build automated, secure, and data-driven infrastructure.",
+            "profile_picture_url": "profile/js11.jpg",
+            "education": [
+                {
+                    "university_name": "Universitas Indonesia",
+                    "degree": "Bachelor Degree",
+                    "major": "Teknik Komputer",
+                    "start_date": "2020-08-01 00:00:00",
+                    "end_date": "2023-09-01 00:00:00",
+                    "grade": "3.95"
+                }
+            ],
+            "skills": [
+                "MQTT Realtime data transmission",
+                "C++",
+                "Color Sensors.",
+                "Laravel",
+                "Figma",
+                "RFID Modules",
+                "Fingerprint",
+                "Embedded C",
+                "Arduino Mega",
+                "ESP32",
+                "Humidity",
+                "Temperature",
+                "System",
+                "Biometric Sensors",
+                "Control",
+                "Firmware Optimization",
+                "Sensor Integration pH",
+                "React"
+            ],
+            "projects": [
+                {
+                    "project_name": "Smart Agriculture Monitoring System",
+                    "description": "Developed an IoT-based soil and weather monitoring system using ESP32 microcontrollers and various environmental sensors (humidity, temperature, pH). Built a robust data communication architecture utilizing the MQTT protocol for real-time data transm",
+                    "start_date": "2023-10-01 00:00:00",
+                    "end_date": "2024-05-01 00:00:00"
+                },
+                {
+                    "project_name": "Automated Warehouse Sorting Robot",
+                    "description": "Engineered a control system for an automated sorting robot using Arduino Mega and basic computer vision for object detection. Integrated color sensors and servo motors to precisely classify and sort inventory packages based on predefined criteria. Op",
+                    "start_date": "2024-08-01 00:00:00",
+                    "end_date": "2025-02-01 00:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "IoT Systems Engineer",
+                    "employment_type": "Full time",
+                    "company_name": "Global Telecom Solutionsn",
+                    "location": "Bali",
+                    "location_type": "Hybrid",
+                    "description": "Configured and maintained enterprise-level network routers, switches, and firewalls for client ",
+                    "start_date": "2024-10-01 00:00:00",
+                    "end_date": "2025-02-01 00:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Cloud Computing",
+                    "issuing_organization": "AWS Academy",
+                    "issue_date": "2023-12-01 00:00:00",
+                    "expiration_date": "2028-01-01 00:00:00",
+                    "credential_url": "https://AWS.Academy-CLoudComputing"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "Indonesia"
+                }
+            ]
+        },
+        {
+            "full_name": "Shana Shanon",
+            "email": "Jobseeker15@mail.com",
+            "address": "Bali",
+            "phone_number": "085791551234",
+            "date_of_birth": "2000-01-01 00:00:00",
+            "personal_summary": "Detail-oriented Computer Engineering graduate with over 2 years of hands-on experience designing and deploying end-to-end IoT solutions and embedded systems. Proficient in programming microcontrollers (ESP32, Arduino), optimizing firmware in C++, and implementing real-time communication protocols like MQTT. Proven track record of bridging the gap between physical hardware and software systems to build automated, secure, and data-driven infrastructure.",
+            "profile_picture_url": "public/uploads/profile-picture/profile-picture-1749000625332-717471124.png",
+            "education": [
+                {
+                    "university_name": "Universitas Indonesia",
+                    "degree": "Bachelor Degree",
+                    "major": "Teknik Komputer",
+                    "start_date": "2020-08-01 00:00:00",
+                    "end_date": "2023-09-01 00:00:00",
+                    "grade": "3.95"
+                }
+            ],
+            "skills": [
+                "C++",
+                "Temperature",
+                "Arduino Mega",
+                "ESP32",
+                "Laravel",
+                "Control",
+                "System",
+                "RFID Modules",
+                "React",
+                "Embedded C",
+                "Firmware Optimization",
+                "MQTT Realtime data transmission",
+                "Color Sensors.",
+                "Fingerprint",
+                "Sensor Integration pH",
+                "Biometric Sensors",
+                "Figma",
+                "Humidity"
+            ],
+            "projects": [
+                {
+                    "project_name": "Smart Agriculture Monitoring System",
+                    "description": "Developed an IoT-based soil and weather monitoring system using ESP32 microcontrollers and various environmental sensors (humidity, temperature, pH). Built a robust data communication architecture utilizing the MQTT protocol for real-time data transm",
+                    "start_date": "2023-10-01 00:00:00",
+                    "end_date": "2024-05-01 00:00:00"
+                },
+                {
+                    "project_name": "Automated Warehouse Sorting Robot",
+                    "description": "Engineered a control system for an automated sorting robot using Arduino Mega and basic computer vision for object detection. Integrated color sensors and servo motors to precisely classify and sort inventory packages based on predefined criteria. Op",
+                    "start_date": "2024-08-01 00:00:00",
+                    "end_date": "2025-02-01 00:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "IoT Systems Engineer",
+                    "employment_type": "Full time",
+                    "company_name": "Global Telecom Solutionsn",
+                    "location": "Bali",
+                    "location_type": "Hybrid",
+                    "description": "Configured and maintained enterprise-level network routers, switches, and firewalls for client ",
+                    "start_date": "2024-10-01 00:00:00",
+                    "end_date": "2025-02-01 00:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Cloud Computing",
+                    "issuing_organization": "AWS Academy",
+                    "issue_date": "2023-12-01 00:00:00",
+                    "expiration_date": "2028-01-01 00:00:00",
+                    "credential_url": "https://AWS.Academy-CLoudComputing"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "Indonesia"
+                }
+            ]
+        },
+        {
+            "full_name": "JACQUELINE THOMPSON",
+            "email": "jobseeker14@mail.com",
+            "address": "Sragen",
+            "phone_number": "0895426044884",
+            "date_of_birth": "2005-01-15 00:00:00",
+            "personal_summary": "Informatics student with a strong interest in software development, information systems, and data analysis. Skilled in problem-solving and familiar with various programming languages. Experienced in working on technology-based projects and able to collaborate effectively in team environments as well as independently.",
+            "profile_picture_url": "profile/js14.jpg",
+            "education": [
+                {
+                    "university_name": "Universitas Sebelas March",
+                    "degree": "Master Degree",
+                    "major": "Informatic",
+                    "start_date": "2024-07-01 00:00:00",
+                    "end_date": "2027-05-01 00:00:00",
+                    "grade": "4.0"
+                }
+            ],
+            "skills": [
+                "CSS",
+                "Laravel",
+                "Vue.JS",
+                "HTML",
+                "mySQL",
+                "React",
+                "PHP",
+                "JavaScript",
+                "java"
+            ],
+            "projects": [
+                {
+                    "project_name": "Cafe Landing Page & Reservation System",
+                    "description": "Designing and implementing internal digital tools to automate documentation, staff recruitment processes, and organizational communication workflows. Applying structured management methodologies to lead divisional projects, contributing to the overal",
+                    "start_date": "2024-07-01 00:00:00",
+                    "end_date": "2025-05-01 00:00:00"
+                },
+                {
+                    "project_name": "Digital Book Rental Website",
+                    "description": "Developed a web-based digital book rental platform that allows users to browse and rent books while enabling authors to upload and manage their own content. Implemented CRUD functionalities, designed user-friendly interfaces, and managed database ope",
+                    "start_date": "2024-01-01 00:00:00",
+                    "end_date": "2024-06-01 00:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Engineering Executive",
+                    "employment_type": "Full time",
+                    "company_name": "Borcelle Technologies",
+                    "location": "Jakarta",
+                    "location_type": "on-site",
+                    "description": "Implemented cost-effective solutions, resulting in a 20% reduction in project expenses. Streamlined project workflows, enhancing overall efficiency by 25%. Led a team in successfully delivering a complex engineering project on time and within allocat",
+                    "start_date": "2023-01-01 00:00:00",
+                    "end_date": "2023-12-01 00:00:00"
+                },
+                {
+                    "experience_title": "Full-Stack Web Developer",
+                    "employment_type": "Full time",
+                    "company_name": "PT. HiTech Indonesia",
+                    "location": "Jakarta",
+                    "location_type": "on-site",
+                    "description": "Optimizing database performance with MySQL, ensuring seamless data retrieval for complex features such as job matching systems and content management portals. Collaborating in team environments to deliver high-quality UI/UX designs using Figma, ensur",
+                    "start_date": "2024-01-01 00:00:00",
+                    "end_date": "2024-12-01 00:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "UI/UX Design Fundamentals",
+                    "issuing_organization": "Coursera",
+                    "issue_date": "2025-03-01 00:00:00",
+                    "expiration_date": "2028-05-01 00:00:00",
+                    "credential_url": "https://Coursera.com"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesia"
+                }
+            ]
+        },
+        {
+            "full_name": "JACQUELINE THOMPSON",
+            "email": "jobseeker4@mail.com",
+            "address": "Sragen",
+            "phone_number": "0895426044884",
+            "date_of_birth": "2005-01-15 00:00:00",
+            "personal_summary": "Informatics student with a strong interest in software development, information systems, and data analysis. Skilled in problem-solving and familiar with various programming languages. Experienced in working on technology-based projects and able to collaborate effectively in team environments as well as independently.",
+            "profile_picture_url": "profile/js4.jpg",
+            "education": [
+                {
+                    "university_name": "Universitas Sebelas March",
+                    "degree": "Bachelor’s Degree",
+                    "major": "Informatic",
+                    "start_date": "2024-07-01 00:00:00",
+                    "end_date": "2027-05-01 00:00:00",
+                    "grade": "4.0"
+                }
+            ],
+            "skills": [
+                "Vue.JS",
+                "mySQL",
+                "React",
+                "CSS",
+                "HTML",
+                "JavaScript",
+                "java",
+                "Laravel",
+                "PHP"
+            ],
+            "projects": [
+                {
+                    "project_name": "Cafe Landing Page & Reservation System",
+                    "description": "Designing and implementing internal digital tools to automate documentation, staff recruitment processes, and organizational communication workflows. Applying structured management methodologies to lead divisional projects, contributing to the overal",
+                    "start_date": "2024-07-01 00:00:00",
+                    "end_date": "2025-05-01 00:00:00"
+                },
+                {
+                    "project_name": "Digital Book Rental Website",
+                    "description": "Developed a web-based digital book rental platform that allows users to browse and rent books while enabling authors to upload and manage their own content. Implemented CRUD functionalities, designed user-friendly interfaces, and managed database ope",
+                    "start_date": "2024-01-01 00:00:00",
+                    "end_date": "2024-06-01 00:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Full-Stack Web Developer",
+                    "employment_type": "Full time",
+                    "company_name": "PT. HiTech Indonesia",
+                    "location": "Jakarta",
+                    "location_type": "on-site",
+                    "description": "Optimizing database performance with MySQL, ensuring seamless data retrieval for complex features such as job matching systems and content management portals. Collaborating in team environments to deliver high-quality UI/UX designs using Figma, ensur",
+                    "start_date": "2024-01-01 00:00:00",
+                    "end_date": "2024-12-01 00:00:00"
+                },
+                {
+                    "experience_title": "Engineering Executive",
+                    "employment_type": "Full time",
+                    "company_name": "Borcelle Technologies",
+                    "location": "Jakarta",
+                    "location_type": "on-site",
+                    "description": "Implemented cost-effective solutions, resulting in a 20% reduction in project expenses. Streamlined project workflows, enhancing overall efficiency by 25%. Led a team in successfully delivering a complex engineering project on time and within allocat",
+                    "start_date": "2023-01-01 00:00:00",
+                    "end_date": "2023-12-01 00:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "UI/UX Design Fundamentals",
+                    "issuing_organization": "Coursera",
+                    "issue_date": "2025-03-01 00:00:00",
+                    "expiration_date": "2028-05-01 00:00:00",
+                    "credential_url": "https://Coursera.com"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesia"
+                }
+            ]
+        },
+        {
+            "full_name": "JACQUELINE THOMPSON",
+            "email": "jobseeker2@mail.com",
+            "address": "Sragen",
+            "phone_number": "0895426044884",
+            "date_of_birth": "2005-01-15 00:00:00",
+            "personal_summary": "Informatics student with a strong interest in software development, information systems, and data analysis. Skilled in problem-solving and familiar with various programming languages. Experienced in working on technology-based projects and able to collaborate effectively in team environments as well as independently.",
+            "profile_picture_url": "public/uploads/profile-picture/profile-picture-1747973220229-978053894.png",
+            "education": [
+                {
+                    "university_name": "Universitas Sebelas March",
+                    "degree": "Bachelor’s Degree",
+                    "major": "Informatic",
+                    "start_date": "2024-07-01 00:00:00",
+                    "end_date": "2027-05-01 00:00:00",
+                    "grade": "4.0"
+                },
+                {
+                    "university_name": "Sebelas Maret University 2",
+                    "degree": "Bachelor",
+                    "major": "University",
+                    "start_date": "2020-01-01 07:00:00",
+                    "end_date": "2024-01-01 07:00:00",
+                    "grade": null
+                }
+            ],
+            "skills": [
+                "React",
+                "Vue.JS",
+                "PHP",
+                "mySQL",
+                "Laravel",
+                "HTML",
+                "CSS",
+                "JavaScript",
+                "java"
+            ],
+            "projects": [
+                {
+                    "project_name": "Cafe Landing Page & Reservation System",
+                    "description": "Designing and implementing internal digital tools to automate documentation, staff recruitment processes, and organizational communication workflows. Applying structured management methodologies to lead divisional projects, contributing to the overal",
+                    "start_date": "2024-07-01 00:00:00",
+                    "end_date": "2025-05-01 00:00:00"
+                },
+                {
+                    "project_name": "Digital Book Rental Website",
+                    "description": "Developed a web-based digital book rental platform that allows users to browse and rent books while enabling authors to upload and manage their own content. Implemented CRUD functionalities, designed user-friendly interfaces, and managed database ope",
+                    "start_date": "2024-01-01 00:00:00",
+                    "end_date": "2024-06-01 00:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Full-Stack Web Developer",
+                    "employment_type": "Full time",
+                    "company_name": "PT. HiTech Indonesia",
+                    "location": "Jakarta",
+                    "location_type": "on-site",
+                    "description": "Optimizing database performance with MySQL, ensuring seamless data retrieval for complex features such as job matching systems and content management portals. Collaborating in team environments to deliver high-quality UI/UX designs using Figma, ensur",
+                    "start_date": "2024-01-01 00:00:00",
+                    "end_date": "2024-12-01 00:00:00"
+                },
+                {
+                    "experience_title": "Engineering Executive",
+                    "employment_type": "Full time",
+                    "company_name": "Borcelle Technologies",
+                    "location": "Jakarta",
+                    "location_type": "on-site",
+                    "description": "Implemented cost-effective solutions, resulting in a 20% reduction in project expenses. Streamlined project workflows, enhancing overall efficiency by 25%. Led a team in successfully delivering a complex engineering project on time and within allocat",
+                    "start_date": "2023-01-01 00:00:00",
+                    "end_date": "2023-12-01 00:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "UI/UX Design Fundamentals",
+                    "issuing_organization": "Coursera",
+                    "issue_date": "2025-03-01 00:00:00",
+                    "expiration_date": "2028-05-01 00:00:00",
+                    "credential_url": "https://Coursera.com"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesia"
+                }
+            ]
+        }
+    ]
+}
