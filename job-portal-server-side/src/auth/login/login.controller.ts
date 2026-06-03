@@ -5,6 +5,7 @@ import {
   NotFoundException,
   Post,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { LoginService } from './login.service';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -45,10 +46,9 @@ export class LoginController {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    // Bypass verification check for development since OTP emails fail
-    // else if (user.verified === 'false') {
-    //   throw new NotFoundException('User not found. Please register to create an account.');
-    // }
+    if (user.verified === 'false') {
+      throw new ForbiddenException('Your account is not verified. Please verify your OTP to login.');
+    }
     return this.loginService.login(user);
   }
 
@@ -62,10 +62,9 @@ export class LoginController {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    // Bypass verification check for development since OTP emails fail
-    // else if (user.verified === 'false') {
-    //   throw new NotFoundException('User not found. Please register to create an account.');
-    // }
+    if (user.verified === 'false') {
+      throw new ForbiddenException('Your account is not verified. Please verify your OTP to login.');
+    }
     return this.loginService.login(user);
   }
 }
