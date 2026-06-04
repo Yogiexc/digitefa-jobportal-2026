@@ -184,8 +184,15 @@ app.add_middleware(
 # Configuration for wordcloud source
 JOBS_SEARCH_API_URL = os.getenv("JOBS_SEARCH_API_URL", "http://127.0.0.1:3000/api/jobs-search")
 
-# Changed model to MiniLM for faster inference and lightweight deployment
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+# --- PILIH SALAH SATU MODEL AI DI BAWAH INI (COMMENT / UNCOMMENT) ---
+
+# Opsi 1: MiniLM (Super Ringan & Cepat, Tapi Global/Inggris) -> Default
+# model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
+# Opsi 2: IndoBERT (Agak Berat, Tapi Juara Bahasa Indonesia)
+model = SentenceTransformer('firqaaa/indo-sentence-bert-base') 
+
+# --------------------------------------------------------------------
 
 TOP_N_RECOMMENDATIONS = 5
 MIN_SCORE_THRESHOLD = 0.3 # Lowered slightly for MiniLM since cosine sim ranges are tighter
