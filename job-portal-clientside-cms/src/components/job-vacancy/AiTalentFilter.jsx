@@ -20,12 +20,12 @@ const AiTalentFilter = ({ filterCriteria, onFilterChange, showAppliedOnly, setSh
                         { value: "projects", label: "By Projects" },
                         { value: "experience", label: "By Experience" },
                         { value: "education", label: "By Education" },
+                        { value: "summary", label: "By Personal Summary" }, // Tambahan Baru
+                        { value: "certification", label: "By Certification" }, // Tambahan Baru
                     ]}
                     value={filterCriteria}
                     onChange={onFilterChange}
                 />
-                {/* Show Applied Only checkbox */}
-                
             </div>
 
             <Divider className="my-4" />

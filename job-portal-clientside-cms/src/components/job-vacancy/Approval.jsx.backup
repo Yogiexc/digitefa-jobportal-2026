@@ -126,7 +126,7 @@ const Approval = ({
               className="menu-icon"
               style={{ marginRight: 10, marginBottom: 10, height: 40, width: 40 }}
             />
-             <span>{isFinalStatus ? "Current Status" : isPostInterview ? "Final Approval" : "Schedule Interview"}</span>
+            <span>{isPostInterview ? "Final Approval" : "Schedule Interview"}</span>
           </div>
         }
         centered
@@ -140,27 +140,25 @@ const Approval = ({
       >
         <hr style={{ borderColor: "#E9E9E9", borderWidth: "1px", marginBottom: 16 }} />
 
-        {isFinalStatus ? (
-          <p style={{ color: "#555", marginBottom: 24, textAlign: "center", lineHeight: 1.6 }}>
-            This application has been {normalizedStatus}.
-          </p>
-        ) : isPostInterview ? (
+        {isPostInterview ? (
           <>
             <p style={{ color: "#555", marginBottom: 24, textAlign: "center", lineHeight: 1.6 }}>
               The interview has been conducted, just need to finalize the approval.
             </p>
+
             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
               <Button
                 onClick={() => handleFinalDecision("accepted")}
+                disabled={isFinalStatus}
                 loading={saving}
                 icon={<CheckCircleFilled />}
                 style={{
                   flex: 1,
                   height: 44,
                   borderRadius: 12,
-                  backgroundColor: "#ffffff",
+                  backgroundColor: "#52c41a",
                   borderColor: "#52c41a",
-                  color: "#02700a",
+                  color: "#fff",
                   fontWeight: 600,
                 }}
               >
@@ -168,6 +166,7 @@ const Approval = ({
               </Button>
               <Button
                 onClick={() => handleFinalDecision("rejected")}
+                disabled={isFinalStatus}
                 loading={saving}
                 icon={<CloseCircleFilled />}
                 danger
@@ -191,7 +190,7 @@ const Approval = ({
               rules={[{ required: true, message: "Please select status approval" }]}
             >
               <Select
-                value={selectedStatus || normalizedStatus}
+                disabled={isFinalStatus}
                 style={{ height: 56 }}
                 placeholder="Select status approval"
                 onChange={(value) => {
@@ -223,6 +222,7 @@ const Approval = ({
               </Form.Item>
             )}
 
+
             <div className="mt-7" style={{ textAlign: "center" }}>
               <Button
                 onClick={handleCancel}
@@ -247,6 +247,7 @@ const Approval = ({
             </div>
           </Form>
         )}
+
       </Modal>
 
       <StatusModal

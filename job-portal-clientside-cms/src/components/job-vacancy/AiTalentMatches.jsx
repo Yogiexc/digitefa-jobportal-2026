@@ -16,7 +16,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     const [loading, setLoading] = useState(false);
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState(["skills", "projects", "experience", "education"]);
+    const [filterCriteria, setFilterCriteria] = useState(["skills", "projects", "experience", "education", "summary", "certification"]);
     const [showAppliedOnly, setShowAppliedOnly] = useState(false);
     // Pagination state
     const [page, setPage] = useState(1);
@@ -225,7 +225,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                                         type="primary"
                                                         className={`border-none rounded-xl h-9 px-4 flex items-center gap-2 ${
                                                             record.is_applied
-                                                                ? 'bg-green-600 hover:bg-green-600 text-white cursor-not-allowed'
+                                                                ? 'bg-blue-600 hover:bg-green-600 text-white cursor-not-allowed'
                                                                 : record.is_invited
                                                                 ? 'bg-gray-400 hover:bg-gray-400 text-white cursor-not-allowed'
                                                                 : 'bg-[#dd2a2a] hover:bg-[#FF9D98] text-white'
