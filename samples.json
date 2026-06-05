@@ -1,32 +1,29 @@
 {
     "jobs": [
         {
-            "job_id": "1c40c27d-128d-4900-a6ad-0acc8834a165",
+            "job_id": "9669d515-003b-49a2-8677-afddf4079322",
             "is_saved": false,
             "is_applied": false,
             "application_status": null,
             "interview": null,
-            "title": "Web Developer",
-            "published_at": "2026-05-26 13:25:19",
-            "expired_at": "2026-06-10 00:00:00",
+            "title": "IT Service",
+            "published_at": "2026-03-06 15:58:53",
+            "expired_at": "2028-04-26 15:58:53",
             "employment_type": "Freelance",
-            "work_type": "On Site",
+            "work_type": "Remote",
             "category": "Information and Communication Technology",
-            "education_requirement": "Bachelor's Degree",
+            "education_requirement": "Junior High School",
             "salary_type": "Project Based",
-            "minimum_salary": 50000000,
-            "maximum_salary": 10000000,
-            "experience_requirement": "3 YoE",
+            "minimum_salary": 2000000,
+            "maximum_salary": 4000000,
+            "experience_requirement": "<1 YoE",
             "location": "Surakarta",
-            "description": "We need developer",
+            "description": "Disini ada company",
             "skills_requirement": [
-                "vue.js",
-                "react",
-                "laravel",
-                "Mysql"
+                "Problem Solving"
             ],
             "benefits": [
-                "Health Insurance"
+                "Akan keren"
             ],
             "company": {
                 "company_id": "8043ebe7-6743-4fcd-8a4f-cc8238872d57",
@@ -45,45 +42,42 @@
             }
         },
         {
-            "job_id": "00251e5e-e2a9-425d-8887-3c1359cfebd2",
+            "job_id": "bd319feb-c7f8-4628-91c8-c006c2b57129",
             "is_saved": false,
             "is_applied": false,
             "application_status": null,
             "interview": null,
-            "title": "Embedded System Engineer",
-            "published_at": "2026-05-26 12:46:13",
-            "expired_at": "2026-06-10 00:00:00",
+            "title": "Talent Acquisition Intern",
+            "published_at": "2025-05-25 19:56:38",
+            "expired_at": "2027-01-01 06:59:59",
             "employment_type": "Full Time",
             "work_type": "On Site",
-            "category": "Information and Communication Technology",
+            "category": "Human Resources and Administration",
             "education_requirement": "Bachelor's Degree",
-            "salary_type": "Project Based",
-            "minimum_salary": 7000000,
-            "maximum_salary": 12000000,
-            "experience_requirement": "3 YoE",
-            "location": "Semarang",
-            "description": "We are looking for a passionate and detail-oriented Embedded Systems Engineer to join our team. The ideal candidate will be responsible for designing, developing, testing, and optimizing embedded systems and IoT-based solutions for real-world applications.\n\nResponsibilities\nDesign and develop embedded systems using microcontrollers such as ESP32 and Arduino.\nDevelop, test, and optimize firmware using C/C++.\nIntegrate sensors, communication modules, and hardware peripherals.\nImplement real-time communication protocols such as MQTT, UART, I2C, and SPI.\nCollaborate with software and hardware teams to build reliable IoT solutions.\nTroubleshoot, debug, and improve system performance and stability.\nCreate technical documentation for system architecture, firmware, and deployment processes.\nSupport deployment and maintenance of embedded and IoT infrastructure.",
+            "salary_type": "Monthly Based",
+            "minimum_salary": 0,
+            "maximum_salary": 0,
+            "experience_requirement": "<1 YoE",
+            "location": "Jakarta Selatan, Jakarta Raya",
+            "description": "Requirements:\n\nAn Active College Student (Preferably Final Year Student in Psychology Undergraduate Program) [Can issue an active student certificate from the student's university]\n\nBasic Excel Skills\n\nWe need an active student who can work from office minimum 4 days a week\n\nResponsibilities:\n\nTalent Acquisition Intern will be responsible for:\n- Contacting and scheduling candidates for recruitment processes.\n- Screening CVs/profiles for various positions.\n- Managing the Talent Acquisition database.",
             "skills_requirement": [
-                "C++",
-                "MQTT Protokol",
-                "Hardware Troubleshooting",
-                "Arduino",
-                "ESP32",
-                "Debugging & Testing",
-                "IoT System Integration"
+                "Communication Skills",
+                "Microsoft Excel"
             ],
             "benefits": [
-                "Health Insurrance"
+                "Miscellaneous allowance",
+                "Loans",
+                "Medical"
             ],
             "company": {
-                "company_id": "8043ebe7-6743-4fcd-8a4f-cc8238872d57",
-                "logo_url": "http://example.com/logo1.png",
-                "legal_name": "PT. Company 1",
-                "market_name": "Company 1",
-                "city": "Surakarta",
-                "province": "Central Java",
+                "company_id": "3d690295-6a69-436f-a9f5-d4d5252d98d5",
+                "logo_url": "public/uploads/logo/logo-company-1748177086506-708917750.jpeg",
+                "legal_name": "Astra Insurance",
+                "market_name": "Asuransi Astra",
+                "city": "Jakarta",
+                "province": "DKI Jakarta",
                 "country": "Indonesia",
-                "description": "Description 1"
+                "description": "Asuransi Astra has been serving customers for more than half a century, precisely since September 12, 1956. The company, known for its Garda Oto motor vehicle insurance products, serves customers through a network of services spread across 28 branch offices, as well as service units and Garda Centers that continue developing. In addition to motor vehicle insurance, other products from Asuransi Astra are Garda Medika health insurance, mining industry insurance, agribusiness industry insurance, shop insurance, gas station insurance, sharia insurance, and others.\r\nSince 2015, Asuransi Astra has developed its products and services digitally and introduced Garda Mobile as a collection of mobile applications intended for retail, commercial and general customers. The four Garda Mobile applications namely Otocare, Medcare, HR-access, and CR-access are consistently updated through various innovations aimed at customer convenience and comfort. The latest innovation developed in the Garda Mobile Otocare with the presence of GarXia, the first insurance purchase chatbot in Indonesia that can also help customers in reporting claims and the Garda Mall feature that allows users to shop for a variety of automotive needs, Astra Financial financial products, also to buying and selling cars. Asuransi Astra also has four digital products namely Garda Me, Garda Edu, Garda Home, and Garda Trip which can be purchased easily and quickly through the gardaoto.com site."
             },
             "recommendation": {
                 "matched_job": false,
@@ -92,42 +86,45 @@
             }
         },
         {
-            "job_id": "a3bf84a7-0317-4fb7-a478-a9547ab7c5c9",
+            "job_id": "ad4a51a5-cb2d-46de-9c03-f7cba6a6b918",
             "is_saved": false,
             "is_applied": false,
             "application_status": null,
             "interview": null,
-            "title": "Web developer",
-            "published_at": "2026-05-12 11:34:34",
-            "expired_at": "2026-08-10 00:00:00",
+            "title": "IT Quality Control Engineer",
+            "published_at": "2025-05-25 19:54:59",
+            "expired_at": "2027-01-01 06:59:59",
             "employment_type": "Full Time",
             "work_type": "On Site",
             "category": "Information and Communication Technology",
             "education_requirement": "Bachelor's Degree",
             "salary_type": "Monthly Based",
-            "minimum_salary": 5000000,
-            "maximum_salary": 100000000,
-            "experience_requirement": "<1 YoE",
-            "location": "Surakarta",
-            "description": "DEVELOPPING THE WEBSITE",
+            "minimum_salary": 0,
+            "maximum_salary": 0,
+            "experience_requirement": "2 YoE",
+            "location": "Kebayoran Lama, Jakarta Raya",
+            "description": "Job Description\nAs an IT Quality Control Engineer, you'll be responsible for:\n\nDeveloping & reviewing testing plan & testing script\nCreate automatic testing using (Katalon, Selenium, Mocha, Jmeter)\nImplement manual and automatic testing to ensure our application running based on standard\nCreate report based on application testing\nDoing User Acceptance Test (UAT) with business users, to get a mutual agreement about application results.\nMinimum Qualifications\nPossess at least Bachelors Degree majoring in Information Technology/ Information System/ Computer Engineering/ Computer Science\nExperienced 2 years about testing (manual/ automatic)\nDeep analytical thinking skill\nExcellent problem solving skill\nAttention to detail\nGreat communication & presentation skills\nSelection Test will be consist of a few test, and will be conducted offline",
             "skills_requirement": [
-                "vue.js",
-                "Mysql",
-                "laravel",
-                "react"
+                "Mocha",
+                "Selenium",
+                "User Acceptance Test (UAT)",
+                "Jmeter",
+                "Katalon"
             ],
             "benefits": [
-                "sallary bonus"
+                "Loans",
+                "Miscellaneous allowance",
+                "Medical"
             ],
             "company": {
-                "company_id": "8043ebe7-6743-4fcd-8a4f-cc8238872d57",
-                "logo_url": "http://example.com/logo1.png",
-                "legal_name": "PT. Company 1",
-                "market_name": "Company 1",
-                "city": "Surakarta",
-                "province": "Central Java",
+                "company_id": "3d690295-6a69-436f-a9f5-d4d5252d98d5",
+                "logo_url": "public/uploads/logo/logo-company-1748177086506-708917750.jpeg",
+                "legal_name": "Astra Insurance",
+                "market_name": "Asuransi Astra",
+                "city": "Jakarta",
+                "province": "DKI Jakarta",
                 "country": "Indonesia",
-                "description": "Description 1"
+                "description": "Asuransi Astra has been serving customers for more than half a century, precisely since September 12, 1956. The company, known for its Garda Oto motor vehicle insurance products, serves customers through a network of services spread across 28 branch offices, as well as service units and Garda Centers that continue developing. In addition to motor vehicle insurance, other products from Asuransi Astra are Garda Medika health insurance, mining industry insurance, agribusiness industry insurance, shop insurance, gas station insurance, sharia insurance, and others.\r\nSince 2015, Asuransi Astra has developed its products and services digitally and introduced Garda Mobile as a collection of mobile applications intended for retail, commercial and general customers. The four Garda Mobile applications namely Otocare, Medcare, HR-access, and CR-access are consistently updated through various innovations aimed at customer convenience and comfort. The latest innovation developed in the Garda Mobile Otocare with the presence of GarXia, the first insurance purchase chatbot in Indonesia that can also help customers in reporting claims and the Garda Mall feature that allows users to shop for a variety of automotive needs, Astra Financial financial products, also to buying and selling cars. Asuransi Astra also has four digital products namely Garda Me, Garda Edu, Garda Home, and Garda Trip which can be purchased easily and quickly through the gardaoto.com site."
             },
             "recommendation": {
                 "matched_job": false,
@@ -138,235 +135,114 @@
     ],
     "talents": [
         {
-            "full_name": "Shana Shanon",
-            "email": "jobseeker11@mail.com",
-            "address": "Bali",
-            "phone_number": "085791551234",
-            "date_of_birth": "2000-01-01 00:00:00",
-            "personal_summary": "Detail-oriented Computer Engineering graduate with over 2 years of hands-on experience designing and deploying end-to-end IoT solutions and embedded systems. Proficient in programming microcontrollers (ESP32, Arduino), optimizing firmware in C++, and implementing real-time communication protocols like MQTT. Proven track record of bridging the gap between physical hardware and software systems to build automated, secure, and data-driven infrastructure.",
-            "profile_picture_url": "profile/js11.jpg",
+            "full_name": "Raka Pratama Nugroho",
+            "email": "jobseeker59@mail.com",
+            "address": "Yogyakarta, Indonesia",
+            "phone_number": "+6281234500888",
+            "date_of_birth": "2002-09-10 07:00:00",
+            "personal_summary": "Fresh Graduate in Information Technology with hands-on experience as a QA Tester Intern for 5 months. Experienced in manual testing, bug reporting, test case execution, and software quality validation. Familiar with SDLC, STLC, Agile methodology, and basic automation testing concepts. Passionate about software quality assurance and ensuring reliable user experience in web and mobile applications.",
+            "profile_picture_url": null,
             "education": [
                 {
-                    "university_name": "Universitas Indonesia",
-                    "degree": "Bachelor Degree",
-                    "major": "Teknik Komputer",
-                    "start_date": "2020-08-01 00:00:00",
-                    "end_date": "2023-09-01 00:00:00",
-                    "grade": "3.95"
+                    "university_name": "Universitas Gadjah Mada",
+                    "degree": "Bachelor's Degree",
+                    "major": "Teknik Informatika",
+                    "start_date": "2020-08-01 07:00:00",
+                    "end_date": "2024-07-31 07:00:00",
+                    "grade": "3.68"
                 }
             ],
             "skills": [
-                "MQTT Realtime data transmission",
-                "C++",
-                "Color Sensors.",
-                "Laravel",
-                "Figma",
-                "RFID Modules",
-                "Fingerprint",
-                "Embedded C",
-                "Arduino Mega",
-                "ESP32",
-                "Humidity",
-                "Temperature",
-                "System",
-                "Biometric Sensors",
-                "Control",
-                "Firmware Optimization",
-                "Sensor Integration pH",
-                "React"
+                "Python",
+                "Data Analysis",
+                "SQL",
+                "Pandas",
+                "NumPy",
+                "Data Visualization",
+                "Machine Learning Basics",
+                "Statistical Analysis",
+                "Problem Solving",
+                "Critical Thinking"
             ],
             "projects": [
                 {
-                    "project_name": "Smart Agriculture Monitoring System",
-                    "description": "Developed an IoT-based soil and weather monitoring system using ESP32 microcontrollers and various environmental sensors (humidity, temperature, pH). Built a robust data communication architecture utilizing the MQTT protocol for real-time data transm",
-                    "start_date": "2023-10-01 00:00:00",
-                    "end_date": "2024-05-01 00:00:00"
-                },
-                {
-                    "project_name": "Automated Warehouse Sorting Robot",
-                    "description": "Engineered a control system for an automated sorting robot using Arduino Mega and basic computer vision for object detection. Integrated color sensors and servo motors to precisely classify and sort inventory packages based on predefined criteria. Op",
-                    "start_date": "2024-08-01 00:00:00",
-                    "end_date": "2025-02-01 00:00:00"
+                    "project_name": "Analisis Data Pengguna Aplikasi Web (Tugas Akhir)",
+                    "description": "Melakukan analisis data pengguna aplikasi web menggunakan Python dan SQL untuk memahami pola perilaku pengguna, melakukan cleaning data, serta menghasilkan insight berbasis data untuk peningkatan sistem.",
+                    "start_date": "2024-01-01 07:00:00",
+                    "end_date": "2024-06-30 07:00:00"
                 }
             ],
             "experiences": [
                 {
-                    "experience_title": "IoT Systems Engineer",
-                    "employment_type": "Full time",
-                    "company_name": "Global Telecom Solutionsn",
-                    "location": "Bali",
-                    "location_type": "Hybrid",
-                    "description": "Configured and maintained enterprise-level network routers, switches, and firewalls for client ",
-                    "start_date": "2024-10-01 00:00:00",
-                    "end_date": "2025-02-01 00:00:00"
+                    "experience_title": "QA Tester Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Digital Teknologi Nusantara",
+                    "location": "Yogyakarta, Indonesia",
+                    "location_type": "Remote",
+                    "description": "Performed manual testing for web and mobile applications, created test cases, executed regression testing, reported bugs using tracking tools, and collaborated with developers to ensure software quality.",
+                    "start_date": "2024-02-01 07:00:00",
+                    "end_date": "2024-07-31 07:00:00"
                 }
             ],
-            "certifications": [
-                {
-                    "certification_name": "Cloud Computing",
-                    "issuing_organization": "AWS Academy",
-                    "issue_date": "2023-12-01 00:00:00",
-                    "expiration_date": "2028-01-01 00:00:00",
-                    "credential_url": "https://AWS.Academy-CLoudComputing"
-                }
-            ],
+            "certifications": [],
             "languages": [
                 {
+                    "language_name": "English"
+                },
+                {
                     "language_name": "Indonesia"
+                },
+                {
+                    "language_name": "Mandarin"
                 }
             ]
         },
         {
-            "full_name": "Shana Shanon",
-            "email": "Jobseeker15@mail.com",
-            "address": "Bali",
-            "phone_number": "085791551234",
-            "date_of_birth": "2000-01-01 00:00:00",
-            "personal_summary": "Detail-oriented Computer Engineering graduate with over 2 years of hands-on experience designing and deploying end-to-end IoT solutions and embedded systems. Proficient in programming microcontrollers (ESP32, Arduino), optimizing firmware in C++, and implementing real-time communication protocols like MQTT. Proven track record of bridging the gap between physical hardware and software systems to build automated, secure, and data-driven infrastructure.",
-            "profile_picture_url": "public/uploads/profile-picture/profile-picture-1749000625332-717471124.png",
+            "full_name": "Galuh Candra",
+            "email": "jobseeker57@mail.com",
+            "address": "Surabaya, East Java, Indonesia",
+            "phone_number": "+6281234500999",
+            "date_of_birth": "2002-08-19 07:00:00",
+            "personal_summary": "Fresh Graduate in Marine Engineering with strong academic background in ship design, marine systems, and naval architecture fundamentals. Graduated without prior work experience but highly motivated to build a career in the maritime industry. Familiar with CAD design, basic hydrodynamics, and marine safety standards. Eager to contribute in shipyard operations, marine engineering projects, and port-related technical roles.",
+            "profile_picture_url": null,
             "education": [
                 {
-                    "university_name": "Universitas Indonesia",
-                    "degree": "Bachelor Degree",
-                    "major": "Teknik Komputer",
-                    "start_date": "2020-08-01 00:00:00",
-                    "end_date": "2023-09-01 00:00:00",
-                    "grade": "3.95"
+                    "university_name": "Institut Teknologi Sepuluh Nopember",
+                    "degree": "Bachelor's Degree",
+                    "major": "Teknik Perkapalan",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2025-07-31 07:00:00",
+                    "grade": "3.60"
                 }
             ],
             "skills": [
-                "C++",
-                "Temperature",
-                "Arduino Mega",
-                "ESP32",
-                "Laravel",
-                "Control",
-                "System",
-                "RFID Modules",
-                "React",
-                "Embedded C",
-                "Firmware Optimization",
-                "MQTT Realtime data transmission",
-                "Color Sensors.",
-                "Fingerprint",
-                "Sensor Integration pH",
-                "Biometric Sensors",
-                "Figma",
-                "Humidity"
+                "Marine Engineering Basics",
+                "Naval Architecture",
+                "AutoCAD",
+                "SolidWorks",
+                "Technical Drawing",
+                "Hydrodynamics Basics",
+                "Ship Design Fundamentals",
+                "Problem Solving",
+                "Team Collaboration",
+                "Microsoft Office"
             ],
             "projects": [
                 {
-                    "project_name": "Smart Agriculture Monitoring System",
-                    "description": "Developed an IoT-based soil and weather monitoring system using ESP32 microcontrollers and various environmental sensors (humidity, temperature, pH). Built a robust data communication architecture utilizing the MQTT protocol for real-time data transm",
-                    "start_date": "2023-10-01 00:00:00",
-                    "end_date": "2024-05-01 00:00:00"
-                },
-                {
-                    "project_name": "Automated Warehouse Sorting Robot",
-                    "description": "Engineered a control system for an automated sorting robot using Arduino Mega and basic computer vision for object detection. Integrated color sensors and servo motors to precisely classify and sort inventory packages based on predefined criteria. Op",
-                    "start_date": "2024-08-01 00:00:00",
-                    "end_date": "2025-02-01 00:00:00"
+                    "project_name": "Ship Hull Design Final Project",
+                    "description": "Designed basic ship hull structure using CAD software as part of final academic project in Marine Engineering.",
+                    "start_date": "2024-03-01 07:00:00",
+                    "end_date": "2024-07-01 07:00:00"
                 }
             ],
-            "experiences": [
-                {
-                    "experience_title": "IoT Systems Engineer",
-                    "employment_type": "Full time",
-                    "company_name": "Global Telecom Solutionsn",
-                    "location": "Bali",
-                    "location_type": "Hybrid",
-                    "description": "Configured and maintained enterprise-level network routers, switches, and firewalls for client ",
-                    "start_date": "2024-10-01 00:00:00",
-                    "end_date": "2025-02-01 00:00:00"
-                }
-            ],
+            "experiences": [],
             "certifications": [
                 {
-                    "certification_name": "Cloud Computing",
-                    "issuing_organization": "AWS Academy",
-                    "issue_date": "2023-12-01 00:00:00",
-                    "expiration_date": "2028-01-01 00:00:00",
-                    "credential_url": "https://AWS.Academy-CLoudComputing"
-                }
-            ],
-            "languages": [
-                {
-                    "language_name": "Indonesia"
-                }
-            ]
-        },
-        {
-            "full_name": "JACQUELINE THOMPSON",
-            "email": "jobseeker14@mail.com",
-            "address": "Sragen",
-            "phone_number": "0895426044884",
-            "date_of_birth": "2005-01-15 00:00:00",
-            "personal_summary": "Informatics student with a strong interest in software development, information systems, and data analysis. Skilled in problem-solving and familiar with various programming languages. Experienced in working on technology-based projects and able to collaborate effectively in team environments as well as independently.",
-            "profile_picture_url": "profile/js14.jpg",
-            "education": [
-                {
-                    "university_name": "Universitas Sebelas March",
-                    "degree": "Master Degree",
-                    "major": "Informatic",
-                    "start_date": "2024-07-01 00:00:00",
-                    "end_date": "2027-05-01 00:00:00",
-                    "grade": "4.0"
-                }
-            ],
-            "skills": [
-                "CSS",
-                "Laravel",
-                "Vue.JS",
-                "HTML",
-                "mySQL",
-                "React",
-                "PHP",
-                "JavaScript",
-                "java"
-            ],
-            "projects": [
-                {
-                    "project_name": "Cafe Landing Page & Reservation System",
-                    "description": "Designing and implementing internal digital tools to automate documentation, staff recruitment processes, and organizational communication workflows. Applying structured management methodologies to lead divisional projects, contributing to the overal",
-                    "start_date": "2024-07-01 00:00:00",
-                    "end_date": "2025-05-01 00:00:00"
-                },
-                {
-                    "project_name": "Digital Book Rental Website",
-                    "description": "Developed a web-based digital book rental platform that allows users to browse and rent books while enabling authors to upload and manage their own content. Implemented CRUD functionalities, designed user-friendly interfaces, and managed database ope",
-                    "start_date": "2024-01-01 00:00:00",
-                    "end_date": "2024-06-01 00:00:00"
-                }
-            ],
-            "experiences": [
-                {
-                    "experience_title": "Engineering Executive",
-                    "employment_type": "Full time",
-                    "company_name": "Borcelle Technologies",
-                    "location": "Jakarta",
-                    "location_type": "on-site",
-                    "description": "Implemented cost-effective solutions, resulting in a 20% reduction in project expenses. Streamlined project workflows, enhancing overall efficiency by 25%. Led a team in successfully delivering a complex engineering project on time and within allocat",
-                    "start_date": "2023-01-01 00:00:00",
-                    "end_date": "2023-12-01 00:00:00"
-                },
-                {
-                    "experience_title": "Full-Stack Web Developer",
-                    "employment_type": "Full time",
-                    "company_name": "PT. HiTech Indonesia",
-                    "location": "Jakarta",
-                    "location_type": "on-site",
-                    "description": "Optimizing database performance with MySQL, ensuring seamless data retrieval for complex features such as job matching systems and content management portals. Collaborating in team environments to deliver high-quality UI/UX designs using Figma, ensur",
-                    "start_date": "2024-01-01 00:00:00",
-                    "end_date": "2024-12-01 00:00:00"
-                }
-            ],
-            "certifications": [
-                {
-                    "certification_name": "UI/UX Design Fundamentals",
-                    "issuing_organization": "Coursera",
-                    "issue_date": "2025-03-01 00:00:00",
-                    "expiration_date": "2028-05-01 00:00:00",
-                    "credential_url": "https://Coursera.com"
+                    "certification_name": "Basic Maritime Safety Training",
+                    "issuing_organization": "IMO Training Center",
+                    "issue_date": "2024-06-01 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.imo.org"
                 }
             ],
             "languages": [
@@ -374,173 +250,2588 @@
                     "language_name": "English"
                 },
                 {
-                    "language_name": "Indonesia"
+                    "language_name": "Indonesian"
                 }
             ]
         },
         {
-            "full_name": "JACQUELINE THOMPSON",
-            "email": "jobseeker4@mail.com",
-            "address": "Sragen",
-            "phone_number": "0895426044884",
-            "date_of_birth": "2005-01-15 00:00:00",
-            "personal_summary": "Informatics student with a strong interest in software development, information systems, and data analysis. Skilled in problem-solving and familiar with various programming languages. Experienced in working on technology-based projects and able to collaborate effectively in team environments as well as independently.",
-            "profile_picture_url": "profile/js4.jpg",
+            "full_name": "Arga Pradipta Nugraha",
+            "email": "jobseeker56@mail.com",
+            "address": "Bandung, Jawa Barat, Indonesia",
+            "phone_number": "+6281234567821",
+            "date_of_birth": "2003-02-12 07:00:00",
+            "personal_summary": "Fresh Graduate Teknik Informatika dari Universitas Telkom dengan minat dan pengalaman dalam pengembangan game menggunakan Unity dan C#. Memiliki pengalaman magang sebagai Game Developer Intern yang berfokus pada pengembangan gameplay, debugging, implementasi UI, dan optimasi performa game. Terbiasa bekerja dalam tim menggunakan Git serta memiliki pemahaman mengenai game design dan mobile game development.",
+            "profile_picture_url": null,
             "education": [
                 {
-                    "university_name": "Universitas Sebelas March",
-                    "degree": "Bachelor’s Degree",
-                    "major": "Informatic",
-                    "start_date": "2024-07-01 00:00:00",
-                    "end_date": "2027-05-01 00:00:00",
-                    "grade": "4.0"
+                    "university_name": "Universitas Telkom",
+                    "degree": "Bachelor's Degree",
+                    "major": "Teknik Informatika",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2025-07-31 07:00:00",
+                    "grade": "3.72"
                 }
             ],
             "skills": [
-                "Vue.JS",
-                "mySQL",
-                "React",
-                "CSS",
-                "HTML",
-                "JavaScript",
-                "java",
-                "Laravel",
-                "PHP"
+                "Unity",
+                "C#",
+                "Game Development",
+                "Game Programming",
+                "Object Oriented Programming",
+                "Mobile Game Development",
+                "Game Testing",
+                "Debugging",
+                "Git",
+                "UI Implementation"
             ],
             "projects": [
                 {
-                    "project_name": "Cafe Landing Page & Reservation System",
-                    "description": "Designing and implementing internal digital tools to automate documentation, staff recruitment processes, and organizational communication workflows. Applying structured management methodologies to lead divisional projects, contributing to the overal",
-                    "start_date": "2024-07-01 00:00:00",
-                    "end_date": "2025-05-01 00:00:00"
+                    "project_name": "2D Adventure Game",
+                    "description": "Mengembangkan game petualangan 2D menggunakan Unity dan C# sebagai proyek akademik.",
+                    "start_date": "2024-03-01 07:00:00",
+                    "end_date": "2024-06-30 07:00:00"
                 },
                 {
-                    "project_name": "Digital Book Rental Website",
-                    "description": "Developed a web-based digital book rental platform that allows users to browse and rent books while enabling authors to upload and manage their own content. Implemented CRUD functionalities, designed user-friendly interfaces, and managed database ope",
-                    "start_date": "2024-01-01 00:00:00",
-                    "end_date": "2024-06-01 00:00:00"
+                    "project_name": "Educational Mobile Game",
+                    "description": "Mengembangkan game edukasi berbasis Android untuk meningkatkan pengalaman belajar siswa.",
+                    "start_date": "2024-08-01 07:00:00",
+                    "end_date": "2024-11-30 07:00:00"
+                },
+                {
+                    "project_name": "Multiplayer Quiz Game",
+                    "description": "Membangun prototipe game multiplayer menggunakan Unity dan Photon Engine.",
+                    "start_date": "2025-02-01 07:00:00",
+                    "end_date": "2025-05-31 07:00:00"
                 }
             ],
             "experiences": [
                 {
-                    "experience_title": "Full-Stack Web Developer",
-                    "employment_type": "Full time",
-                    "company_name": "PT. HiTech Indonesia",
-                    "location": "Jakarta",
-                    "location_type": "on-site",
-                    "description": "Optimizing database performance with MySQL, ensuring seamless data retrieval for complex features such as job matching systems and content management portals. Collaborating in team environments to deliver high-quality UI/UX designs using Figma, ensur",
-                    "start_date": "2024-01-01 00:00:00",
-                    "end_date": "2024-12-01 00:00:00"
-                },
-                {
-                    "experience_title": "Engineering Executive",
-                    "employment_type": "Full time",
-                    "company_name": "Borcelle Technologies",
-                    "location": "Jakarta",
-                    "location_type": "on-site",
-                    "description": "Implemented cost-effective solutions, resulting in a 20% reduction in project expenses. Streamlined project workflows, enhancing overall efficiency by 25%. Led a team in successfully delivering a complex engineering project on time and within allocat",
-                    "start_date": "2023-01-01 00:00:00",
-                    "end_date": "2023-12-01 00:00:00"
+                    "experience_title": "Game Developer Intern",
+                    "employment_type": "Internship",
+                    "company_name": "Agate International",
+                    "location": "Bandung, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Membantu pengembangan game menggunakan Unity, melakukan debugging, implementasi gameplay, pengujian fitur, serta berkolaborasi dengan tim desainer dan programmer.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-06-30 07:00:00"
                 }
             ],
             "certifications": [
                 {
-                    "certification_name": "UI/UX Design Fundamentals",
-                    "issuing_organization": "Coursera",
-                    "issue_date": "2025-03-01 00:00:00",
-                    "expiration_date": "2028-05-01 00:00:00",
-                    "credential_url": "https://Coursera.com"
+                    "certification_name": "Unity Essentials Path",
+                    "issuing_organization": "Unity Technologies",
+                    "issue_date": "2024-04-15 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://learn.unity.com"
+                },
+                {
+                    "certification_name": "Unity Junior Programmer",
+                    "issuing_organization": "Unity Technologies",
+                    "issue_date": "2024-09-10 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://learn.unity.com"
+                },
+                {
+                    "certification_name": "Belajar Dasar Pemrograman Game",
+                    "issuing_organization": "Dicoding Indonesia",
+                    "issue_date": "2024-11-20 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.dicoding.com"
                 }
             ],
             "languages": [
                 {
-                    "language_name": "English"
+                    "language_name": "Bahasa Indonesia"
                 },
                 {
-                    "language_name": "Indonesia"
+                    "language_name": "English"
                 }
             ]
         },
         {
-            "full_name": "JACQUELINE THOMPSON",
-            "email": "jobseeker2@mail.com",
-            "address": "Sragen",
-            "phone_number": "0895426044884",
-            "date_of_birth": "2005-01-15 00:00:00",
-            "personal_summary": "Informatics student with a strong interest in software development, information systems, and data analysis. Skilled in problem-solving and familiar with various programming languages. Experienced in working on technology-based projects and able to collaborate effectively in team environments as well as independently.",
-            "profile_picture_url": "public/uploads/profile-picture/profile-picture-1747973220229-978053894.png",
+            "full_name": "Aulia Rahma Putri",
+            "email": "jobseeker55@mail.com",
+            "address": "Bogor, West Java, Indonesia",
+            "phone_number": "+6281387654321",
+            "date_of_birth": "1998-09-14 07:00:00",
+            "personal_summary": "Food Technology professional with experience in food quality control, quality assurance, food safety compliance, and manufacturing operations. Graduated from IPB University with a Bachelor's Degree in Food Technology. Experienced in implementing HACCP, GMP, ISO 22000 standards, conducting quality inspections, and ensuring food products meet regulatory and company requirements. Passionate about food safety, product quality, and continuous process improvement.",
+            "profile_picture_url": null,
             "education": [
                 {
-                    "university_name": "Universitas Sebelas March",
-                    "degree": "Bachelor’s Degree",
-                    "major": "Informatic",
-                    "start_date": "2024-07-01 00:00:00",
-                    "end_date": "2027-05-01 00:00:00",
-                    "grade": "4.0"
+                    "university_name": "IPB University",
+                    "degree": "Bachelor's Degree",
+                    "major": "Food Technology",
+                    "start_date": "2017-08-01 07:00:00",
+                    "end_date": "2021-07-31 07:00:00",
+                    "grade": "3.74"
+                }
+            ],
+            "skills": [
+                "Food Safety",
+                "Quality Assurance",
+                "Quality Control",
+                "HACCP",
+                "Good Manufacturing Practices (GMP)",
+                "ISO 22000",
+                "Food Processing",
+                "Root Cause Analysis",
+                "Internal Auditing",
+                "Food Manufacturing"
+            ],
+            "projects": [
+                {
+                    "project_name": "HACCP Compliance Improvement Program",
+                    "description": "Implemented process improvements to strengthen HACCP compliance across production lines.",
+                    "start_date": "2023-10-01 07:00:00",
+                    "end_date": "2024-02-28 07:00:00"
                 },
                 {
-                    "university_name": "Sebelas Maret University 2",
-                    "degree": "Bachelor",
-                    "major": "University",
+                    "project_name": "Food Quality Monitoring Optimization",
+                    "description": "Improved product inspection workflow and reporting process for production teams.",
+                    "start_date": "2024-03-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "project_name": "ISO 22000 Internal Audit Program",
+                    "description": "Participated in internal audits and corrective action implementation for food safety management systems.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": "2025-01-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Quality Control Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Indofood CBP Sukses Makmur Tbk",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Performed food quality inspections, laboratory testing, raw material verification, and supported food safety compliance activities.",
                     "start_date": "2020-01-01 07:00:00",
-                    "end_date": "2024-01-01 07:00:00",
-                    "grade": null
-                }
-            ],
-            "skills": [
-                "React",
-                "Vue.JS",
-                "PHP",
-                "mySQL",
-                "Laravel",
-                "HTML",
-                "CSS",
-                "JavaScript",
-                "java"
-            ],
-            "projects": [
-                {
-                    "project_name": "Cafe Landing Page & Reservation System",
-                    "description": "Designing and implementing internal digital tools to automate documentation, staff recruitment processes, and organizational communication workflows. Applying structured management methodologies to lead divisional projects, contributing to the overal",
-                    "start_date": "2024-07-01 00:00:00",
-                    "end_date": "2025-05-01 00:00:00"
+                    "end_date": "2020-06-30 07:00:00"
                 },
                 {
-                    "project_name": "Digital Book Rental Website",
-                    "description": "Developed a web-based digital book rental platform that allows users to browse and rent books while enabling authors to upload and manage their own content. Implemented CRUD functionalities, designed user-friendly interfaces, and managed database ope",
-                    "start_date": "2024-01-01 00:00:00",
-                    "end_date": "2024-06-01 00:00:00"
-                }
-            ],
-            "experiences": [
-                {
-                    "experience_title": "Full-Stack Web Developer",
-                    "employment_type": "Full time",
-                    "company_name": "PT. HiTech Indonesia",
-                    "location": "Jakarta",
-                    "location_type": "on-site",
-                    "description": "Optimizing database performance with MySQL, ensuring seamless data retrieval for complex features such as job matching systems and content management portals. Collaborating in team environments to deliver high-quality UI/UX designs using Figma, ensur",
-                    "start_date": "2024-01-01 00:00:00",
-                    "end_date": "2024-12-01 00:00:00"
+                    "experience_title": "Quality Control Staff",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Mayora Indah Tbk",
+                    "location": "Tangerang, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Conducted product quality inspections, monitored production processes, performed laboratory testing, and ensured compliance with food safety standards.",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2023-07-31 07:00:00"
                 },
                 {
-                    "experience_title": "Engineering Executive",
-                    "employment_type": "Full time",
-                    "company_name": "Borcelle Technologies",
-                    "location": "Jakarta",
-                    "location_type": "on-site",
-                    "description": "Implemented cost-effective solutions, resulting in a 20% reduction in project expenses. Streamlined project workflows, enhancing overall efficiency by 25%. Led a team in successfully delivering a complex engineering project on time and within allocat",
-                    "start_date": "2023-01-01 00:00:00",
-                    "end_date": "2023-12-01 00:00:00"
+                    "experience_title": "Quality Assurance Specialist",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Nestlé Indonesia",
+                    "location": "Karawang, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Responsible for HACCP implementation, GMP compliance, quality auditing, corrective action management, and continuous improvement initiatives within food manufacturing operations.",
+                    "start_date": "2023-08-01 07:00:00",
+                    "end_date": null
                 }
             ],
             "certifications": [
                 {
-                    "certification_name": "UI/UX Design Fundamentals",
-                    "issuing_organization": "Coursera",
-                    "issue_date": "2025-03-01 00:00:00",
-                    "expiration_date": "2028-05-01 00:00:00",
-                    "credential_url": "https://Coursera.com"
+                    "certification_name": "HACCP Certification",
+                    "issuing_organization": "HACCP International",
+                    "issue_date": "2022-03-15 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.haccp-international.com"
+                },
+                {
+                    "certification_name": "ISO 22000 Food Safety Management Systems",
+                    "issuing_organization": "TÜV Rheinland",
+                    "issue_date": "2023-05-20 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.tuv.com"
+                },
+                {
+                    "certification_name": "Food Safety Management Training",
+                    "issuing_organization": "SGS Indonesia",
+                    "issue_date": "2024-07-12 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.sgs.com"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Renatta Alathas",
+            "email": "jobseeker54@mail.com",
+            "address": "Surakarta, Central Java, Indonesia",
+            "phone_number": "+6281298765432",
+            "date_of_birth": "1999-04-18 07:00:00",
+            "personal_summary": "Tax Consultant with a strong background in taxation, tax compliance, and financial reporting. Graduated with a Diploma in Taxation from Universitas Sebelas Maret and later completed a Bachelor's Degree in Accounting at Universitas Gadjah Mada. Experienced as a Tax Intern, Tax Staff, and currently working as a Tax Consultant. Skilled in tax planning, tax reporting, corporate taxation, and Indonesian tax regulations.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Sebelas Maret",
+                    "degree": "Diploma Degree",
+                    "major": "Taxation",
+                    "start_date": "2017-08-01 07:00:00",
+                    "end_date": "2020-07-31 07:00:00",
+                    "grade": "3.72"
+                },
+                {
+                    "university_name": "Universitas Gadjah Mada",
+                    "degree": "Bachelor's Degree",
+                    "major": "Accounting",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2023-12-31 07:00:00",
+                    "grade": "3.78"
+                }
+            ],
+            "skills": [
+                "Tax Planning",
+                "Tax Compliance",
+                "Tax Reporting",
+                "Corporate Tax",
+                "PPh 21",
+                "PPh 23",
+                "VAT (PPN)",
+                "e-Faktur",
+                "Financial Reporting",
+                "Microsoft Excel"
+            ],
+            "projects": [
+                {
+                    "project_name": "Corporate Tax Compliance Optimization",
+                    "description": "Assisted clients in improving tax reporting accuracy and compliance processes.",
+                    "start_date": "2024-03-01 07:00:00",
+                    "end_date": "2024-07-31 07:00:00"
+                },
+                {
+                    "project_name": "VAT Reporting Automation",
+                    "description": "Participated in implementing automated VAT reporting procedures using spreadsheet-based tools.",
+                    "start_date": "2024-08-01 07:00:00",
+                    "end_date": "2024-11-30 07:00:00"
+                },
+                {
+                    "project_name": "Tax Audit Preparation Project",
+                    "description": "Prepared documentation and compliance reviews for client tax audits.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-05-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Tax Intern",
+                    "employment_type": "Internship",
+                    "company_name": "Kantor Konsultan Pajak Artha Mandiri",
+                    "location": "Surakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Assisted tax consultants in preparing tax reports, tax filing documents, tax calculations, and client administrative requirements.",
+                    "start_date": "2019-02-01 07:00:00",
+                    "end_date": "2019-07-31 07:00:00"
+                },
+                {
+                    "experience_title": "Tax Staff",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Indofood CBP Sukses Makmur Tbk",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Prepared monthly and annual tax reports, managed tax compliance activities, assisted with tax audits, and ensured compliance with Indonesian taxation regulations.",
+                    "start_date": "2020-08-01 07:00:00",
+                    "end_date": "2021-11-30 07:00:00"
+                },
+                {
+                    "experience_title": "Tax Consultant",
+                    "employment_type": "Full-time",
+                    "company_name": "DDTC (Danny Darussalam Tax Center)",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Provided tax advisory services, tax planning strategies, tax compliance reviews, and corporate tax consultation for various clients across industries.",
+                    "start_date": "2024-01-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Brevet A & B Tax Certification",
+                    "issuing_organization": "Ikatan Konsultan Pajak Indonesia",
+                    "issue_date": "2022-06-15 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://ikpi.or.id"
+                },
+                {
+                    "certification_name": "Certified Tax Technician",
+                    "issuing_organization": "Lembaga Sertifikasi Profesi",
+                    "issue_date": "2023-02-10 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://bnsp.go.id"
+                },
+                {
+                    "certification_name": "Advanced Tax Planning",
+                    "issuing_organization": "DDTC Academy",
+                    "issue_date": "2024-09-20 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://academy.ddtc.co.id"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                },
+                {
+                    "language_name": "mandarin"
+                }
+            ]
+        },
+        {
+            "full_name": "Muhammad Farhan Akbar",
+            "email": "jobseeker53@mail.com",
+            "address": "Depok, West Java, Indonesia",
+            "phone_number": "+6281212348899",
+            "date_of_birth": "2000-07-21 07:00:00",
+            "personal_summary": "Computer Science graduate from Universitas Indonesia with experience in mobile application development and IT support services. Skilled in Android development, Flutter, application testing, troubleshooting, system support, and technical problem solving. Experienced in assisting users, maintaining IT infrastructure, and contributing to mobile application projects. Passionate about creating user-friendly mobile solutions and continuously improving technical expertise.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Indonesia",
+                    "degree": "Bachelor's Degree",
+                    "major": "Computer Science",
+                    "start_date": "2019-08-01 07:00:00",
+                    "end_date": "2023-07-31 07:00:00",
+                    "grade": "3.74"
+                }
+            ],
+            "skills": [
+                "Flutter",
+                "Dart",
+                "Android Development",
+                "Kotlin",
+                "Java",
+                "REST API Integration",
+                "Firebase",
+                "Git",
+                "IT Troubleshooting",
+                "Technical Support"
+            ],
+            "projects": [
+                {
+                    "project_name": "Campus Event Mobile Application",
+                    "description": "Developed a Flutter-based mobile application for event registration and attendance management.",
+                    "start_date": "2022-02-01 07:00:00",
+                    "end_date": "2022-05-31 07:00:00"
+                },
+                {
+                    "project_name": "Task Management Mobile App",
+                    "description": "Created a cross-platform productivity application using Flutter and Firebase.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-04-30 07:00:00"
+                },
+                {
+                    "project_name": "IT Asset Tracking System",
+                    "description": "Built an internal web-based system for tracking company hardware and support requests.",
+                    "start_date": "2024-01-01 07:00:00",
+                    "end_date": "2024-06-30 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Mobile Application Developer Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Mitra Integrasi Informatika",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Assisted in developing Android and Flutter applications, implementing UI features, fixing bugs, and testing application performance.",
+                    "start_date": "2022-01-01 07:00:00",
+                    "end_date": "2022-06-30 07:00:00"
+                },
+                {
+                    "experience_title": "Junior IT Support",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Metrodata Electronics Tbk",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Provided technical support for end users, installed and configured software, maintained computer systems, resolved hardware and network issues, and documented support activities.",
+                    "start_date": "2023-08-01 07:00:00",
+                    "end_date": "2025-02-28 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Associate Android Developer",
+                    "issuing_organization": "Google",
+                    "issue_date": "2023-03-15 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://developers.google.com"
+                },
+                {
+                    "certification_name": "Belajar Membuat Aplikasi Flutter untuk Pemula",
+                    "issuing_organization": "Dicoding Indonesia",
+                    "issue_date": "2022-10-10 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.dicoding.com"
+                },
+                {
+                    "certification_name": "Google IT Support Professional Certificate",
+                    "issuing_organization": "Google",
+                    "issue_date": "2024-01-20 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.coursera.org"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Aditya Prakoso",
+            "email": "jobseeker52@mail.com",
+            "address": "Semarang, Central Java, Indonesia",
+            "phone_number": "+6281234567891",
+            "date_of_birth": "2003-03-15 07:00:00",
+            "personal_summary": "Fresh Graduate in Informatics Engineering from Universitas Semarang with hands-on experience through a web development internship. Skilled in building responsive web applications using PHP, Laravel, JavaScript, MySQL, and modern frontend technologies. Passionate about software development, problem solving, and continuously learning new technologies to create impactful digital solutions.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Semarang",
+                    "degree": "Bachelor's Degree",
+                    "major": "Informatics Engineering",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2025-07-31 07:00:00",
+                    "grade": "3.68"
+                }
+            ],
+            "skills": [
+                "HTML",
+                "CSS",
+                "JavaScript",
+                "PHP",
+                "Laravel",
+                "MySQL",
+                "Git",
+                "Bootstrap",
+                "REST API",
+                "Responsive Web Design"
+            ],
+            "projects": [
+                {
+                    "project_name": "University Event Registration Website",
+                    "description": "Created an event registration platform with participant management and email notification features.",
+                    "start_date": "2024-08-01 07:00:00",
+                    "end_date": "2024-11-30 07:00:00"
+                },
+                {
+                    "project_name": "Final Project Information System",
+                    "description": "Built a web information system as part of final year project using Laravel framework.",
+                    "start_date": "2025-02-01 07:00:00",
+                    "end_date": "2025-07-01 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Web Developer Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Solusi Digital Nusantara",
+                    "location": "Semarang, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Assisted in developing and maintaining company web applications using Laravel, MySQL, JavaScript, and Bootstrap. Collaborated with developers to implement responsive user interfaces and backend functionalities.",
+                    "start_date": "2024-02-01 07:00:00",
+                    "end_date": "2024-07-31 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Junior Web Developer",
+                    "issuing_organization": "BNSP",
+                    "issue_date": "2025-05-15 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://bnsp.go.id"
+                },
+                {
+                    "certification_name": "JavaScript Algorithms and Data Structures",
+                    "issuing_organization": "Dicoding Indonesia",
+                    "issue_date": "2025-06-01 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.dicoding.com"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Nadia Putri Maharani",
+            "email": "jobseeker50@mail.com",
+            "address": "Surabaya, East Java, Indonesia",
+            "phone_number": "+6281321123344",
+            "date_of_birth": "1999-08-22 07:00:00",
+            "personal_summary": "Public Health professional with experience in healthcare program management, community health promotion, healthcare policy implementation, and social assistance initiatives. Holds a Bachelor's Degree in Public Health from Universitas Airlangga. Experienced in coordinating public health programs, monitoring healthcare outcomes, and supporting community-based healthcare services. Currently working as a Healthcare Program Specialist at BPJS Kesehatan.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Airlangga",
+                    "degree": "Bachelor's Degree",
+                    "major": "Public Health",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.76"
+                }
+            ],
+            "skills": [
+                "Public Health",
+                "Community Health",
+                "Health Promotion",
+                "Healthcare Management",
+                "Program Evaluation",
+                "Health Policy Analysis",
+                "Stakeholder Management",
+                "Data Analysis",
+                "Healthcare Administration",
+                "Community Outreach"
+            ],
+            "projects": [
+                {
+                    "project_name": "Community Health Awareness Campaign",
+                    "description": "Implemented health education campaigns focusing on preventive healthcare and healthy lifestyles.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Maternal and Child Health Initiative",
+                    "description": "Supported healthcare programs to improve maternal and child health outcomes in rural communities.",
+                    "start_date": "2023-07-01 07:00:00",
+                    "end_date": "2024-02-29 07:00:00"
+                },
+                {
+                    "project_name": "Healthcare Service Quality Improvement Program",
+                    "description": "Collaborated with healthcare providers to improve service quality monitoring and patient satisfaction metrics.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Public Health Officer",
+                    "employment_type": "Full-time",
+                    "company_name": "Palang Merah Indonesia",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Managed health awareness campaigns, community health initiatives, and emergency response support programs.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "Healthcare Program Specialist",
+                    "employment_type": "Full-time",
+                    "company_name": "BPJS Kesehatan",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Responsible for healthcare program planning, monitoring service quality, stakeholder coordination, and healthcare access improvement initiatives.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Certified Public Health Professional",
+                    "issuing_organization": "Indonesian Public Health Association",
+                    "issue_date": "2023-09-15 07:00:00",
+                    "expiration_date": "2028-09-15 07:00:00",
+                    "credential_url": "https://www.iaiph.org"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Alvin Mahendra",
+            "email": "jobseeker39@mail.com",
+            "address": "Bandung, West Java, Indonesia",
+            "phone_number": "+6281212345678",
+            "date_of_birth": "2001-04-18 07:00:00",
+            "personal_summary": "Fresh Graduate in Metallurgical Engineering from Institut Teknologi Bandung with a strong academic background in extractive metallurgy, mineral processing, materials characterization, and metallurgical testing. Completed an internship at PT Freeport Indonesia, where involved in ore processing analysis and metallurgical laboratory activities. Passionate about mining operations, material innovation, and process optimization.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Institut Teknologi Bandung",
+                    "degree": "Bachelor's Degree",
+                    "major": "Metallurgical Engineering",
+                    "start_date": "2020-08-01 07:00:00",
+                    "end_date": "2024-07-31 07:00:00",
+                    "grade": "3.71"
+                }
+            ],
+            "skills": [
+                "Extractive Metallurgy",
+                "Mineral Processing",
+                "Materials Characterization",
+                "Metallurgical Testing",
+                "Failure Analysis",
+                "Process Optimization",
+                "Materials Science",
+                "AutoCAD",
+                "Data Analysis",
+                "Laboratory Analysis"
+            ],
+            "projects": [
+                {
+                    "project_name": "Copper Ore Flotation Performance Analysis",
+                    "description": "Analyzed flotation recovery rates and process parameters to improve copper concentrate quality.",
+                    "start_date": "2023-05-01 07:00:00",
+                    "end_date": "2023-08-01 07:00:00"
+                },
+                {
+                    "project_name": "Heat Treatment of Low Carbon Steel",
+                    "description": "Investigated the effects of heat treatment parameters on mechanical properties of steel materials.",
+                    "start_date": "2023-09-01 07:00:00",
+                    "end_date": "2023-12-15 07:00:00"
+                },
+                {
+                    "project_name": "Final Year Research on Nickel Laterite Processing",
+                    "description": "Conducted research on hydrometallurgical extraction methods for nickel laterite ores.",
+                    "start_date": "2024-02-01 07:00:00",
+                    "end_date": "2024-07-15 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Metallurgical Engineering Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Freeport Indonesia",
+                    "location": "Timika, Papua, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Assisted metallurgical engineers in mineral processing operations, sample preparation, laboratory testing, flotation process monitoring, and operational data analysis.",
+                    "start_date": "2023-06-01 07:00:00",
+                    "end_date": "2023-08-31 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Basic Mining Safety Training",
+                    "issuing_organization": "PT Freeport Indonesia",
+                    "issue_date": "2023-06-05 07:00:00",
+                    "expiration_date": "2028-06-05 07:00:00",
+                    "credential_url": "https://www.ptfi.co.id"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Raka Aditya Prakoso",
+            "email": "jobseeker48@mail.com",
+            "address": "Bandung, West Java, Indonesia",
+            "phone_number": "+6281298765432",
+            "date_of_birth": "1999-05-20 07:00:00",
+            "personal_summary": "Automotive Engineer with expertise in vehicle development, automotive design, manufacturing processes, and mechanical system optimization. Holds a Bachelor's Degree in Mechanical Engineering from Institut Teknologi Bandung. Experienced in automotive product development, CAD modeling, quality improvement initiatives, and vehicle performance testing. Currently working as a Senior Automotive Development Engineer at PT Hyundai Motor Manufacturing Indonesia.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Institut Teknologi Bandung",
+                    "degree": "Bachelor's Degree",
+                    "major": "Mechanical Engineering",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.74"
+                }
+            ],
+            "skills": [
+                "Automotive Engineering",
+                "CATIA",
+                "SolidWorks",
+                "CAD Design",
+                "Vehicle Development",
+                "Manufacturing Process",
+                "Mechanical Systems",
+                "Quality Control",
+                "Failure Analysis",
+                "Product Development"
+            ],
+            "projects": [
+                {
+                    "project_name": "Fuel Efficiency Improvement Project",
+                    "description": "Optimized vehicle component design to improve fuel efficiency and reduce production costs.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-08-31 07:00:00"
+                },
+                {
+                    "project_name": "Vehicle Chassis Optimization",
+                    "description": "Performed structural analysis and design improvements to enhance vehicle durability and performance.",
+                    "start_date": "2023-09-01 07:00:00",
+                    "end_date": "2024-03-31 07:00:00"
+                },
+                {
+                    "project_name": "Electric Vehicle Platform Development",
+                    "description": "Contributed to prototype development and testing activities for next-generation electric vehicle platforms.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Mechanical Engineering Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Astra Honda Motor",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Supported vehicle component testing, manufacturing process evaluation, and engineering documentation.",
+                    "start_date": "2021-01-01 07:00:00",
+                    "end_date": "2021-06-30 07:00:00"
+                },
+                {
+                    "experience_title": "Automotive Design Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Toyota Motor Manufacturing Indonesia",
+                    "location": "Karawang, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Developed automotive components using CAD software, performed design validation, and collaborated with manufacturing teams to improve production efficiency.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "Senior Automotive Development Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Hyundai Motor Manufacturing Indonesia",
+                    "location": "Bekasi, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Leading vehicle development projects, conducting performance analysis, supporting prototype testing, and implementing engineering improvements for new vehicle platforms.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Certified Automotive Engineer",
+                    "issuing_organization": "Society of Automotive Engineers Indonesia",
+                    "issue_date": "2023-06-15 07:00:00",
+                    "expiration_date": "2028-06-15 07:00:00",
+                    "credential_url": "https://www.saeindonesia.org"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Dimas Pratama Nugroho",
+            "email": "jobseeker47@mail.com",
+            "address": "Depok, West Java, Indonesia",
+            "phone_number": "+6281387654321",
+            "date_of_birth": "1999-03-15 07:00:00",
+            "personal_summary": "Public Administration professional with experience in policy analysis, government affairs, stakeholder engagement, and public sector program evaluation. Holds a Bachelor's Degree in Public Administration from Universitas Indonesia. Experienced in supporting public policy development, regulatory analysis, and inter-agency collaboration. Currently working as a Government Affairs Specialist at BRIN, contributing to strategic government initiatives and innovation programs.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Indonesia",
+                    "degree": "Bachelor's Degree",
+                    "major": "Public Administration",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.78"
+                }
+            ],
+            "skills": [
+                "Public Policy Analysis",
+                "Government Relations",
+                "Regulatory Compliance",
+                "Policy Research",
+                "Stakeholder Engagement",
+                "Public Administration",
+                "Strategic Planning",
+                "Program Evaluation",
+                "Project Coordination",
+                "Public Sector Management"
+            ],
+            "projects": [
+                {
+                    "project_name": "Public Service Digitalization Initiative",
+                    "description": "Supported implementation of digital public services to improve citizen accessibility and operational efficiency.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-08-31 07:00:00"
+                },
+                {
+                    "project_name": "Regional Policy Evaluation Program",
+                    "description": "Conducted impact assessment and performance evaluation for provincial development programs.",
+                    "start_date": "2023-09-01 07:00:00",
+                    "end_date": "2024-03-31 07:00:00"
+                },
+                {
+                    "project_name": "National Innovation Partnership Program",
+                    "description": "Coordinated collaboration initiatives between government agencies, universities, and research institutions.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Government Relations Intern",
+                    "employment_type": "Internship",
+                    "company_name": "Kementerian PANRB",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Supported policy research, public service evaluation, administrative reform initiatives, and stakeholder coordination activities.",
+                    "start_date": "2021-01-01 07:00:00",
+                    "end_date": "2021-06-30 07:00:00"
+                },
+                {
+                    "experience_title": "Public Policy Analyst",
+                    "employment_type": "Full-time",
+                    "company_name": "Pemerintah Provinsi Jawa Barat",
+                    "location": "Bandung, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Conducted policy analysis, program monitoring, impact assessment, and performance evaluation for regional government initiatives.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "Government Affairs Specialist",
+                    "employment_type": "Full-time",
+                    "company_name": "Badan Riset dan Inovasi Nasional (BRIN)",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Managing stakeholder engagement, policy coordination, strategic partnerships, and innovation program initiatives across government institutions.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": "2024-09-01 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Public Policy and Governance Certification",
+                    "issuing_organization": "Lembaga Administrasi Negara",
+                    "issue_date": "2023-05-15 07:00:00",
+                    "expiration_date": "2028-05-15 07:00:00",
+                    "credential_url": "https://www.lan.go.id"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Kezia Amanda Putri",
+            "email": "jobseeker46@mail.com",
+            "address": "Bandung, West Java, Indonesia",
+            "phone_number": "+6281319988776",
+            "date_of_birth": "1999-06-18 07:00:00",
+            "personal_summary": "User-centered UI/UX Designer with experience in designing digital products across education, e-commerce, and fintech industries. Holds a Bachelor's Degree in Information Systems from Telkom University. Skilled in user research, interaction design, design systems, wireframing, prototyping, and usability testing. Passionate about creating intuitive digital experiences that balance user needs and business objectives. Currently working as a Product Designer at Xendit.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Telkom University",
+                    "degree": "Bachelor's Degree",
+                    "major": "Information Systems",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.82"
+                }
+            ],
+            "skills": [
+                "Figma",
+                "User Research",
+                "Wireframing",
+                "Prototyping",
+                "Design Systems",
+                "Interaction Design",
+                "Usability Testing",
+                "Information Architecture",
+                "UX Writing",
+                "Adobe XD"
+            ],
+            "projects": [
+                {
+                    "project_name": "E-Commerce Dashboard Redesign",
+                    "description": "Redesigned merchant dashboards to improve navigation efficiency and task completion rates.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Design System Development",
+                    "description": "Created reusable UI components and design guidelines used across multiple products.",
+                    "start_date": "2023-07-01 07:00:00",
+                    "end_date": "2024-03-31 07:00:00"
+                },
+                {
+                    "project_name": "Fintech Payment Experience Optimization",
+                    "description": "Improved payment flows and onboarding experiences through user-centered design methodologies.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "UI/UX Designer Intern",
+                    "employment_type": "Internship",
+                    "company_name": "Ruangguru",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Remote",
+                    "description": "Conducted user research, created wireframes and prototypes, and supported the redesign of learning platform features.",
+                    "start_date": "2021-02-01 07:00:00",
+                    "end_date": "2021-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "UI/UX Designer",
+                    "employment_type": "Full-time",
+                    "company_name": "SIRCLO",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Designed user interfaces for e-commerce solutions, conducted usability testing, developed design systems, and collaborated with product managers and engineers.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "Product Designer",
+                    "employment_type": "Full-time",
+                    "company_name": "Xendit",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Leading product design initiatives, conducting user research, building scalable design systems, and improving payment experiences for fintech products.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Google UX Design Professional Certificate",
+                    "issuing_organization": "Google",
+                    "issue_date": "2023-05-20 07:00:00",
+                    "expiration_date": "2028-05-20 07:00:00",
+                    "credential_url": "https://www.coursera.org/professional-certificates/google-ux-design"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Natasha Valencia",
+            "email": "jobseeker45@mail.com",
+            "address": "Yogyakarta, Indonesia",
+            "phone_number": "+6281234568899",
+            "date_of_birth": "1999-08-17 07:00:00",
+            "personal_summary": "Data Analyst with strong expertise in statistical analysis, business intelligence, data visualization, and predictive analytics. Graduated with a Bachelor's Degree in Statistics from Universitas Gadjah Mada. Experienced in transforming complex datasets into actionable business insights through SQL, Python, Tableau, and Power BI. Currently working as a Senior Data Analyst at GoTo, supporting strategic decision-making through data-driven solutions.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Gadjah Mada",
+                    "degree": "Bachelor's Degree",
+                    "major": "Statistics",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.85"
+                }
+            ],
+            "skills": [
+                "SQL",
+                "Python",
+                "Power BI",
+                "Tableau",
+                "Data Visualization",
+                "Statistical Analysis",
+                "Machine Learning",
+                "Data Modeling",
+                "Forecasting",
+                "Business Intelligence"
+            ],
+            "projects": [
+                {
+                    "project_name": "Customer Retention Analytics",
+                    "description": "Built predictive models to identify customer churn risk and improve retention strategies.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Sales Performance Dashboard",
+                    "description": "Developed interactive Power BI dashboards for executive-level reporting.",
+                    "start_date": "2023-07-01 07:00:00",
+                    "end_date": "2024-01-31 07:00:00"
+                },
+                {
+                    "project_name": "Demand Forecasting Model",
+                    "description": "Implemented forecasting models to support operational planning and resource allocation.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Data Analyst Intern",
+                    "employment_type": "Internship",
+                    "company_name": "Tokopedia",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Remote",
+                    "description": "Performed data cleaning, exploratory data analysis, dashboard reporting, and business performance monitoring to support operational decisions.",
+                    "start_date": "2021-01-01 07:00:00",
+                    "end_date": "2021-06-30 07:00:00"
+                },
+                {
+                    "experience_title": "Business Intelligence Analyst",
+                    "employment_type": "Full-time",
+                    "company_name": "Shopee Indonesia",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Developed business intelligence dashboards, automated reporting systems, performed customer behavior analysis, and generated insights to support business growth strategies.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "Senior Data Analyst",
+                    "employment_type": "Full-time",
+                    "company_name": "GoTo",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Leading advanced analytics initiatives, forecasting business performance, building predictive models, and collaborating with stakeholders to drive data-informed strategic decisions.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Google Data Analytics Professional Certificate",
+                    "issuing_organization": "Google",
+                    "issue_date": "2023-04-15 07:00:00",
+                    "expiration_date": "2028-04-15 07:00:00",
+                    "credential_url": "https://www.coursera.org/professional-certificates/google-data-analytics"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Michelle Valencia",
+            "email": "jobseeker44@mail.com",
+            "address": "Bandung, West Java, Indonesia",
+            "phone_number": "+6281312345678",
+            "date_of_birth": "1998-11-08 07:00:00",
+            "personal_summary": "Experienced Talent Acquisition and Human Resources professional with expertise in full-cycle recruitment, employer branding, talent sourcing, and workforce planning. Holds a Bachelor's Degree in Psychology from Universitas Padjadjaran. Proven experience recruiting across technology, corporate, and commercial functions. Skilled in stakeholder management, behavioral interviewing, candidate assessment, and HR analytics. Currently working as a Senior Talent Acquisition Specialist at Tiket.com.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Padjadjaran",
+                    "degree": "Bachelor's Degree",
+                    "major": "Psychology",
+                    "start_date": "2017-08-01 07:00:00",
+                    "end_date": "2021-07-31 07:00:00",
+                    "grade": "3.81"
+                }
+            ],
+            "skills": [
+                "Talent Acquisition",
+                "Recruitment",
+                "Behavioral Interviewing",
+                "Employer Branding",
+                "HRIS",
+                "Talent Management",
+                "Candidate Assessment",
+                "Workforce Planning",
+                "People Analytics",
+                "Stakeholder Management"
+            ],
+            "projects": [
+                {
+                    "project_name": "Tech Talent Hiring Acceleration Program",
+                    "description": "Reduced average hiring time for technology roles through process optimization and sourcing strategy improvements.",
+                    "start_date": "2022-01-01 07:00:00",
+                    "end_date": "2022-09-30 07:00:00"
+                },
+                {
+                    "project_name": "Employer Branding Campaign",
+                    "description": "Developed recruitment marketing initiatives to strengthen employer branding and candidate engagement.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-12-31 07:00:00"
+                },
+                {
+                    "project_name": "Graduate Hiring Program",
+                    "description": "Managed nationwide recruitment programs for fresh graduate talent acquisition.",
+                    "start_date": "2024-01-01 07:00:00",
+                    "end_date": "2025-01-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Human Resources Intern",
+                    "employment_type": "Internship",
+                    "company_name": "Unilever Indonesia",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Assisted recruitment activities, candidate screening, interview scheduling, onboarding administration, and employer branding initiatives.",
+                    "start_date": "2020-07-01 07:00:00",
+                    "end_date": "2020-12-31 07:00:00"
+                },
+                {
+                    "experience_title": "Talent Acquisition Specialist",
+                    "employment_type": "Full-time",
+                    "company_name": "Kalbe Farma",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Managed end-to-end recruitment processes, collaborated with hiring managers, conducted behavioral interviews, and supported workforce planning initiatives.",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2023-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "Senior Talent Acquisition Specialist",
+                    "employment_type": "Full-time",
+                    "company_name": "Tiket.com",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Leading recruitment strategies, talent sourcing initiatives, employer branding programs, and hiring processes for technology and business teams.",
+                    "start_date": "2023-09-01 07:00:00",
+                    "end_date": "2023-09-01 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Talent Acquisition Professional Certification",
+                    "issuing_organization": "LinkedIn Learning",
+                    "issue_date": "2023-06-15 07:00:00",
+                    "expiration_date": "2028-06-15 07:00:00",
+                    "credential_url": "https://www.linkedin.com/learning/"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Calista Stephani",
+            "email": "jobseeker43@mail.com",
+            "address": "Semarang, Central Java, Indonesia",
+            "phone_number": "+6281387654321",
+            "date_of_birth": "2000-02-15 07:00:00",
+            "personal_summary": "Results-driven Business Analyst with experience in business process analysis, ERP implementation, SAP solutions, and IT project development. Graduated with a Bachelor's Degree from Universitas Diponegoro in 2022. Experienced in gathering business requirements, process improvement, stakeholder management, functional specification development, and supporting digital transformation initiatives. Currently working as an IT Business Analyst (Development) at PT Astra Graphia Information Technology (AGIT).",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Diponegoro",
+                    "degree": "Bachelor's Degree",
+                    "major": "Information Systems",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.78"
+                }
+            ],
+            "skills": [
+                "Business Analysis",
+                "SAP ERP",
+                "Requirement Gathering",
+                "Business Process Modeling",
+                "Stakeholder Management",
+                "User Acceptance Testing",
+                "Agile Methodology",
+                "SQL",
+                "Functional Specification",
+                "JIRA"
+            ],
+            "projects": [
+                {
+                    "project_name": "SAP Procurement Process Optimization",
+                    "description": "Analyzed and optimized procurement workflows through SAP ERP implementation.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-08-31 07:00:00"
+                },
+                {
+                    "project_name": "Enterprise Workflow Automation",
+                    "description": "Designed business requirements and functional specifications for workflow automation initiatives.",
+                    "start_date": "2024-01-01 07:00:00",
+                    "end_date": "2024-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Digital Service Platform Enhancement",
+                    "description": "Collaborated with development teams to improve customer-facing digital services and internal operational systems.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Business Analyst Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Telkom Indonesia",
+                    "location": "Semarang, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Supported requirement gathering activities, business process documentation, stakeholder interviews, and preparation of business requirement documents for internal digital transformation projects.",
+                    "start_date": "2021-01-01 07:00:00",
+                    "end_date": "2021-06-30 07:00:00"
+                },
+                {
+                    "experience_title": "SAP Business Analyst",
+                    "employment_type": "Full-time",
+                    "company_name": "PT INKA Multi Solusi",
+                    "location": "Madiun, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Analyzed business requirements, supported SAP implementation projects, conducted user acceptance testing, prepared functional specifications, and collaborated with technical teams to optimize enterprise business processes.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "IT Business Analyst (Development)",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Astra Graphia Information Technology (AGIT)",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Facilitating requirement elicitation, creating functional specifications, coordinating software development initiatives, supporting agile project delivery, and ensuring solutions align with business objectives.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Certified Business Analysis Professional Fundamentals",
+                    "issuing_organization": "IIBA Training Partner",
+                    "issue_date": "2024-04-15 07:00:00",
+                    "expiration_date": "2029-04-15 07:00:00",
+                    "credential_url": "https://www.iiba.org"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Dinda Saputri",
+            "email": "jobseeker58@mail.com",
+            "address": "Bandung, Jawa Barat, Indonesia",
+            "phone_number": "+6281234500655",
+            "date_of_birth": "2002-06-15 07:00:00",
+            "personal_summary": "Fresh Graduate Bachelor of Pharmacy from Universitas Padjadjaran with strong knowledge in pharmaceutical sciences, drug formulation, pharmacology, and basic clinical pharmacy. Interested in pharmaceutical industry, quality assurance, and hospital pharmacy support roles. Familiar with drug dispensing procedures, pharmaceutical calculations, and basic Good Manufacturing Practice (GMP). Currently seeking an entry-level position in pharmacy or pharmaceutical industry.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Padjadjaran",
+                    "degree": "Bachelor's Degree",
+                    "major": "Farmasi",
+                    "start_date": "2020-08-01 07:00:00",
+                    "end_date": "2024-07-31 07:00:00",
+                    "grade": "3.70"
+                }
+            ],
+            "skills": [
+                "Pharmacology",
+                "Drug Dispensing",
+                "Pharmaceutical Calculations",
+                "Pharmaceutical Science",
+                "Basic GMP",
+                "Drug Safety",
+                "Patient Counseling",
+                "Medical Documentation",
+                "Attention to Detail",
+                "Communication Skills"
+            ],
+            "projects": [
+                {
+                    "project_name": "Analisis Stabilitas Obat Parasetamol",
+                    "description": "Melakukan analisis stabilitas formulasi obat parasetamol dalam kondisi suhu dan kelembaban berbeda sebagai tugas akhir akademik.",
+                    "start_date": "2023-10-01 07:00:00",
+                    "end_date": "2024-02-28 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Pharmacy Intern",
+                    "employment_type": "Internship",
+                    "company_name": "Apotek Kimia Farma",
+                    "location": "Bandung, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Assisted in drug dispensing, inventory management, prescription validation support, and patient counseling under supervision of licensed pharmacist.",
+                    "start_date": "2023-06-01 07:00:00",
+                    "end_date": "2023-08-31 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Basic Pharmaceutical Training Certificate",
+                    "issuing_organization": "Ikatan Apoteker Indonesia (IAI)",
+                    "issue_date": "2024-08-01 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://iai.id"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Rizky Pratama",
+            "email": "jobseeker41@mail.com",
+            "address": "Jl. Ir. H. Juanda No. 45, Bandung, West Java, Indonesia",
+            "phone_number": "+628123456789",
+            "date_of_birth": "1995-04-12 07:00:00",
+            "personal_summary": "Experienced Civil Engineer with over 8 years of experience in infrastructure and building construction projects. Graduated with a Bachelor's degree in Civil Engineering from Institut Teknologi Bandung (ITB) in 2018. Skilled in project management, structural analysis, construction supervision, quality control, quantity surveying, and stakeholder coordination.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Institut Teknologi Bandung",
+                    "degree": "Bachelor's Degree",
+                    "major": "Civil Engineering",
+                    "start_date": "2014-08-01 07:00:00",
+                    "end_date": "2018-07-31 07:00:00",
+                    "grade": "3.72"
+                }
+            ],
+            "skills": [
+                "Project Management",
+                "Construction Management",
+                "Structural Analysis",
+                "AutoCAD",
+                "SAP2000",
+                "ETABS",
+                "Quantity Surveying",
+                "Quality Control",
+                "Site Supervision",
+                "Construction Safety"
+            ],
+            "projects": [
+                {
+                    "project_name": "Jakarta Office Tower Development",
+                    "description": "Supervised structural and finishing works for a 35-story office tower project.",
+                    "start_date": "2019-01-01 07:00:00",
+                    "end_date": "2020-12-31 07:00:00"
+                },
+                {
+                    "project_name": "Bandung Urban Flyover Project",
+                    "description": "Coordinated construction activities and quality assurance processes.",
+                    "start_date": "2021-01-01 07:00:00",
+                    "end_date": "2022-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Green Residential Complex Development",
+                    "description": "Led site engineering and scheduling for a residential housing project.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Senior Site Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Wijaya Karya (Persero) Tbk",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Managed construction projects, supervised contractors, monitored quality control, coordinated stakeholders, and ensured project delivery according to schedule and budget.",
+                    "start_date": "2018-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Project Management Professional (PMP)",
+                    "issuing_organization": "Project Management Institute",
+                    "issue_date": "2022-05-15 07:00:00",
+                    "expiration_date": "2028-05-15 07:00:00",
+                    "credential_url": "https://www.pmi.org"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Stevan Gall",
+            "email": "jobseeker40@mail.com",
+            "address": "Jl. Raya Darmo No. 55, Wonokromo, Surabaya, East Java, Indonesia",
+            "phone_number": "+628137788990",
+            "date_of_birth": "1998-05-08 07:00:00",
+            "personal_summary": "Mechanical Engineer specializing in Product Design with 5 years of industry experience. Holds a Bachelor's degree in Teknik Mesin from Institut Teknologi Sepuluh Nopember (ITS). Started career as a Product Design Engineer and was promoted to Senior Product Design Engineer after 3 years of strong performance. Proficient in CAD/CAM software, design for manufacturability, and product lifecycle management.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Institut Teknologi Sepuluh Nopember",
+                    "degree": "bachelor's degree",
+                    "major": "Teknik Mesin",
+                    "start_date": "2017-08-01 07:00:00",
+                    "end_date": "2021-07-31 07:00:00",
+                    "grade": "3.72"
+                }
+            ],
+            "skills": [
+                "CATIA V5",
+                "AutoCAD",
+                "Design for Manufacturability (DFM)",
+                "Product Lifecycle Management",
+                "FMEA",
+                "Rapid Prototyping",
+                "3D Printing",
+                "SolidWorks",
+                "Finite Element Analysis (FEA)",
+                "GD&T"
+            ],
+            "projects": [
+                {
+                    "project_name": "EV Component Design Study",
+                    "description": "Led a feasibility study on battery mounting bracket designs for electric vehicle prototypes, including FEA and tolerance stack-up analysis.",
+                    "start_date": "2023-06-01 07:00:00",
+                    "end_date": "2023-12-31 07:00:00"
+                },
+                {
+                    "project_name": "Engine Cover Redesign for Manufacturability",
+                    "description": "Redesigned engine side cover components to reduce die-casting complexity and cut production cost by 12%.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2023-01-31 07:00:00"
+                },
+                {
+                    "project_name": "New Fuel Tank Bracket Design",
+                    "description": "Designed a lightweight fuel tank bracket for a new Honda motorcycle model, reducing part weight by 15% while maintaining structural integrity.",
+                    "start_date": "2022-01-01 07:00:00",
+                    "end_date": "2022-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Exhaust System Weight Reduction Project",
+                    "description": "Led cross-functional team to redesign exhaust system components achieving 10% weight reduction using thin-wall simulation.",
+                    "start_date": "2024-10-01 07:00:00",
+                    "end_date": "2025-04-30 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Senior Product Design Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Astra Honda Motor",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Promoted to Senior Engineer after 3 years. Lead product design initiatives, mentor junior engineers, and coordinate cross-functional design reviews. Drive DFM and DFA processes for new vehicle component development.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                },
+                {
+                    "experience_title": "Product Design Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Astra Honda Motor",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Designed mechanical components for motorcycle products using SolidWorks and CATIA. Conducted FEA simulations, prepared technical drawings, and collaborated with manufacturing teams to ensure design for manufacturability.",
+                    "start_date": "2021-09-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Certified SolidWorks Professional (CSWP)",
+                    "issuing_organization": "Dassault Systemes SolidWorks",
+                    "issue_date": "2022-05-18 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.solidworks.com/verify/cswp-54291"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Pratama Wijaya",
+            "email": "jobseeker51@mail.com",
+            "address": "Bandung, West Java, Indonesia",
+            "phone_number": "+6281219988776",
+            "date_of_birth": "1998-11-15 07:00:00",
+            "personal_summary": "Robotics Engineer with expertise in autonomous systems, robot software development, computer vision, and artificial intelligence. Holds a Bachelor's Degree in Informatics Engineering from Institut Teknologi Bandung (ITB). Experienced in developing robotic applications using ROS, machine learning, sensor integration, and embedded systems. Passionate about intelligent robotics solutions for industrial automation and autonomous navigation.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Institut Teknologi Bandung",
+                    "degree": "Bachelor's Degree",
+                    "major": "Informatics Engineering",
+                    "start_date": "2017-08-01 07:00:00",
+                    "end_date": "2021-07-31 07:00:00",
+                    "grade": "3.82"
+                }
+            ],
+            "skills": [
+                "Robot Operating System (ROS)",
+                "Computer Vision",
+                "Machine Learning",
+                "Python",
+                "C++",
+                "Embedded Systems",
+                "Sensor Integration",
+                "Autonomous Navigation",
+                "SLAM",
+                "Industrial Automation"
+            ],
+            "projects": [
+                {
+                    "project_name": "Autonomous Warehouse Robot",
+                    "description": "Developed autonomous warehouse robot capable of object detection and navigation using ROS and LiDAR.",
+                    "start_date": "2021-10-01 07:00:00",
+                    "end_date": "2022-04-30 07:00:00"
+                },
+                {
+                    "project_name": "Machine Vision Inspection System",
+                    "description": "Implemented computer vision system for automated industrial quality inspection.",
+                    "start_date": "2022-06-01 07:00:00",
+                    "end_date": "2023-01-31 07:00:00"
+                },
+                {
+                    "project_name": "Autonomous Mobile Robot Platform",
+                    "description": "Led development of autonomous navigation platform using SLAM and sensor fusion techniques.",
+                    "start_date": "2024-01-01 07:00:00",
+                    "end_date": "2025-02-28 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Robotics Research Assistant",
+                    "employment_type": "Internship",
+                    "company_name": "ITB Robotics Laboratory",
+                    "location": "Bandung, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Conducted research on autonomous mobile robots, computer vision systems, and robot navigation algorithms.",
+                    "start_date": "2020-01-01 07:00:00",
+                    "end_date": "2021-06-30 07:00:00"
+                },
+                {
+                    "experience_title": "Robotics Software Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Pindad",
+                    "location": "Bandung, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Developed robot control software, integrated sensors and actuators, and implemented ROS-based robotic applications.",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2023-09-30 07:00:00"
+                },
+                {
+                    "experience_title": "Senior Robotics Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Astra Otoparts",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Leading robotics automation projects involving machine vision, industrial robots, and autonomous navigation systems.",
+                    "start_date": "2023-10-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "ROS Developer Certification",
+                    "issuing_organization": "The Construct Robotics",
+                    "issue_date": "2023-07-15 07:00:00",
+                    "expiration_date": "2028-07-15 07:00:00",
+                    "credential_url": "https://www.theconstruct.ai"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                },
+                {
+                    "language_name": "Japanese"
+                }
+            ]
+        },
+        {
+            "full_name": "Shana Shanon",
+            "email": "jobseeker60@mail.com",
+            "address": "Bali",
+            "phone_number": "085791551234",
+            "date_of_birth": "2000-01-01 00:00:00",
+            "personal_summary": "Detail-oriented Computer Engineering graduate with over 2 years of hands-on experience designing and deploying end-to-end IoT solutions and embedded systems. Proficient in programming microcontrollers (ESP32, Arduino), optimizing firmware in C++, and implementing real-time communication protocols like MQTT. Proven track record of bridging the gap between physical hardware and software systems to build automated, secure, and data-driven infrastructure.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Indonesia",
+                    "degree": "Master Degree",
+                    "major": "Teknologi Informasi",
+                    "start_date": "2024-08-01 00:00:00",
+                    "end_date": "2026-09-01 00:00:00",
+                    "grade": "3.8"
+                }
+            ],
+            "skills": [
+                "Sensor Integration pH",
+                "ESP32",
+                "Embedded C",
+                "React",
+                "MQTT Realtime data transmission",
+                "Fingerprint",
+                "Arduino Mega",
+                "RFID Modules",
+                "Laravel",
+                "Color Sensors.",
+                "Temperature",
+                "Figma",
+                "Firmware Optimization",
+                "System",
+                "Humidity",
+                "Control",
+                "Biometric Sensors",
+                "C++"
+            ],
+            "projects": [
+                {
+                    "project_name": "Automated Warehouse Sorting Robot",
+                    "description": "Engineered a control system for an automated sorting robot using Arduino Mega and basic computer vision for object detection. Integrated color sensors and servo motors to precisely classify and sort inventory packages based on predefined criteria. Op",
+                    "start_date": "2024-08-01 00:00:00",
+                    "end_date": "2025-02-01 00:00:00"
+                },
+                {
+                    "project_name": "Smart Agriculture Monitoring System",
+                    "description": "Developed an IoT-based soil and weather monitoring system using ESP32 microcontrollers and various environmental sensors (humidity, temperature, pH). Built a robust data communication architecture utilizing the MQTT protocol for real-time data transm",
+                    "start_date": "2023-10-01 00:00:00",
+                    "end_date": "2024-05-01 00:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "IoT Systems Engineer",
+                    "employment_type": "Full time",
+                    "company_name": "Global Telecom Solutionsn",
+                    "location": "Bali",
+                    "location_type": "Hybrid",
+                    "description": "Configured and maintained enterprise-level network routers, switches, and firewalls for client ",
+                    "start_date": "2024-10-01 00:00:00",
+                    "end_date": "2025-02-01 00:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Cloud Computing",
+                    "issuing_organization": "AWS Academy",
+                    "issue_date": "2023-12-01 00:00:00",
+                    "expiration_date": "2028-01-01 00:00:00",
+                    "credential_url": "https://AWS.Academy-CLoudComputing"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "Indonesia"
+                }
+            ]
+        },
+        {
+            "full_name": "Kalia Alexandra",
+            "email": "jobseeker36@mail.com",
+            "address": "Jl. Merdeka No. 5, Bandung, West Java, Indonesia",
+            "phone_number": "+628123456789",
+            "date_of_birth": "1999-04-12 07:00:00",
+            "personal_summary": "Creative Graphic Designer / Illustrator with a strong visual communication background. Holds an Associate's degree in Desain Komunikasi Visual from Universitas Sebelas Maret (2024). Since graduating, I have worked as a freelance Graphic Designer completing 7 diverse client projects ranging from branding to digital illustration, consistently delivering quality results on schedule.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Sebelas Maret",
+                    "degree": "associate degree",
+                    "major": "Desain Komunikasi Visual",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-07-31 07:00:00",
+                    "grade": "3.80"
+                }
+            ],
+            "skills": [
+                "Typography",
+                "UI/UX Basics",
+                "Color Theory",
+                "Brand Identity",
+                "Adobe Illustrator",
+                "Adobe Photoshop",
+                "Graphic Design",
+                "Illustration"
+            ],
+            "projects": [
+                {
+                    "project_name": "Mobile App UI Assets",
+                    "description": "Created custom icon sets and UI illustration assets for a mobile app startup.",
+                    "start_date": "2024-11-11 07:00:00",
+                    "end_date": "2024-12-11 07:00:00"
+                },
+                {
+                    "project_name": "Social Media Kit - Fashion Brand",
+                    "description": "Developed a comprehensive social media visual kit for a local fashion brand.",
+                    "start_date": "2024-10-11 07:00:00",
+                    "end_date": "2024-11-10 07:00:00"
+                },
+                {
+                    "project_name": "Children Book Illustration",
+                    "description": "Illustrated and designed a 32-page educational children's book for an independent publisher.",
+                    "start_date": "2024-10-21 07:00:00",
+                    "end_date": "2024-11-20 07:00:00"
+                },
+                {
+                    "project_name": "Restaurant Menu Design",
+                    "description": "Redesigned the visual menu for a fine-dining restaurant including custom illustrations.",
+                    "start_date": "2024-11-01 07:00:00",
+                    "end_date": "2024-12-01 07:00:00"
+                },
+                {
+                    "project_name": "NGO Annual Report Layout",
+                    "description": "Designed the visual layout and infographics for an NGO annual report publication.",
+                    "start_date": "2024-10-01 07:00:00",
+                    "end_date": "2024-10-31 07:00:00"
+                },
+                {
+                    "project_name": "Cultural Event Poster",
+                    "description": "Created a series of illustrated promotional posters for a regional cultural festival.",
+                    "start_date": "2024-09-21 07:00:00",
+                    "end_date": "2024-10-21 07:00:00"
+                },
+                {
+                    "project_name": "Brand Identity for Coffee Shop",
+                    "description": "Designed full brand identity (logo, packaging, stationery) for a local Bandung coffee shop startup.",
+                    "start_date": "2024-09-11 07:00:00",
+                    "end_date": "2024-10-11 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Graphic Designer / Illustrator",
+                    "employment_type": "Freelance",
+                    "company_name": "Self-Employed",
+                    "location": "Bandung, West Java",
+                    "location_type": "Remote",
+                    "description": "Completed 7 freelance projects covering branding, digital illustration, and UI assets for local startups and NGOs. Delivered high-quality visual results on schedule.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Shaza Sania",
+            "email": "jobseeker37@mail.com",
+            "address": "Jl. Kebon Jeruk Raya No. 27, Jakarta Barat, Indonesia",
+            "phone_number": "+628119988001",
+            "date_of_birth": "2000-03-25 07:00:00",
+            "personal_summary": "Passionate Illustrator and Graphic Designer with 2 years of professional experience, including a role as Graphic Designer at Gramedia — one of Indonesia's leading publishing and retail companies. Graduated in 2022 with a Bachelor's degree in Desain Komunikasi Visual from Universitas Bina Nusantara. Has completed 11 design and illustration projects spanning editorial, branding, and digital media.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Bina Nusantara",
+                    "degree": "bachelor's degree",
+                    "major": "Desain Komunikasi Visual",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.75"
+                }
+            ],
+            "skills": [
+                "Digital Art",
+                "InDesign",
+                "Illustration",
+                "Typography",
+                "Adobe Illustrator",
+                "Adobe Photoshop",
+                "Graphic Design",
+                "Editorial Design",
+                "Visual Storytelling",
+                "Brand Identity"
+            ],
+            "projects": [
+                {
+                    "project_name": "Editorial Infographic Series",
+                    "description": "Designed a series of educational infographics for a Gramedia non-fiction publication on Indonesian history.",
+                    "start_date": "2023-09-20 07:00:00",
+                    "end_date": "2023-11-10 07:00:00"
+                },
+                {
+                    "project_name": "In-Store Visual Display Campaign",
+                    "description": "Designed seasonal in-store banner and display visuals for Gramedia retail outlets nationwide.",
+                    "start_date": "2023-01-05 07:00:00",
+                    "end_date": "2023-02-28 07:00:00"
+                },
+                {
+                    "project_name": "Book Cover Illustration - Gramedia",
+                    "description": "Illustrated and designed the cover for a bestselling fiction novel published by Gramedia Pustaka Utama.",
+                    "start_date": "2022-10-01 07:00:00",
+                    "end_date": "2022-11-30 07:00:00"
+                },
+                {
+                    "project_name": "Freelance Brand Identity - Startup",
+                    "description": "Designed a complete brand identity (logo, color palette, typography, stationery) for a local EdTech startup.",
+                    "start_date": "2024-08-01 07:00:00",
+                    "end_date": "2024-09-30 07:00:00"
+                },
+                {
+                    "project_name": "Digital Coloring Book",
+                    "description": "Illustrated and laid out a printable digital coloring book for kids, distributed via Gramedia digital platform.",
+                    "start_date": "2024-03-01 07:00:00",
+                    "end_date": "2024-04-30 07:00:00"
+                },
+                {
+                    "project_name": "Stationery Product Illustration",
+                    "description": "Designed illustrated patterns for a limited-edition Gramedia stationery product line.",
+                    "start_date": "2024-01-10 07:00:00",
+                    "end_date": "2024-02-28 07:00:00"
+                },
+                {
+                    "project_name": "Social Media Illustration Campaign",
+                    "description": "Produced a set of 30+ illustrations for Gramedia's Eid al-Fitr social media campaign.",
+                    "start_date": "2023-08-01 07:00:00",
+                    "end_date": "2023-09-15 07:00:00"
+                },
+                {
+                    "project_name": "Event Poster - BookFest 2023",
+                    "description": "Created the main key-visual poster for the Gramedia BookFest 2023 event across Jakarta.",
+                    "start_date": "2023-11-15 07:00:00",
+                    "end_date": "2023-12-15 07:00:00"
+                },
+                {
+                    "project_name": "Children's Book Series Illustration",
+                    "description": "Created full-color illustrations for a 5-book educational children's series.",
+                    "start_date": "2023-03-01 07:00:00",
+                    "end_date": "2023-05-31 07:00:00"
+                },
+                {
+                    "project_name": "Annual Catalog Design",
+                    "description": "Designed the 2024 Gramedia annual product catalog (120 pages) including all visual layout and typography.",
+                    "start_date": "2024-05-01 07:00:00",
+                    "end_date": "2024-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Brand Refresh - Internal Magazine",
+                    "description": "Redesigned the layout and visual identity of Gramedia's internal employee magazine.",
+                    "start_date": "2023-06-01 07:00:00",
+                    "end_date": "2023-07-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Graphic Designer",
+                    "employment_type": "Full-time",
+                    "company_name": "Gramedia",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Created editorial illustrations and visual designs for Gramedia publications and retail media. Collaborated with editorial teams to produce book covers, promotional banners, and in-store visual displays.",
+                    "start_date": "2022-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Adobe Certified Professional - Graphic Design & Illustration",
+                    "issuing_organization": "Adobe",
+                    "issue_date": "2023-05-20 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.adobe.com/verify/acp-98812"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Fajar Rizky",
+            "email": "jobseeker49@mail.com",
+            "address": "Malang, East Java, Indonesia",
+            "phone_number": "+6281299988877",
+            "date_of_birth": "1999-09-12 07:00:00",
+            "personal_summary": "Network Engineer with expertise in network infrastructure, routing and switching, network security, wireless networking, and enterprise network management. Holds a Bachelor's Degree in Informatics Engineering from Universitas Brawijaya. Experienced in designing, configuring, monitoring, and troubleshooting large-scale network environments. Currently working as a Network Engineer at Indosat Ooredoo Hutchison supporting enterprise and telecommunications network operations.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Brawijaya",
+                    "degree": "Bachelor's Degree",
+                    "major": "Informatics Engineering",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.69"
+                }
+            ],
+            "skills": [
+                "TCP/IP",
+                "Routing and Switching",
+                "Cisco Networking",
+                "Network Security",
+                "Wireless Networking",
+                "Firewall Management",
+                "VPN Configuration",
+                "Network Monitoring",
+                "MikroTik",
+                "Linux Administration"
+            ],
+            "projects": [
+                {
+                    "project_name": "Enterprise Network Upgrade",
+                    "description": "Upgraded network infrastructure to improve bandwidth utilization and network reliability.",
+                    "start_date": "2023-01-01 07:00:00",
+                    "end_date": "2023-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Network Monitoring System Implementation",
+                    "description": "Implemented centralized monitoring solution for proactive network management.",
+                    "start_date": "2023-07-01 07:00:00",
+                    "end_date": "2024-01-31 07:00:00"
+                },
+                {
+                    "project_name": "SD-WAN Deployment Project",
+                    "description": "Supported deployment and optimization of SD-WAN connectivity across multiple branch offices.",
+                    "start_date": "2025-01-01 07:00:00",
+                    "end_date": "2025-10-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Network Engineer Intern",
+                    "employment_type": "Internship",
+                    "company_name": "PT Telkom Indonesia",
+                    "location": "Surabaya, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Assisted network monitoring, router configuration, switch deployment, and troubleshooting network connectivity issues.",
+                    "start_date": "2021-01-01 07:00:00",
+                    "end_date": "2021-06-30 07:00:00"
+                },
+                {
+                    "experience_title": "Network Administrator",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Lintasarta",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Managed enterprise network infrastructure, performed system monitoring, handled incident resolution, and maintained network performance.",
+                    "start_date": "2022-08-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                },
+                {
+                    "experience_title": "Network Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Indosat Ooredoo Hutchison",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "Hybrid",
+                    "description": "Responsible for network optimization, routing and switching implementation, network security improvements, and enterprise connectivity solutions.",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": null
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Cisco Certified Network Associate (CCNA)",
+                    "issuing_organization": "Cisco",
+                    "issue_date": "2023-04-15 07:00:00",
+                    "expiration_date": "2026-04-15 07:00:00",
+                    "credential_url": "https://www.cisco.com"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Karina Maudy",
+            "email": "jobseeker42@mail.com",
+            "address": "Jl. Raya Darmaga, Bogor, West Java, Indonesia",
+            "phone_number": "+628129876543",
+            "date_of_birth": "1997-09-21 07:00:00",
+            "personal_summary": "Biotechnology researcher with academic and professional experience in agricultural biotechnology, molecular biology, and plant genetics. Holds a Bachelor's Degree in Biotechnology from Universitas Brawijaya and a Master's Degree in Biotechnology from Institut Pertanian Bogor (IPB). Experienced in crop improvement research, laboratory experimentation, DNA analysis, and biotechnology-based agricultural innovation. Currently working as a Research Scientist at BRIN, contributing to national research programs focused on sustainable agriculture and food security.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Brawijaya",
+                    "degree": "Bachelor's Degree",
+                    "major": "Biotechnology",
+                    "start_date": "2015-08-01 07:00:00",
+                    "end_date": "2019-07-31 07:00:00",
+                    "grade": "3.74"
+                },
+                {
+                    "university_name": "Institut Pertanian Bogor",
+                    "degree": "Master's Degree",
+                    "major": "Biotechnology",
+                    "start_date": "2021-08-01 07:00:00",
+                    "end_date": "2023-07-31 07:00:00",
+                    "grade": "3.88"
+                }
+            ],
+            "skills": [
+                "Molecular Biology",
+                "Agricultural Biotechnology",
+                "DNA Extraction",
+                "PCR Analysis",
+                "Plant Tissue Culture",
+                "Genetic Engineering",
+                "Laboratory Management",
+                "Research Methodology",
+                "Scientific Writing",
+                "Data Analysis"
+            ],
+            "projects": [
+                {
+                    "project_name": "Drought Resistant Rice Development",
+                    "description": "Developed biotechnology-based approaches to improve drought resistance in rice varieties.",
+                    "start_date": "2020-01-01 07:00:00",
+                    "end_date": "2021-06-30 07:00:00"
+                },
+                {
+                    "project_name": "Plant Tissue Culture Optimization",
+                    "description": "Improved tissue culture protocols for high-value horticultural crops.",
+                    "start_date": "2022-01-01 07:00:00",
+                    "end_date": "2023-05-31 07:00:00"
+                },
+                {
+                    "project_name": "Food Security Biotechnology Program",
+                    "description": "Participated in national biotechnology initiatives supporting sustainable food production.",
+                    "start_date": "2024-01-01 07:00:00",
+                    "end_date": "2025-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Agricultural Biotechnologist",
+                    "employment_type": "Full-time",
+                    "company_name": "PT East West Seed Indonesia",
+                    "location": "Purwakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Conducted plant breeding research, genetic analysis, tissue culture experiments, and biotechnology applications to improve crop productivity and disease resistance.",
+                    "start_date": "2019-08-01 07:00:00",
+                    "end_date": "2021-07-31 07:00:00"
+                },
+                {
+                    "experience_title": "Research Scientist",
+                    "employment_type": "Full-time",
+                    "company_name": "BRIN",
+                    "location": "Bogor, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Leading biotechnology research projects focused on sustainable agriculture, molecular genetics, crop resilience, and food security innovation.",
+                    "start_date": "2023-09-01 07:00:00",
+                    "end_date": "2023-09-01 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Good Laboratory Practice (GLP) Certification",
+                    "issuing_organization": "BRIN Research Training Center",
+                    "issue_date": "2024-03-10 07:00:00",
+                    "expiration_date": "2029-03-10 07:00:00",
+                    "credential_url": "https://brin.go.id"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Shanika Abigail",
+            "email": "jobseeker35@mail.com",
+            "address": "Jl. Margonda Raya No. 100, Depok, West Java, Indonesia",
+            "phone_number": "+628112233445",
+            "date_of_birth": "2000-08-20 07:00:00",
+            "personal_summary": "Dedicated Auditor with 3 years of experience in financial auditing, risk assessment, and internal controls compliance. Skilled in preparing audit reports, analyzing financial statements, and ensuring compliance with PSAK and tax regulations. Proven track record of identifying control deficiencies and recommending process improvements.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Indonesia",
+                    "degree": "bachelor's degree",
+                    "major": "akuntansi",
+                    "start_date": "2018-08-01 07:00:00",
+                    "end_date": "2022-07-31 07:00:00",
+                    "grade": "3.80"
+                }
+            ],
+            "skills": [
+                "Microsoft Excel",
+                "Taxation",
+                "Analytical Thinking",
+                "Internal Controls",
+                "Financial Auditing",
+                "PSAK",
+                "Risk Assessment"
+            ],
+            "projects": [
+                {
+                    "project_name": "SOX 404 Compliance Audit",
+                    "description": "Led internal control testing for a major manufacturing client to ensure compliance with SOX 404. Documented key control activities, identified gaps, and recommended remedial actions.",
+                    "start_date": "2024-02-01 07:00:00",
+                    "end_date": "2024-06-30 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Auditor",
+                    "employment_type": "Full-time",
+                    "company_name": "EY Indonesia (Ernst & Young)",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Conducted financial audits for public and private companies. Tested internal control systems, verified balance sheet accounts, and drafted audit reports in compliance with Indonesian Financial Accounting Standards (SAK).",
+                    "start_date": "2022-09-01 07:00:00",
+                    "end_date": "2025-09-01 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Certified Public Accountant (CPA) Indonesia - Part I",
+                    "issuing_organization": "Ikatan Akuntan Publik Indonesia (IAPI)",
+                    "issue_date": "2023-11-15 07:00:00",
+                    "expiration_date": "2027-11-03 00:00:00",
+                    "credential_url": "https://www.iapi.or.id/verify/cpa-10293"
+                },
+                {
+                    "certification_name": "Certified Public Accountant (CPA) Indonesia - Part I",
+                    "issuing_organization": "Ikatan Akuntan Publik Indonesia (IAPI)",
+                    "issue_date": "2023-11-15 07:00:00",
+                    "expiration_date": "2027-11-03 00:00:00",
+                    "credential_url": "https://www.iapi.or.id/verify/cpa-10293"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Daniel Mananta",
+            "email": "jobseeker38@mail.com",
+            "address": "Jl. Kaliurang KM 5.5, Yogyakarta, Indonesia",
+            "phone_number": "+628129988776",
+            "date_of_birth": "1997-10-12 07:00:00",
+            "personal_summary": "Highly analytical Finance and Audit professional holding a Master's degree in Accounting from Universitas Indonesia and a Bachelor's from Universitas Gadjah Mada. Combines 3 years of auditing experience at a top-tier firm with advanced knowledge of financial theory and corporate governance. Fresh graduate of Master's studies, ready to take on senior audit and advisory roles.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Indonesia",
+                    "degree": "master's degree",
+                    "major": "akuntansi",
+                    "start_date": "2024-09-01 07:00:00",
+                    "end_date": "2026-05-31 07:00:00",
+                    "grade": "3.85"
+                },
+                {
+                    "university_name": "Universitas Gadjah Mada",
+                    "degree": "bachelor's degree",
+                    "major": "akuntansi",
+                    "start_date": "2017-08-01 07:00:00",
+                    "end_date": "2021-07-31 07:00:00",
+                    "grade": "3.70"
+                }
+            ],
+            "skills": [
+                "Financial Reporting",
+                "Financial Analysis",
+                "Risk Management",
+                "External Audit",
+                "IFRS & PSAK",
+                "Audit Documentation",
+                "Corporate Tax"
+            ],
+            "projects": [
+                {
+                    "project_name": "Banking Asset Quality Review",
+                    "description": "Participated in an asset quality review for a major national bank. Analyzed credit portfolios and checked loan provisioning accuracy under PSAK 71, contributing to successful audit sign-off.",
+                    "start_date": "2021-03-01 07:00:00",
+                    "end_date": "2021-08-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Auditor Associate",
+                    "employment_type": "Full-time",
+                    "company_name": "PwC Indonesia",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Conducted external audits for multinational banking and financial services clients. Evaluated financial records, performed substantive testing, and verified compliance with PSAK and IFRS standards.",
+                    "start_date": "2021-09-01 07:00:00",
+                    "end_date": "2024-08-31 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Chartered Accountant (CA) Indonesia",
+                    "issuing_organization": "Ikatan Akuntan Indonesia (IAI)",
+                    "issue_date": "2022-04-12 07:00:00",
+                    "expiration_date": null,
+                    "credential_url": "https://www.iaiglobal.or.id/verify/ca-88301"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                },
+                {
+                    "language_name": "Mandarin"
+                }
+            ]
+        },
+        {
+            "full_name": "Kiran Nasution",
+            "email": "jobseeker34@mail.com",
+            "address": "Jl. Dharmawangsa No. 12, Surabaya, East Java, Indonesia",
+            "phone_number": "+6281234567890",
+            "date_of_birth": "1999-05-15 07:00:00",
+            "personal_summary": "Results-driven Supply Chain Professional with 5 years of experience in logistics, inventory management, and procurement operations. Proven ability to streamline warehouse workflows, optimize supply chain schedules, and collaborate with vendors to minimize costs and maximize efficiency. Skilled in demand forecasting, ERP systems (SAP), and data-driven decision-making. Graduated with honors in Management from Universitas Airlangga.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Universitas Airlangga",
+                    "degree": "bachelor's degree",
+                    "major": "Management",
+                    "start_date": "2017-08-01 07:00:00",
+                    "end_date": "2021-07-31 07:00:00",
+                    "grade": "3.75 "
+                }
+            ],
+            "skills": [
+                "Inventory Control",
+                "Demand Planning",
+                "Logistics & Distribution",
+                "Procurement",
+                "Supply Chain Management",
+                "Vendor Management",
+                "SAP ERP",
+                "Warehouse Management"
+            ],
+            "projects": [
+                {
+                    "project_name": "Supplier Consolidation Initiative",
+                    "description": "Evaluated and consolidated the vendor database for raw packaging materials. Renegotiated contracts with top suppliers, resulting in a 10% reduction in procurement costs and improved delivery lead times.",
+                    "start_date": "2022-03-01 07:00:00",
+                    "end_date": "2022-09-30 07:00:00"
+                },
+                {
+                    "project_name": "Warehouse Layout Optimization Project",
+                    "description": "Led a cross-functional team to redesign the Surabaya distribution center layout. Implemented 5S methodology and ABC analysis, improving picking efficiency by 25% and maximizing warehouse space utilization.",
+                    "start_date": "2024-04-01 07:00:00",
+                    "end_date": "2024-09-30 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Supply Chain Lead",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Unilever Indonesia Tbk",
+                    "location": "Surabaya, East Java",
+                    "location_type": "On-site",
+                    "description": "Oversee end-to-end warehouse and logistics operations for consumer goods. Collaborate with procurement and demand planning teams to optimize inventory levels, reducing holding costs by 15% while maintaining a 98% service level agreement.",
+                    "start_date": "2023-11-01 07:00:00",
+                    "end_date": null
+                },
+                {
+                    "experience_title": "Supply Chain Staff",
+                    "employment_type": "Full-time",
+                    "company_name": "PT Indofood CBP Sukses Makmur Tbk",
+                    "location": "Sidoarjo, East Java",
+                    "location_type": "On-site",
+                    "description": "Managed daily logistics scheduling, vendor coordination, and purchase order processing. Monitored delivery KPI tracking and resolved transport disruptions, reducing shipment delays by 20% and improving vendor relations.",
+                    "start_date": "2021-09-01 07:00:00",
+                    "end_date": "2023-10-31 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Certified Supply Chain Professional (CSCP)",
+                    "issuing_organization": "Association for Supply Chain Management (ASCM)",
+                    "issue_date": "2023-06-12 07:00:00",
+                    "expiration_date": "2028-06-12 07:00:00",
+                    "credential_url": "https://www.ascm.org/verify/cscp-99201"
+                },
+                {
+                    "certification_name": "Six Sigma Green Belt",
+                    "issuing_organization": "TÜV SÜD",
+                    "issue_date": "2022-10-15 07:00:00",
+                    "expiration_date": "2028-10-03 00:00:00",
+                    "credential_url": "https://www.tuvsud.com/verify/ssgb-83021"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Job Seeker 33",
+            "email": "jobseeker33@mail.com",
+            "personal_summary": "Dedicated and results-oriented Petroleum Engineer with over 8 years of experience in reservoir engineering, production optimization, and asset management in the oil & gas industry. Proven track record of maximizing field recovery using Petrel, Eclipse, and advanced reservoir simulation techniques. Experienced in leading multidisciplinary teams for deepwater field development and enhanced oil recovery (EOR) projects. Strong technical expertise combined with a commitment to safety, environmental standards, and operational excellence.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Institut Teknologi Bandung",
+                    "degree": "bachelor's degree",
+                    "major": "Teknik Perminyakan",
+                    "start_date": "2012-08-01 07:00:00",
+                    "end_date": "2016-07-31 07:00:00",
+                    "grade": "3.82 "
+                }
+            ],
+            "skills": [
+                "Petrel & Eclipse",
+                "Production Optimization",
+                "Nodal Analysis",
+                "Asset Management",
+                "Well Test Analysis",
+                "Drilling Engineering",
+                "Enhanced Oil Recovery (EOR)",
+                "Reservoir Simulation"
+            ],
+            "projects": [
+                {
+                    "project_name": "Enhanced Oil Recovery (EOR) Polymer Flood Pilot",
+                    "description": "Designed and monitored a polymer flooding pilot project in a mature onshore field. Successfully demonstrated an oil production increase of 15% in pilot wells and presented findings to national regulatory authorities.",
+                    "start_date": "2018-02-01 07:00:00",
+                    "end_date": "2019-10-31 07:00:00"
+                },
+                {
+                    "project_name": "Deepwater Mahakam Basin Simulation",
+                    "description": "Constructed a high-resolution 3D reservoir model for a deepwater gas field in the Mahakam Basin. Optimized well placement strategies, which reduced planned capital expenditure by $15M while maintaining target gas production rates.",
+                    "start_date": "2021-06-01 07:00:00",
+                    "end_date": "2022-12-31 07:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Senior Reservoir Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "Chevron Indonesia",
+                    "location": "Jakarta, Indonesia",
+                    "location_type": "On-site",
+                    "description": "Lead reservoir simulation studies and production forecasting for mature oil fields. Coordinate with drilling and production teams to identify new well locations, resulting in a 12% increase in asset recovery rate. Manage a team of 4 junior engineers.",
+                    "start_date": "2020-03-01 07:00:00",
+                    "end_date": "2020-03-01 07:00:00"
+                },
+                {
+                    "experience_title": "Reservoir Engineer",
+                    "employment_type": "Full-time",
+                    "company_name": "Schlumberger (SLB)",
+                    "location": "Balikpapan, East Kalimantan",
+                    "location_type": "On-site",
+                    "description": "Conducted well test analysis, nodal analysis, and pressure transient analysis for offshore assets. Provided software support and technical training for client engineers on Petrel and Eclipse reservoir simulation suites, enhancing customer satisfaction.",
+                    "start_date": "2016-09-01 07:00:00",
+                    "end_date": "2020-02-28 07:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Project Management Professional (PMP)",
+                    "issuing_organization": "Project Management Institute",
+                    "issue_date": "2021-11-20 07:00:00",
+                    "expiration_date": "2027-11-20 07:00:00",
+                    "credential_url": "https://www.pmi.org/certifications/verify/pmp-883921"
+                },
+                {
+                    "certification_name": "Well Control Certification (IWCF Level 4)",
+                    "issuing_organization": "International Well Control Forum",
+                    "issue_date": "2024-05-15 07:00:00",
+                    "expiration_date": "2026-05-15 07:00:00",
+                    "credential_url": "https://www.iwcf.org/verify/iwcf-wc-4920412"
+                }
+            ],
+            "languages": [
+                {
+                    "language_name": "English"
+                },
+                {
+                    "language_name": "Indonesian"
+                }
+            ]
+        },
+        {
+            "full_name": "Job Seeker 30",
+            "email": "jobseeker30@mail.com",
+            "personal_summary": null,
+            "profile_picture_url": null,
+            "education": [],
+            "skills": [],
+            "projects": [],
+            "experiences": [],
+            "certifications": [],
+            "languages": []
+        },
+        {
+            "full_name": "Job Seeker 32",
+            "email": "jobseeker32@mail.com",
+            "personal_summary": "Experienced Civil Engineer with over 7 years of professional experience in construction management, structural engineering, and infrastructure development. Proven track record in supervising large-scale construction projects, coordinating multidisciplinary teams, and ensuring project delivery within scope, schedule, and budget. Skilled in structural analysis, project planning, quality control, and construction safety management. Passionate about delivering sustainable and efficient engineering solutions.",
+            "profile_picture_url": null,
+            "education": [
+                {
+                    "university_name": "Institut Teknologi Bandung",
+                    "degree": "bachelor's degree",
+                    "major": "Teknik Sipil ",
+                    "start_date": "2014-08-03 00:00:00",
+                    "end_date": "2018-09-03 00:00:00",
+                    "grade": "3.58"
+                }
+            ],
+            "skills": [
+                "AutoCAD",
+                "Structural Analysis",
+                "Reinforced Concrete Design",
+                "Construction Safety Management",
+                "Cost Estimation",
+                "Quality Control",
+                "Microsoft Project",
+                "Project Planning",
+                "Risk Assessment",
+                "Primavera P6",
+                "ETABS",
+                "Building Information Modeling (BIM)",
+                "Civil Engineering",
+                "Contract Administration",
+                "SAP2000",
+                "Construction Management",
+                "Steel Structure Design",
+                "STAAD Pro",
+                "Quantity Surveying"
+            ],
+            "projects": [
+                {
+                    "project_name": "Industrial Warehouse Construction",
+                    "description": "Supervised construction activities for a 15,000 m² logistics warehouse.\nConducted site inspections and coordinated project documentation.",
+                    "start_date": "2019-07-03 00:00:00",
+                    "end_date": "2020-06-03 00:00:00"
+                },
+                {
+                    "project_name": "National Highway Improvement Project",
+                    "description": "Managed construction progress for a 35-km highway improvement project.\nOversaw project scheduling, budgeting, and quality assurance.",
+                    "start_date": "2021-02-03 00:00:00",
+                    "end_date": "2023-04-03 00:00:00"
+                },
+                {
+                    "project_name": "Commercial Office Tower Development",
+                    "description": "Led structural supervision for a 20-story office tower project.\nCoordinated engineering teams and construction contractors.\nEnsured compliance with design specifications and safety regulations.",
+                    "start_date": "2023-01-03 00:00:00",
+                    "end_date": "2024-08-03 00:00:00"
+                }
+            ],
+            "experiences": [
+                {
+                    "experience_title": "Project Engineer",
+                    "employment_type": "Fulltime",
+                    "company_name": "PT Adhi Karya (Persero) Tbk",
+                    "location": "Jakarta",
+                    "location_type": "Onsite",
+                    "description": "Managed project schedules, budgets, and resource allocation.\nAssisted in project planning and technical evaluations.\nMonitored project risks and implemented mitigation strategies.\nEnsured compliance with local regulations and construction standards.",
+                    "start_date": "2021-01-03 00:00:00",
+                    "end_date": "2023-06-03 00:00:00"
+                },
+                {
+                    "experience_title": "Site Engineer",
+                    "employment_type": "Freelance",
+                    "company_name": "PT Wijaya Karya (Persero) Tbk",
+                    "location": "Jakarta",
+                    "location_type": "Onsite",
+                    "description": "Supervised daily construction activities and ensured compliance with engineering specifications. Coordinated contractors, consultants, and project stakeholders. Prepared project progress reports and site documentation.",
+                    "start_date": "2018-11-03 00:00:00",
+                    "end_date": "2020-12-03 00:00:00"
+                },
+                {
+                    "experience_title": "Senior Civil Engineer",
+                    "employment_type": "Fulltime",
+                    "company_name": "PT Hutama Karya (Persero)",
+                    "location": "Jakarta",
+                    "location_type": "Onsite",
+                    "description": "Lead technical teams in infrastructure and building construction projects.\nReview structural designs and engineering calculations.\nManage project execution and quality assurance processes.",
+                    "start_date": "2023-08-03 00:00:00",
+                    "end_date": "2023-08-03 00:00:00"
+                }
+            ],
+            "certifications": [
+                {
+                    "certification_name": "Intermediate Building Construction Engineering Professional Certification (SKK Ahli Teknik Bangunan Gedung Madya)",
+                    "issuing_organization": "LPJK Indonesia",
+                    "issue_date": "2023-08-03 00:00:00",
+                    "expiration_date": "2028-08-03 00:00:00",
+                    "credential_url": "https://credential.example/skk-civil-001"
+                },
+                {
+                    "certification_name": "Construction Occupational Health and Safety Certification",
+                    "issuing_organization": "BNSP Indonesia",
+                    "issue_date": "2021-03-03 00:00:00",
+                    "expiration_date": "2026-03-03 00:00:00",
+                    "credential_url": "https://credential.example/k3-civil-001"
+                },
+                {
+                    "certification_name": "Project Management Professional (PMP)",
+                    "issuing_organization": "Project Management Institute (PMI)",
+                    "issue_date": "2022-06-03 00:00:00",
+                    "expiration_date": "2027-06-03 00:00:00",
+                    "credential_url": "https://credential.example/pmp-civil-001"
                 }
             ],
             "languages": [

@@ -4,7 +4,7 @@ import os
 
 NEST_API_URL = os.getenv("NEST_API_URL", "http://127.0.0.1:3000/api")
 JOBS_LIST_API = NEST_API_URL + "/jobs-search?pageSize=3"
-TALENTS_API = NEST_API_URL + "/job-seekers?pageSize=5"
+TALENTS_API = NEST_API_URL + "/job-seekers?pageSize=30"
 LOGIN_API = NEST_API_URL + "/auth/login/cms"
 
 EMAIL = "admin@mail.com"   # Ganti jika email admin Anda berbeda
