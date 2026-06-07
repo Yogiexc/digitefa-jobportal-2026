@@ -42,11 +42,26 @@ const getWorkTypeIcon = (workType) => {
     }
 };
 
-const calculateDaysAgo = (published_at) => {
-    const publishedDate = new Date(published_at);
+const calculateExpiresIn = (expired_at) => {
+    if (!expired_at) return "No expiration date";
+    const expiredDate = new Date(expired_at);
     const currentDate = new Date();
-    const differenceInTime = currentDate - publishedDate;
-    return Math.floor(differenceInTime / (1000 * 3600 * 24));
+    const differenceInTime = expiredDate - currentDate;
+    
+    if (differenceInTime <= 0) return "Expired";
+    
+    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+    if (differenceInDays > 0) {
+        return `expires in ${differenceInDays} days`;
+    }
+    
+    const differenceInHours = Math.floor(differenceInTime / (1000 * 3600));
+    if (differenceInHours > 0) {
+        return `expires in ${differenceInHours} hours`;
+    }
+
+    const differenceInMinutes = Math.floor(differenceInTime / (1000 * 60));
+    return `expires in ${differenceInMinutes} minutes`;
 };
 
 const RecommendedJobs = () => {
@@ -156,7 +171,7 @@ const RecommendedJobs = () => {
                                     </div>
                                     <div className="flex justify-between items-center mt-5 pt-4 border-t border-gray-100">
                                         <span className="text-xs text-gray-400 font-medium">
-                                            {calculateDaysAgo(job.published_at) === 0 ? "Posted today" : `${calculateDaysAgo(job.published_at)}d ago`}
+                                            {calculateExpiresIn(job.expired_at)}
                                         </span>
                                         <Button
                                             style={{ borderRadius: '8px', height: 36, backgroundColor: "#06A73B", color: "white", padding: '0 20px' }}
