@@ -295,6 +295,7 @@ export class CompaniesService {
         education: true,
         languages: true,
         projects: true,
+        certifications: true,
       },
     });
 

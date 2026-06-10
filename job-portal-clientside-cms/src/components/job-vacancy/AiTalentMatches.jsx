@@ -56,7 +56,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
             // Passing jobId to check for existing invitations
             // Passing filterCriteria to the backend
             const criteriaParam = filterCriteria.length > 0 ? `&criteria=${filterCriteria.join(',')}` : '';
-            const { data } = await Api.get(`/companies/search/ai-talents?job_description=${encodeURIComponent(desc)}&job_id=${jobId}${criteriaParam}`);
+            const { data } = await Api.get(`/companies/search/ai-talents?job_description=${encodeURIComponent(desc)}&job_id=${jobId}${criteriaParam}`, { timeout: 60000 });
 
             // Sort matches by AI score descending
             const sortedMatches = (data || []).sort((a, b) => (b.ai_score || 0) - (a.ai_score || 0));

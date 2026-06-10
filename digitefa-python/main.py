@@ -122,19 +122,22 @@ def process_project(projects):
 def process_certifications(certifications):
     cert_text_list = []
     if isinstance(certifications, list):
-        for cert in certifications:
+        for i, cert in enumerate(certifications):
             if isinstance(cert, dict):
-                name = cert.get("certificate_name", "")
+                name = cert.get("certification_name", "")
                 desc = cert.get("description", "")
                 cert_text = f"{name}. {desc}".strip()
                 if cert_text:
                     cert_text_list.append(cert_text)
-    return ". ".join(cert_text_list)
-
+    else:
+        print(f"[DEBUG] certifications is not a list: {type(certifications)}")
+    result = ". ".join(cert_text_list)
+    print(f"[DEBUG] certifications_text result: '{result}'")
+    return result
 def process_lms(data_lms):
     lms_text_list = []
     if isinstance(data_lms, list):
-        for course in data_lms:
+        for i, course in enumerate(data_lms):
             if isinstance(course, dict):
                 title = course.get("title", "")
                 desc = course.get("description", "")
@@ -142,8 +145,11 @@ def process_lms(data_lms):
                 lms_text = f"Course: {title}. Description: {desc}. Skills: {skills}".strip()
                 if lms_text:
                     lms_text_list.append(lms_text)
-    return ". ".join(lms_text_list)
-
+    else:
+        print(f"[DEBUG] data_lms is not a list: {type(data_lms)}")
+    result = ". ".join(lms_text_list)
+    print(f"[DEBUG] lms_text result: '{result}'")
+    return result
 def get_job_title_text(job: dict) -> str:
     return job.get("title", "")
 
@@ -698,7 +704,9 @@ def calculate_match_score(req: MatchScoreRequest):
     education_score = get_sim(req.candidate.education, job_details_text)
     experience_score = get_sim(req.candidate.experience, job_details_text)
     projects_score = get_sim(req.candidate.others, job_details_text)
-    certifications_score = 0.0
+    # Convert certifications list to text
+    cert_text = ". ".join([cert.certification_name for cert in req.candidate.certifications if cert.certification_name])
+    certifications_score = get_sim(cert_text, job_details_text) if cert_text else 0.0
 
 
     return {
@@ -880,9 +888,9 @@ def search_talents(req: TalentSearchRequest):
                     sim = util.pytorch_cos_sim(emb, job_embedding).item()
                     sim = _remap_similarity(sim)
                     component_matches[match_key] = round(sim * 100, 2)
+                    component_matches[match_key] = round(sim * 100, 2)
                 else:
                     component_matches[match_key] = 0.0
-            
             talent_result = {
                 "job_seeker_id": talent_id,
                 "full_name": talent.get("full_name", ""),
@@ -990,7 +998,7 @@ async def parse_cv(file: UploadFile = File(...)):
         DATE_PATTERN = r'(?:(?:jan(?:uari|uary)?|feb(?:ruari|ruary)?|mar(?:et|ch)?|apr(?:il)?|mei|may|jun(?:i|e)?|jul(?:i|y)?|agustus|agu(?:stus)?|agt|aug(?:ust)?|sep(?:tember)?|okt(?:ober)?|oct(?:ober)?|nov(?:ember)?|des(?:ember)?|dec(?:ember)?)\s+\d{2,4})|(?:\d{1,2}\s*[/-]\s*\d{2,4})|(?:\b\d{4}\b)'
         END_DATE_PATTERN = rf'(?:{DATE_PATTERN})|(?:present|sekarang|current|now|ongoing|active|aktif)'
 
-        date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[–-]|—|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
+        date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[?-]|?|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
                     
         cv_lines = full_text.split('\n')
         
@@ -1103,7 +1111,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 ]):
                 continue
 
-            # kandidat nama: 2–4 kata, huruf semua
+            # kandidat nama: 2?4 kata, huruf semua
             words = line_clean.split()
             if 2 <= len(words) <= 4:
                 sections["name"] = line_clean
@@ -1141,7 +1149,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 target_section = sections[current_section]
                 if isinstance(target_section, list):
                     if current_section in ["skills", "languages"]:
-                        parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]
+                        parts = [p.strip() for p in re.split(r'[,|?;*\n]', line) if p.strip()]
                         target_section.extend(parts)
                     else:
                         target_section.append(line.strip())
@@ -1149,14 +1157,14 @@ async def parse_cv(file: UploadFile = File(...)):
         filtered_skills = []
         for s in sections["skills"]:
             # Remove parentheses and surrounding whitespace/symbols
-            s_clean = re.sub(r'[()\-•]', '', s).strip()
+            s_clean = re.sub(r'[()\-?]', '', s).strip()
             if len(s_clean) < 2 or len(s_clean) > 40: continue
             if phone_regex.match(s_clean): continue
             filtered_skills.append(s_clean)
         sections["skills"] = list(set(filtered_skills))
         
         # Languages Cleanup (Increased length limit to 60 for cases like "Bahasa Indonesia (Native)")
-        sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 60]))
+        sections["languages"] = list(set([s.strip('-? ') for s in sections["languages"] if 1 < len(s.strip()) < 60]))
         
         # Summary
         sections["personal_summary"] = [
@@ -1175,7 +1183,7 @@ async def parse_cv(file: UploadFile = File(...)):
         current_proj = None
 
         for line in sections["projects"]:
-            line = line.strip('-• ').strip()
+            line = line.strip('-? ').strip()
             if not line:
                 continue
 
@@ -1187,7 +1195,7 @@ async def parse_cv(file: UploadFile = File(...)):
                     current_proj["end_date"] = standardize_date(date_match.group(2))
                 continue
 
-            # 2. TITLE → HANYA kalau BELUM ADA project
+            # 2. TITLE ? HANYA kalau BELUM ADA project
             if current_proj is None:
                 current_proj = {
                     "title": line,
@@ -1232,7 +1240,7 @@ async def parse_cv(file: UploadFile = File(...)):
         text = " ".join(raw_lines)
 
         # normalize dash
-        text = text.replace("–", "-").replace("—", "-")
+        text = text.replace("?", "-").replace("?", "-")
 
         # regex ambil semua field
         pattern = r'(.+?)\s*-\s*(.+?)\s+((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s*-\s*((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s+(https?://\S+|www\.\S+)'
@@ -1296,7 +1304,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 prev_line = line
                 continue
 
-            # kalau belum mulai record → cuma simpan prev_line
+            # kalau belum mulai record ? cuma simpan prev_line
             if current_exp is None:
                 prev_line = line
                 continue
@@ -1530,3 +1538,5 @@ async def get_wordcloud():
         print(f"Error generating wordcloud: {str(e)}")
         # Return a placeholder image or error
         raise HTTPException(status_code=500, detail=f"Failed to generate wordcloud: {str(e)}")
+
+
