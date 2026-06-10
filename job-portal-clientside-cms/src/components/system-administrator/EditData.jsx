@@ -1,14 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Form, Input, Modal, Select } from "antd";
 import StatusModal from "../StatusModal";
-import AddDataIcon from "../../assets/svg/AddData.svg";
+import AddDataIcon from "../../assets/svg/AddData.svg"; // You could use an edit icon here
 import Api from "../../services/Api";
 
-const AddData = ({ open, setOpen, fetchData }) => {
+const EditData = ({ open, setOpen, fetchData, selectedRecord }) => {
   const [form] = Form.useForm();
   const [modalMessage, setModalMessage] = useState("");
   const [modalStatus, setModalStatus] = useState("");
   const [openStatusModal, setOpenStatusModal] = useState(false);
+
+  useEffect(() => {
+    if (open && selectedRecord) {
+      form.setFieldsValue({
+        full_name: selectedRecord.full_name,
+        email: selectedRecord.email,
+        role: selectedRecord.role,
+        // password is left empty
+      });
+    }
+  }, [open, selectedRecord, form]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -17,10 +28,16 @@ const AddData = ({ open, setOpen, fetchData }) => {
 
   const handleSave = () => {
     form.validateFields().then((values) => {
-      Api.post("/admins", values)
+      // If password is empty, don't send it in the update payload
+      const payload = { ...values };
+      if (!payload.password) {
+        delete payload.password;
+      }
+
+      Api.put(`/admins/${selectedRecord.admin_id}`, payload)
         .then(() => {
           setModalStatus("success");
-          setModalMessage("Admin has been successfully added!");
+          setModalMessage("Admin has been successfully updated!");
           setOpenStatusModal(true);
           setTimeout(() => {
             setOpenStatusModal(false);
@@ -30,10 +47,10 @@ const AddData = ({ open, setOpen, fetchData }) => {
           }, 2000);
         })
         .catch((error) => {
-          console.error("Error adding admin:", error);
+          console.error("Error updating admin:", error);
           setModalStatus("failed");
           const msg = error?.response?.data?.message;
-          setModalMessage(Array.isArray(msg) ? msg.join(", ") : (msg || "Failed to add admin data."));
+          setModalMessage(Array.isArray(msg) ? msg.join(", ") : (msg || "Failed to update admin data."));
           setOpenStatusModal(true);
           setTimeout(() => setOpenStatusModal(false), 2000);
         });
@@ -49,7 +66,7 @@ const AddData = ({ open, setOpen, fetchData }) => {
           <div style={{ display: "flex", alignItems: "center" }}>
             <img
               src={AddDataIcon}
-              alt="Add Data"
+              alt="Edit Data"
               className="menu-icon"
               style={{
                 marginRight: 10,
@@ -58,7 +75,7 @@ const AddData = ({ open, setOpen, fetchData }) => {
                 width: 40,
               }}
             />
-            <span>Add Data</span>
+            <span>Edit Data</span>
           </div>
         }
         centered
@@ -116,13 +133,12 @@ const AddData = ({ open, setOpen, fetchData }) => {
             label="Password"
             style={{ marginBottom: 10 }}
             rules={[
-              { required: true, message: "Please enter password" },
               { min: 8, message: "Password must be at least 8 characters" }
             ]}
           >
             <Input.Password
               style={{ height: 56, borderRadius: 12 }}
-              placeholder="Password"
+              placeholder="Leave blank to keep unchanged"
             />
           </Form.Item>
 
@@ -181,4 +197,4 @@ const AddData = ({ open, setOpen, fetchData }) => {
   );
 };
 
-export default AddData;
+export default EditData;

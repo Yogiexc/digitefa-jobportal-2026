@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Typography, Image } from "antd";
+import { Button, Typography, Image, Form, Input } from "antd";
 import Api from "../../services/Api";
 import PersonalInformationIcon from "../../assets/svg/Personal.svg";
 import PersonalSummaryIcon from "../../assets/svg/PersonalSummary.svg";
@@ -17,7 +17,6 @@ const ShowApplicants = ({ onBack, applicantsId, jobSeekerId }) => {
   const [previewImage, setPreviewImage] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [jobSeekerData, setJobSeekerData] = useState("");
-
 
   useEffect(() => {
     const fetchJobSeekerDetails = () => {
@@ -71,264 +70,221 @@ const ShowApplicants = ({ onBack, applicantsId, jobSeekerId }) => {
     onBack();
   };
 
-
-  const renderPersonalInformation = () => {
-    return (
-      <div className="mb-2">
-        <Image
-          width={100}
-          height={100}
-          className="rounded-full object-cover mb-4 border border-gray-200"
-          src={previewImage || BrokenImage}
-          fallback={BrokenImage}
-          preview={{
-            visible: previewOpen,
-            onVisibleChange: (visible) => setPreviewOpen(visible),
-          }}
-        />
-        <br />
-        <Text className="font-medium text-xl">
-          {jobSeekerData.full_name}
-        </Text>
-        <br />
-        <Text>{jobSeekerData.phone_number}</Text>
-        <br />
-        <Text>{jobSeekerData.email}</Text>
-        <br />
-        <Text className="text-xs">
-          {jobSeekerData.date_of_birth
-            ? new Date(jobSeekerData.date_of_birth).toLocaleDateString("in-IN", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })
-            : "No Date of Birth"}
-        </Text>
-        <div className="mb-6" />
-        <Text className="text-xs">{jobSeekerData.address}</Text>
-      </div>
-    );
-  };
-
-  const renderEducation = (education) => {
-    if (!Array.isArray(education) || education.length === 0) {
-      return <Text className="text-gray-400 italic">No education available</Text>;
-    }
-
-    const formatDate = (date) => {
-      if (!date) return "";
-      try {
-        const d = new Date(date);
-        if (isNaN(d.getTime())) return date; // Return raw string if invalid date
-        return d.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-        });
-      } catch (e) {
-        return date;
-      }
-    };
-
-    return education.map((edu, index) => (
-      <div key={index} className="mb-6 last:mb-0 p-4 border rounded-xl bg-gray-50/30">
-        <Text className="font-medium text-xl">
-          {edu.university_name || edu.university || "Unnamed Institution"}
-        </Text>
-        <br />
-        <Text className="text-sm font-medium text-gray-600">{edu.major || "No Major Specified"}</Text>
-        <br />
-        <Text className="text-xs text-gray-500 font-medium uppercase tracking-wider">{edu.degree}</Text>
-        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
-          <Text className="text-xs">
-            {formatDate(edu.start_date)} — {formatDate(edu.end_date) || "Present"}
-          </Text>
-        </div>
-      </div>
-    ));
-  };
-
-  const renderSkills = (skills) => {
-    if (!Array.isArray(skills) || skills.length === 0) {
-      return <Text>No skill available</Text>;
-    }
-
-    return skills.map((skill, index) => (
-      <div key={index} className="mb-2 p-2 border rounded-lg">
-        <Text>{skill.skill_name}</Text>
-      </div>
-    ));
-  };
-
-  const renderProjects = (projects) => {
-    if (!Array.isArray(projects) || projects.length === 0) {
-      return <Text>No Projects Available</Text>;
-    }
-
-    const formatDate = (date) => {
-      if (!date) return "";
-      return new Date(date).toLocaleDateString("en-US", {
+  const formatDate = (date) => {
+    if (!date) return "";
+    try {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return date; // Return raw string if invalid date
+      return d.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
       });
-    };
-
-    return projects.map((projects, index) => (
-      <div
-        key={index}
-        className="mb-6 p-4 border rounded-xl">
-        <Text className="font-medium text-xl">
-          {projects.project_name}
-        </Text>
-        <br />
-        <Text className="text-xs">
-          {formatDate(projects.start_date)} - {formatDate(projects.end_date)}
-        </Text>
-        <div className="mb-6" />
-        <Text>{projects.description}</Text>
-      </div>
-    ));
-  };
-
-  const renderCertifications = (certifications) => {
-    if (!Array.isArray(certifications) || certifications.length === 0) {
-      return <Text>No Certifications Available</Text>;
+    } catch (e) {
+      return date;
     }
-
-    const formatDate = (date) => {
-      if (!date) return "";
-      return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-      });
-    };
-
-    return certifications.map((certifications, index) => (
-      <div key={index} className="mb-6 p-4 border rounded-lg" style={{ borderRadius: "12px" }}>
-        <Text className="font-medium text-xl">
-          {certifications.certification_name}
-        </Text>
-
-        <br />
-        <Text>{certifications.issuing_organization}</Text>
-        <br />
-        <Text className="text-xs">
-          {formatDate(certifications.issue_date)} -
-          {formatDate(certifications.expiration_date)}
-        </Text>
-        <div className="mb-6" />
-        <Text>{certifications.credential_url}</Text>
-      </div>
-    ));
   };
-
-  const renderExperience = (experiences) => {
-    if (!Array.isArray(experiences) || experiences.length === 0) {
-      return <Text>No Experience Available</Text>;
-    }
-
-    const formatDate = (date) => {
-      if (!date) return "";
-      return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-      });
-    };
-
-    return experiences.map((experiences, index) => (
-      <div key={index} className="mb-6 p-4 border rounded-lg" style={{ borderRadius: "12px" }}>
-        <Text className="font-medium text-xl">
-          {experiences.experience_title}
-        </Text>
-        <br />
-        <Text>
-          {experiences.company_name} • {experiences.employment_type}
-        </Text>
-        <br />
-        <Text className="text-xs">
-          {formatDate(experiences.start_date)} -
-          {formatDate(experiences.end_date)}
-        </Text>
-        <br />
-        <Text className="text-xs">
-          {experiences.location} • {experiences.location_type}
-        </Text>
-        <div className="mb-6" />
-        <Text>{experiences.description}</Text>
-      </div>
-    ));
-  };
-
-  const renderLanguages = (languages) => {
-    if (!Array.isArray(languages) || languages.length === 0) {
-      return <Text>No languages available</Text>;
-    }
-
-    return languages.map((lang, index) => (
-      <div key={index} className="mb-3 p-2 border rounded-lg">
-        <Text>{lang.language_name}</Text>
-      </div>
-    ));
-  };
-
-  const Section = ({ icon, title, content }) => (
-    <div className="mb-8">
-      <div className="flex items-center mb-4">
-        <img src={icon} alt={title} className="w-12" />
-        <Text className="text-xl font-semibold ml-4">{title}</Text>
-      </div>
-      <div
-        className="border p-4 rounded-lg"
-        style={{ borderRadius: "12px", maxWidth: "500px", height: "auto" }}
-      >
-        {Array.isArray(content) ? content : <Text>{content}</Text>}
-      </div>
-    </div>
-  );
 
   return (
     <div className="bg-white shadow rounded-[20px] p-8">
-      <Section
-        icon={PersonalInformationIcon}
-        title="Personal Information"
-        content={renderPersonalInformation()}
-      />
-      <Section
-        icon={PersonalSummaryIcon}
-        title="Personal Summary"
-        content={jobSeekerData.personal_summary}
-      />
-      <Section
-        icon={EducationIcon}
-        title="Educational Information"
-        content={renderEducation(jobSeekerData.education)}
-      />
-      <Section
-        icon={ExperienceIcon}
-        title="Experience"
-        content={renderExperience(jobSeekerData.experience)}
-      />
-      <Section
-        icon={SkillIcon}
-        title="Skill"
-        content={renderSkills(jobSeekerData.skill)}
-      />
-      <Section
-        icon={ProjectIcon}
-        title="Project"
-        content={renderProjects(jobSeekerData.project)}
-      />
-      <Section
-        icon={CertificationIcon}
-        title="Certifications and Licences"
-        content={renderCertifications(jobSeekerData.certification)}
-      />
-      <Section
-        icon={LanguageIcon}
-        title="Language"
-        content={renderLanguages(jobSeekerData.language)}
-      />
+      
+      {/* Profile Picture & Personal Info */}
+      <div className="flex flex-col items-start mb-6">
+        <div className="flex items-center mb-4">
+          <img src={PersonalInformationIcon} alt="Personal Icon" className="w-12" />
+          <Text className="text-xl font-semibold ml-4">Profile Picture</Text>
+        </div>
+        <div className="flex items-center mt-4">
+          <Image
+            width={100}
+            height={100}
+            className="rounded-full object-cover border border-gray-200"
+            src={previewImage || BrokenImage}
+            fallback={BrokenImage}
+            preview={{
+              visible: previewOpen,
+              onVisibleChange: (visible) => setPreviewOpen(visible),
+            }}
+          />
+        </div>
+      </div>
 
-      <div className="flex justify-end mt-6">
+      <div className="flex items-center mb-6 mt-6">
+        <img src={PersonalInformationIcon} alt="Personal Info Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Personal Information</Text>
+      </div>
+
+      <Form layout="vertical" requiredMark={false} size="large">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <Form.Item label="Full Name">
+            <Input disabled value={jobSeekerData.full_name} />
+          </Form.Item>
+          <Form.Item label="Phone Number">
+            <Input disabled value={jobSeekerData.phone_number} />
+          </Form.Item>
+          <Form.Item label="Email" style={{ marginTop: "-16px" }}>
+            <Input disabled value={jobSeekerData.email} />
+          </Form.Item>
+          <Form.Item label="Date of Birth" style={{ marginTop: "-16px" }}>
+            <Input disabled value={jobSeekerData.date_of_birth ? new Date(jobSeekerData.date_of_birth).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }) : "-"} />
+          </Form.Item>
+          <Form.Item label="Address" style={{ marginTop: "-16px" }}>
+            <Input.TextArea disabled value={jobSeekerData.address} style={{ height: "96px" }} />
+          </Form.Item>
+        </div>
+      </Form>
+
+      {/* Personal Summary */}
+      <div className="flex items-center mb-6 mt-6">
+        <img src={PersonalSummaryIcon} alt="Personal Summary Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Personal Summary</Text>
+      </div>
+      <Form layout="vertical" requiredMark={false} size="large">
+        <Form.Item label="Summary">
+          <Input.TextArea disabled value={jobSeekerData.personal_summary || "No personal summary available."} style={{ height: "96px" }} />
+        </Form.Item>
+      </Form>
+
+      {/* Educational Information */}
+      <div className="flex items-center mb-6 mt-6">
+        <img src={EducationIcon} alt="Education Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Educational Information</Text>
+      </div>
+      <Form layout="vertical" requiredMark={false} size="large">
+        {(!jobSeekerData.education || jobSeekerData.education.length === 0) ? (
+          <Text className="text-gray-400 italic">No education available</Text>
+        ) : jobSeekerData.education.map((edu, index) => (
+          <div key={index} className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6 p-6 border rounded-xl bg-gray-50/30">
+            <Form.Item label="University Name" style={{ marginBottom: "0px" }}>
+              <Input disabled value={edu.university_name || edu.university || "-"} />
+            </Form.Item>
+            <Form.Item label="Major" style={{ marginBottom: "0px" }}>
+              <Input disabled value={edu.major || "-"} />
+            </Form.Item>
+            <Form.Item label="Degree" style={{ marginBottom: "0px" }}>
+              <Input disabled value={edu.degree || "-"} />
+            </Form.Item>
+            <Form.Item label="Duration" style={{ marginBottom: "0px" }}>
+              <Input disabled value={`${formatDate(edu.start_date)} - ${formatDate(edu.end_date) || "Present"}`} />
+            </Form.Item>
+          </div>
+        ))}
+      </Form>
+
+      {/* Experience */}
+      <div className="flex items-center mb-6 mt-6">
+        <img src={ExperienceIcon} alt="Experience Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Experience</Text>
+      </div>
+      <Form layout="vertical" requiredMark={false} size="large">
+        {(!jobSeekerData.experience || jobSeekerData.experience.length === 0) ? (
+          <Text className="text-gray-400 italic">No experience available</Text>
+        ) : jobSeekerData.experience.map((exp, index) => (
+          <div key={index} className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6 p-6 border rounded-xl bg-gray-50/30">
+            <Form.Item label="Experience Title" style={{ marginBottom: "0px" }}>
+              <Input disabled value={exp.experience_title || "-"} />
+            </Form.Item>
+            <Form.Item label="Company Name" style={{ marginBottom: "0px" }}>
+              <Input disabled value={exp.company_name || "-"} />
+            </Form.Item>
+            <Form.Item label="Employment Type" style={{ marginBottom: "0px" }}>
+              <Input disabled value={exp.employment_type || "-"} />
+            </Form.Item>
+            <Form.Item label="Duration" style={{ marginBottom: "0px" }}>
+              <Input disabled value={`${formatDate(exp.start_date)} - ${formatDate(exp.end_date)}`} />
+            </Form.Item>
+            <Form.Item label="Location" style={{ marginBottom: "0px" }}>
+              <Input disabled value={exp.location || "-"} />
+            </Form.Item>
+            <Form.Item label="Location Type" style={{ marginBottom: "0px" }}>
+              <Input disabled value={exp.location_type || "-"} />
+            </Form.Item>
+            <Form.Item label="Description" style={{ marginBottom: "0px" }}>
+              <Input.TextArea disabled value={exp.description || "-"} style={{ height: "96px" }} />
+            </Form.Item>
+          </div>
+        ))}
+      </Form>
+
+      {/* Skills */}
+      <div className="flex items-center mb-6 mt-6">
+        <img src={SkillIcon} alt="Skill Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Skill</Text>
+      </div>
+      <Form layout="vertical" requiredMark={false} size="large">
+        <div className="flex flex-wrap gap-3">
+          {(!jobSeekerData.skill || jobSeekerData.skill.length === 0) ? (
+            <Text className="text-gray-400 italic">No skill available</Text>
+          ) : jobSeekerData.skill.map((skill, index) => (
+            <Input key={index} disabled value={skill.skill_name} style={{ width: "auto" }} />
+          ))}
+        </div>
+      </Form>
+
+      {/* Project */}
+      <div className="flex items-center mb-6 mt-6">
+        <img src={ProjectIcon} alt="Project Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Project</Text>
+      </div>
+      <Form layout="vertical" requiredMark={false} size="large">
+        {(!jobSeekerData.project || jobSeekerData.project.length === 0) ? (
+          <Text className="text-gray-400 italic">No projects available</Text>
+        ) : jobSeekerData.project.map((proj, index) => (
+          <div key={index} className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6 p-6 border rounded-xl bg-gray-50/30">
+            <Form.Item label="Project Name" style={{ marginBottom: "0px" }}>
+              <Input disabled value={proj.project_name || "-"} />
+            </Form.Item>
+            <Form.Item label="Duration" style={{ marginBottom: "0px" }}>
+              <Input disabled value={`${formatDate(proj.start_date)} - ${formatDate(proj.end_date)}`} />
+            </Form.Item>
+            <Form.Item label="Description" style={{ marginBottom: "0px" }}>
+              <Input.TextArea disabled value={proj.description || "-"} style={{ height: "96px" }} />
+            </Form.Item>
+          </div>
+        ))}
+      </Form>
+
+      {/* Certifications and Licences */}
+      <div className="flex items-center mb-6 mt-6">
+        <img src={CertificationIcon} alt="Certification Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Certifications and Licences</Text>
+      </div>
+      <Form layout="vertical" requiredMark={false} size="large">
+        {(!jobSeekerData.certification || jobSeekerData.certification.length === 0) ? (
+          <Text className="text-gray-400 italic">No certifications available</Text>
+        ) : jobSeekerData.certification.map((cert, index) => (
+          <div key={index} className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6 p-6 border rounded-xl bg-gray-50/30">
+            <Form.Item label="Certification Name" style={{ marginBottom: "0px" }}>
+              <Input disabled value={cert.certification_name || "-"} />
+            </Form.Item>
+            <Form.Item label="Issuing Organization" style={{ marginBottom: "0px" }}>
+              <Input disabled value={cert.issuing_organization || "-"} />
+            </Form.Item>
+            <Form.Item label="Duration" style={{ marginBottom: "0px" }}>
+              <Input disabled value={`${formatDate(cert.issue_date)} - ${formatDate(cert.expiration_date)}`} />
+            </Form.Item>
+            <Form.Item label="Credential URL" style={{ marginBottom: "0px" }}>
+              <Input disabled value={cert.credential_url || "-"} />
+            </Form.Item>
+          </div>
+        ))}
+      </Form>
+
+      {/* Language */}
+      <div className="flex items-center mb-6 mt-6">
+        <img src={LanguageIcon} alt="Language Icon" className="w-12" />
+        <Text className="text-xl font-semibold ml-4">Language</Text>
+      </div>
+      <Form layout="vertical" requiredMark={false} size="large">
+        <div className="flex flex-wrap gap-3">
+          {(!jobSeekerData.language || jobSeekerData.language.length === 0) ? (
+            <Text className="text-gray-400 italic">No language available</Text>
+          ) : jobSeekerData.language.map((lang, index) => (
+            <Input key={index} disabled value={lang.language_name} style={{ width: "auto" }} />
+          ))}
+        </div>
+      </Form>
+
+      <div className="flex justify-end mt-10 border-t pt-6">
         <Button
           type="primary"
           style={{ width: 120, height: 40, borderRadius: 12 }}

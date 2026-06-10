@@ -153,9 +153,14 @@ export class AdminsService {
     }
 
     try {
+      const updateData = { ...updateAdminsDto };
+      if (updateData.password) {
+        updateData.password = await bcrypt.hash(updateData.password, 10);
+      }
+
       const updatedAdmin = await this.prisma.admins.update({
         where: { admin_id },
-        data: updateAdminsDto
+        data: updateData
       });
 
       // Log activity

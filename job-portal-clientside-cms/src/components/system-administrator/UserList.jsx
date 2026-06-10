@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Button, Input, Layout, Table, Select, Dropdown, Menu } from "antd";
+import { Button, Input, Layout, Table, Select, Dropdown, Menu, Modal } from "antd";
 import { EllipsisVerticalIcon, MagnifyingGlassIcon, PencilSquareIcon, PlusIcon, TrashIcon} from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import Pagination from "../Pagination";
 import AddData from "./AddData";
+import EditData from "./EditData";
 
 const { Content } = Layout;
 
@@ -15,6 +16,8 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
 
   const [openAddData, setOpenAddData] = useState(false);
+  const [openEditData, setOpenEditData] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("updated_at");
@@ -22,9 +25,25 @@ const UserList = () => {
 
   const handleMenuClick = (record, action) => {
     if (action === "edit") {
-      // console.log("Edit", record);
+      setSelectedRecord(record);
+      setOpenEditData(true);
     } else if (action === "delete") {
-      // console.log("Delete", record);
+      Modal.confirm({
+        title: "Are you sure you want to delete this admin?",
+        content: "This action cannot be undone.",
+        okText: "Yes, Delete",
+        okType: "danger",
+        cancelText: "Cancel",
+        onOk: () => {
+          Api.delete(`/admins/${record.admin_id}`)
+            .then(() => {
+              fetchData(1, true);
+            })
+            .catch((err) => {
+              console.error("Error deleting admin:", err);
+            });
+        }
+      });
     }
   };
 
@@ -189,6 +208,13 @@ const UserList = () => {
       open={openAddData}
       setOpen={setOpenAddData}
       fetchData={fetchData}
+      />
+
+      <EditData
+        open={openEditData}
+        setOpen={setOpenEditData}
+        fetchData={fetchData}
+        selectedRecord={selectedRecord}
       />
     </Content>
   );

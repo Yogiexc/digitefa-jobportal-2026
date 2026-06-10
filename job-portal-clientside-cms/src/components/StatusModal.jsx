@@ -20,6 +20,7 @@ const StatusModal = ({ open, setOpen, status, message }) => {
         onOk={() => setOpen(false)}
         onCancel={() => setOpen(false)}
         width={400}
+        zIndex={9999}
         maskClosable={false}
         footer={
           <>

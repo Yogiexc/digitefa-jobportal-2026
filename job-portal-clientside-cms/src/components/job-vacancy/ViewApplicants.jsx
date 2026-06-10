@@ -412,13 +412,7 @@ const ViewApplicants = ({ jobId, onBack }) => {
           />
           <div className="flex justify-end mt-6">
             <Button
-              style={{
-                width: "120px",
-                height: "40px",
-                borderRadius: "12px",
-                borderColor: "#BBBBBB",
-                borderWidth: "1px",
-              }}
+              size="large"
               onClick={onBack}
             >
               <span className="text-sm font-medium"> Back </span>
