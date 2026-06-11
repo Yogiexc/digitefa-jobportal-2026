@@ -187,10 +187,10 @@ JOBS_SEARCH_API_URL = os.getenv("JOBS_SEARCH_API_URL", "http://127.0.0.1:3000/ap
 # --- PILIH SALAH SATU MODEL AI DI BAWAH INI (COMMENT / UNCOMMENT) ---
 
 # Opsi 1: MiniLM (Super Ringan & Cepat, Tapi Global/Inggris) -> Default
-# model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 # Model multilingual untuk mendukung teks Bahasa Indonesia & Inggris
-model = SentenceTransformer('intfloat/multilingual-e5-small')
+# model = SentenceTransformer('intfloat/multilingual-e5-small')
 
 # --------------------------------------------------------------------
 
