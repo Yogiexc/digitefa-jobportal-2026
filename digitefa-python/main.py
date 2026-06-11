@@ -12,7 +12,6 @@ import pdfplumber
 import re
 import io
 import os
-import string
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from fastapi.responses import StreamingResponse
@@ -122,22 +121,19 @@ def process_project(projects):
 def process_certifications(certifications):
     cert_text_list = []
     if isinstance(certifications, list):
-        for i, cert in enumerate(certifications):
+        for cert in certifications:
             if isinstance(cert, dict):
-                name = cert.get("certification_name", "")
+                name = cert.get("certificate_name", "")
                 desc = cert.get("description", "")
                 cert_text = f"{name}. {desc}".strip()
                 if cert_text:
                     cert_text_list.append(cert_text)
-    else:
-        print(f"[DEBUG] certifications is not a list: {type(certifications)}")
-    result = ". ".join(cert_text_list)
-    print(f"[DEBUG] certifications_text result: '{result}'")
-    return result
+    return ". ".join(cert_text_list)
+
 def process_lms(data_lms):
     lms_text_list = []
     if isinstance(data_lms, list):
-        for i, course in enumerate(data_lms):
+        for course in data_lms:
             if isinstance(course, dict):
                 title = course.get("title", "")
                 desc = course.get("description", "")
@@ -145,11 +141,8 @@ def process_lms(data_lms):
                 lms_text = f"Course: {title}. Description: {desc}. Skills: {skills}".strip()
                 if lms_text:
                     lms_text_list.append(lms_text)
-    else:
-        print(f"[DEBUG] data_lms is not a list: {type(data_lms)}")
-    result = ". ".join(lms_text_list)
-    print(f"[DEBUG] lms_text result: '{result}'")
-    return result
+    return ". ".join(lms_text_list)
+
 def get_job_title_text(job: dict) -> str:
     return job.get("title", "")
 
@@ -191,8 +184,15 @@ app.add_middleware(
 # Configuration for wordcloud source
 JOBS_SEARCH_API_URL = os.getenv("JOBS_SEARCH_API_URL", "http://127.0.0.1:3000/api/jobs-search")
 
-# Changed model to MiniLM for faster inference and lightweight deployment
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+# --- PILIH SALAH SATU MODEL AI DI BAWAH INI (COMMENT / UNCOMMENT) ---
+
+# Opsi 1: MiniLM (Super Ringan & Cepat, Tapi Global/Inggris) -> Default
+# model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
+# Model multilingual untuk mendukung teks Bahasa Indonesia & Inggris
+model = SentenceTransformer('intfloat/multilingual-e5-small')
+
+# --------------------------------------------------------------------
 
 TOP_N_RECOMMENDATIONS = 5
 MIN_SCORE_THRESHOLD = 0.3 # Lowered slightly for MiniLM since cosine sim ranges are tighter
@@ -411,220 +411,22 @@ def compare_two_texts(request: TextComparisonRequest):
 
 
 # ---------------------------------------------------------
-# LEGACY HELPER FUNCTIONS
-# Ported from ZeroMQ-based job_recommender_server.py
-# ---------------------------------------------------------
-
-def model_to_dict(obj):
-    """Convert Pydantic model to dict recursively."""
-    if hasattr(obj, 'model_dump'):
-        return obj.model_dump()
-    elif hasattr(obj, 'dict'):
-        return obj.dict()
-    return obj
-
-def _remap_similarity(raw, raw_min=-0.2, raw_max=1.0):
-    """Remap raw cosine similarity from [raw_min..raw_max] to [0..1]."""
-    scaled = (raw - raw_min) / (raw_max - raw_min)
-    return min(max(scaled, 0.0), 1.0)
-
-def legacy_preprocess_text(text):
-    """Basic text preprocessing: lowercase, remove punctuation and digits."""
-    if not text:
-        return ""
-    text = text.replace("\n", ". ")
-    text = text.lower().strip()
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    text = re.sub(r'\d+', '', text)
-    text = re.sub(r'\s+', ' ', text)
-    return text.strip()
-
-def legacy_encode_text(text):
-    """Encode text after preprocessing."""
-    preprocessed = legacy_preprocess_text(text)
-    return model.encode(preprocessed, convert_to_tensor=True)
-
-def legacy_process_skills(skills):
-    """Convert skills list to text string."""
-    skill_list = []
-    if isinstance(skills, list):
-        for s in skills:
-            if isinstance(s, dict) and "skill_name" in s:
-                skill_list.append(s["skill_name"])
-    return ". ".join(skill_list)
-
-def legacy_process_education(education):
-    """Convert education dict to text string."""
-    if not education or not isinstance(education, dict):
-        return ""
-    degree = education.get("degree", "")
-    major = education.get("major", "")
-    grade = education.get("grade", "")
-    parts = []
-    if degree: parts.append(degree)
-    if major: parts.append(major)
-    if grade: parts.append(f"Grade: {grade}")
-    return ", ".join(parts)
-
-def legacy_process_experience(experiences):
-    """Convert experiences list to text string."""
-    exp_list = []
-    if isinstance(experiences, list):
-        for exp in experiences:
-            title = exp.get("experience_title", "")
-            desc = exp.get("description", "")
-            if title and desc:
-                exp_list.append(f"{title} - {desc}")
-            else:
-                text = title or desc
-                if text: exp_list.append(text)
-    return ". ".join(exp_list)
-
-def legacy_process_projects(projects):
-    """Convert projects list to text string."""
-    proj_list = []
-    if isinstance(projects, list):
-        for p in projects:
-            name = p.get("project_name", "")
-            desc = p.get("description", "")
-            if name and desc:
-                proj_list.append(f"{name} - {desc}")
-            else:
-                text = name or desc
-                if text: proj_list.append(text)
-    return ". ".join(proj_list)
-
-def legacy_process_certifications(certifications):
-    """Convert certifications list to text string."""
-    cert_list = []
-    if isinstance(certifications, list):
-        for c in certifications:
-            name = c.get("certification_name", "")
-            if name: cert_list.append(name)
-    return ". ".join(cert_list)
-
-def legacy_process_lms(lms_data):
-    """Convert LMS course data to text string."""
-    lms_list = []
-    if isinstance(lms_data, list):
-        for course in lms_data:
-            title = course.get("title", "")
-            desc = course.get("description", "")
-            cat = course.get("category", "")
-            if title and desc:
-                lms_list.append(f"{title} - {desc} ({cat})")
-    return ". ".join(lms_list)
-
-def legacy_get_user_details_text(user, lms_data=None):
-    """Combine all user profile components into a single text string."""
-    personal_summary = user.get("personal_summary", "")
-    education_source = user.get("education", [])
-    if isinstance(education_source, list):
-        latest_edu = education_source[0] if education_source else {}
-    else:
-        latest_edu = education_source or {}
-    education = legacy_process_education(latest_edu)
-    experience = legacy_process_experience(user.get("experiences", []))
-    projects = legacy_process_projects(user.get("projects", []))
-    skills = legacy_process_skills(user.get("skills", []))
-    certifications = legacy_process_certifications(user.get("certifications", []))
-    lms = legacy_process_lms(lms_data or [])
-    return f"{personal_summary}. {education}. {experience}. {projects}. {skills}. {certifications}. {lms}".strip()
-
-def legacy_process_skills_requirement(skills):
-    """Convert skills requirement list (from job) to text string."""
-    skill_list = []
-    if isinstance(skills, list):
-        for s in skills:
-            if isinstance(s, dict) and "skill" in s:
-                skill_list.append(s["skill"])
-    return ". ".join(skill_list)
-
-def legacy_get_job_details_text(job):
-    """Get combined job details text from description, requirements, and skills."""
-    desc = legacy_preprocess_text(job.get("description", ""))
-    edu = legacy_preprocess_text(job.get("education_requirement", ""))
-    exp = legacy_preprocess_text(job.get("experience_requirement", ""))
-    skills_text = legacy_process_skills_requirement(job.get("skills_requirement", []))
-    return f"{desc}. {edu}. {exp}. {skills_text}".strip()
-
-def legacy_get_job_title_text(job):
-    """Get preprocessed job title text."""
-    return legacy_preprocess_text(job.get("title", ""))
-
-def legacy_compute_similarity_score(ref_embedding, text):
-    """Compute cosine similarity between a reference embedding and text."""
-    if not text:
-        return 0.0
-    text_embedding = legacy_encode_text(text)
-    sim = util.pytorch_cos_sim(ref_embedding, text_embedding).item()
-    sim = _remap_similarity(sim)
-    return max(sim, 0.0)
-
-def legacy_compute_common_word_bonus(text1, text2):
-    """Compute bonus based on common segments between two texts."""
-    if not text1 or not text2:
-        return 0.0
-    segments = [s.strip() for s in text1.split('.') if s.strip()]
-    total_bonus = 0.0
-    for seg in segments:
-        score = legacy_compute_similarity_score(legacy_encode_text(seg), text2)
-        if score >= 0.5:
-            bonus = (score - 0.5) * 0.6
-            total_bonus += bonus
-    return min(total_bonus, 0.3)
-
-def legacy_component_match_score(text, job_embedding):
-    """Compute component match score between text and job embedding. Returns 0-1."""
-    if not text:
-        return 0.0
-    text_embedding = legacy_encode_text(text)
-    sim = util.pytorch_cos_sim(text_embedding, job_embedding).item()
-    sim = _remap_similarity(sim)
-    return max(sim, 0.0)
-
-
-# ---------------------------------------------------------
 # NEW ENHANCEMENT ENDPOINTS 
 # ---------------------------------------------------------
+
 class MatchScoreJobData(BaseModel):
     title: str = ""
     description: str = ""
-    skills_requirement: List[dict] = Field(default_factory=list)
+    skills_requirement: str = ""
     education_requirement: str = ""
     experience_requirement: str = ""
 
-class MatchScoreCandidateSkill(BaseModel):
-    skill_name: str = ""
-
-
-class MatchScoreCandidateEducation(BaseModel):
-    degree: str = ""
-    major: str = ""
-    grade: str = ""
-
-
-class MatchScoreCandidateExperience(BaseModel):
-    experience_title: str = ""
-    description: str = ""
-
-
-class MatchScoreCandidateProject(BaseModel):
-    project_name: str = ""
-    description: str = ""
-
-
-class MatchScoreCandidateCertification(BaseModel):
-    certification_name: str = ""
-
-
 class MatchScoreCandidateData(BaseModel):
-    personal_summary: str = ""
-    skills: List[MatchScoreCandidateSkill] = Field(default_factory=list)
-    education: Optional[MatchScoreCandidateEducation] = None
-    experiences: List[MatchScoreCandidateExperience] = Field(default_factory=list)
-    projects: List[MatchScoreCandidateProject] = Field(default_factory=list)
-    certifications: List[MatchScoreCandidateCertification] = Field(default_factory=list)
+    skills: str = ""
+    experience: str = ""
+    summary: str = ""
+    education: str = ""
+    others: str = ""
 
 class MatchScoreRequest(BaseModel):
     job: MatchScoreJobData
@@ -670,7 +472,6 @@ def calculate_match_score(req: MatchScoreRequest):
             req.candidate.experience,
             req.candidate.others,
             req.candidate.skills,
-
         ] if text
     ).strip()
 
@@ -688,7 +489,6 @@ def calculate_match_score(req: MatchScoreRequest):
             }
         }
 
-
     job_title_text = req.job.title
     job_details_text = f"{req.job.description} {req.job.skills_requirement} {req.job.education_requirement} {req.job.experience_requirement}".strip()
     
@@ -704,10 +504,7 @@ def calculate_match_score(req: MatchScoreRequest):
     education_score = get_sim(req.candidate.education, job_details_text)
     experience_score = get_sim(req.candidate.experience, job_details_text)
     projects_score = get_sim(req.candidate.others, job_details_text)
-    # Convert certifications list to text
-    cert_text = ". ".join([cert.certification_name for cert in req.candidate.certifications if cert.certification_name])
-    certifications_score = get_sim(cert_text, job_details_text) if cert_text else 0.0
-
+    certifications_score = 0.0
 
     return {
         "status": "success",
@@ -721,7 +518,6 @@ def calculate_match_score(req: MatchScoreRequest):
             "certifications": round(certifications_score, 4),
         }
     }
-
 
 class JobRecommendationRequest(BaseModel):
     talent: dict
@@ -737,6 +533,7 @@ def recommend_jobs(req: JobRecommendationRequest):
         title_weight = 0.3
         detail_weight = 0.7
         minimum_similarity = 0.44 if req.is_filter == "true" else 0.0
+        
         user = req.talent
         jobs = req.jobs
         data_lms = req.data_lms
@@ -888,9 +685,9 @@ def search_talents(req: TalentSearchRequest):
                     sim = util.pytorch_cos_sim(emb, job_embedding).item()
                     sim = _remap_similarity(sim)
                     component_matches[match_key] = round(sim * 100, 2)
-                    component_matches[match_key] = round(sim * 100, 2)
                 else:
                     component_matches[match_key] = 0.0
+            
             talent_result = {
                 "job_seeker_id": talent_id,
                 "full_name": talent.get("full_name", ""),
@@ -998,7 +795,7 @@ async def parse_cv(file: UploadFile = File(...)):
         DATE_PATTERN = r'(?:(?:jan(?:uari|uary)?|feb(?:ruari|ruary)?|mar(?:et|ch)?|apr(?:il)?|mei|may|jun(?:i|e)?|jul(?:i|y)?|agustus|agu(?:stus)?|agt|aug(?:ust)?|sep(?:tember)?|okt(?:ober)?|oct(?:ober)?|nov(?:ember)?|des(?:ember)?|dec(?:ember)?)\s+\d{2,4})|(?:\d{1,2}\s*[/-]\s*\d{2,4})|(?:\b\d{4}\b)'
         END_DATE_PATTERN = rf'(?:{DATE_PATTERN})|(?:present|sekarang|current|now|ongoing|active|aktif)'
 
-        date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[?-]|?|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
+        date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[–-]|—|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
                     
         cv_lines = full_text.split('\n')
         
@@ -1111,7 +908,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 ]):
                 continue
 
-            # kandidat nama: 2?4 kata, huruf semua
+            # kandidat nama: 2–4 kata, huruf semua
             words = line_clean.split()
             if 2 <= len(words) <= 4:
                 sections["name"] = line_clean
@@ -1149,7 +946,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 target_section = sections[current_section]
                 if isinstance(target_section, list):
                     if current_section in ["skills", "languages"]:
-                        parts = [p.strip() for p in re.split(r'[,|?;*\n]', line) if p.strip()]
+                        parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]
                         target_section.extend(parts)
                     else:
                         target_section.append(line.strip())
@@ -1157,14 +954,14 @@ async def parse_cv(file: UploadFile = File(...)):
         filtered_skills = []
         for s in sections["skills"]:
             # Remove parentheses and surrounding whitespace/symbols
-            s_clean = re.sub(r'[()\-?]', '', s).strip()
+            s_clean = re.sub(r'[()\-•]', '', s).strip()
             if len(s_clean) < 2 or len(s_clean) > 40: continue
             if phone_regex.match(s_clean): continue
             filtered_skills.append(s_clean)
         sections["skills"] = list(set(filtered_skills))
         
         # Languages Cleanup (Increased length limit to 60 for cases like "Bahasa Indonesia (Native)")
-        sections["languages"] = list(set([s.strip('-? ') for s in sections["languages"] if 1 < len(s.strip()) < 60]))
+        sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 60]))
         
         # Summary
         sections["personal_summary"] = [
@@ -1183,7 +980,7 @@ async def parse_cv(file: UploadFile = File(...)):
         current_proj = None
 
         for line in sections["projects"]:
-            line = line.strip('-? ').strip()
+            line = line.strip('-• ').strip()
             if not line:
                 continue
 
@@ -1195,7 +992,7 @@ async def parse_cv(file: UploadFile = File(...)):
                     current_proj["end_date"] = standardize_date(date_match.group(2))
                 continue
 
-            # 2. TITLE ? HANYA kalau BELUM ADA project
+            # 2. TITLE → HANYA kalau BELUM ADA project
             if current_proj is None:
                 current_proj = {
                     "title": line,
@@ -1240,7 +1037,7 @@ async def parse_cv(file: UploadFile = File(...)):
         text = " ".join(raw_lines)
 
         # normalize dash
-        text = text.replace("?", "-").replace("?", "-")
+        text = text.replace("–", "-").replace("—", "-")
 
         # regex ambil semua field
         pattern = r'(.+?)\s*-\s*(.+?)\s+((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s*-\s*((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s+(https?://\S+|www\.\S+)'
@@ -1304,7 +1101,7 @@ async def parse_cv(file: UploadFile = File(...)):
                 prev_line = line
                 continue
 
-            # kalau belum mulai record ? cuma simpan prev_line
+            # kalau belum mulai record → cuma simpan prev_line
             if current_exp is None:
                 prev_line = line
                 continue
@@ -1538,5 +1335,3 @@ async def get_wordcloud():
         print(f"Error generating wordcloud: {str(e)}")
         # Return a placeholder image or error
         raise HTTPException(status_code=500, detail=f"Failed to generate wordcloud: {str(e)}")
-
-
