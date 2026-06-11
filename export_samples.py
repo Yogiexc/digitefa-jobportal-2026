@@ -3,7 +3,7 @@ import json
 import os
 
 NEST_API_URL = os.getenv("NEST_API_URL", "http://127.0.0.1:3000/api")
-JOBS_LIST_API = NEST_API_URL + "/jobs-search?pageSize=3"
+JOBS_LIST_API = NEST_API_URL + "/jobs-search?pageSize=100"
 TALENTS_API = NEST_API_URL + "/job-seekers?pageSize=30"
 LOGIN_API = NEST_API_URL + "/auth/login/cms"
 
@@ -44,8 +44,20 @@ try:
     print("Mengambil list jobs dasar...")
     job_response = requests.get(JOBS_LIST_API, timeout=5)
     job_response.raise_for_status()
-    jobs_basic = job_response.json().get("data", [])
-    print(f"Mengekstrak detail untuk {len(jobs_basic)} job...")
+    all_jobs = job_response.json().get("data", [])
+    
+    # Filter for 2 jobs from Company 6 with title 'Public Health Consultant'
+    jobs_basic = []
+    for job in all_jobs:
+        title = job.get("title", "").lower()
+        company_data = job.get("company", {})
+        market_name = company_data.get("market_name", "").lower()
+        legal_name = company_data.get("legal_name", "").lower()
+        
+        if title == "public health consultant" and ("company 6" in market_name or "company 6" in legal_name):
+            jobs_basic.append(job)
+            
+    print(f"Mengekstrak detail untuk {len(jobs_basic)} job (Public Health Consultant - Company 6)...")
 
     # 3. Ambil Detail Lengkap masing-masing Job (untuk mendapatkan description)
     jobs_full_data = []

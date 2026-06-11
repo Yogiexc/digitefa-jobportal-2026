@@ -162,9 +162,12 @@ results = []
 for j in jobs:
     # Menggunakan fungsi ekstraksi bawaan main.py
     job_title_text = get_job_title_text(j)
+    job_id = j.get("job_id", "")
+    short_id = job_id[:6] if job_id else ""
+    job_display_name = f"{job_title_text} ({short_id})" if short_id else job_title_text
     job_details_text = get_job_details_text(j)
     
-    print(f"\nMemproses Lowongan: {job_title_text}")
+    print(f"\nMemproses Lowongan: {job_display_name}")
     print(f"  > Detail Lowongan (panjang karakter: {len(job_details_text)})")
     
     for t in talents:
@@ -188,7 +191,7 @@ for j in jobs:
         if not user_details_text:
             continue
             
-        row = {"job": job_title_text, "talent": talent_name}
+        row = {"job": job_display_name, "talent": talent_name}
         
         # Hitung skor untuk tiap model
         for model_key, model_obj in loaded_models.items():
@@ -212,14 +215,27 @@ for j in jobs:
             
         results.append(row)
 
+# --- Sortir Hasil dari Tertinggi ke Terendah (berdasarkan Rata-rata Skor Model) ---
+def get_average_score(r):
+    # Mengambil nilai skor dari keempat model dan mencari rata-ratanya
+    scores = [
+        r.get('MiniLM (Baseline)', 0), 
+        r.get('MPNet (Akurasi Tinggi)', 0), 
+        r.get('Multilingual MPNet', 0), 
+        r.get('IndoBERT (SBERT-Indo)', 0)
+    ]
+    return sum(scores) / len(scores)
+
+results = sorted(results, key=get_average_score, reverse=True)
+
 # --- 7. Tampilkan Hasil Akhir ---
-print("\n" + "="*115)
-print("                                    TABEL PERBANDINGAN SKOR TALENT MATCHES                                  ")
-print("="*115)
-print(f"{'Job Title (Asli)':<20} | {'Talent (Asli)':<20} | {'MiniLM':<12} | {'MPNet':<12} | {'Multilingual':<15} | {'IndoBERT'}")
-print("-" * 115)
+print("\n" + "="*125)
+print("                                      TABEL PERBANDINGAN SKOR TALENT MATCHES                                    ")
+print("="*125)
+print(f"{'Job Title (ID)':<30} | {'Talent (Asli)':<20} | {'MiniLM':<12} | {'MPNet':<12} | {'Multilingual':<15} | {'IndoBERT'}")
+print("-" * 125)
 for r in results:
-    short_title = r['job'][:18] + ".." if len(r['job']) > 20 else r['job']
+    short_title = r['job'][:28] + ".." if len(r['job']) > 30 else r['job']
     short_talent = r['talent'][:18] + ".." if len(r['talent']) > 20 else r['talent']
-    print(f"{short_title:<20} | {short_talent:<20} | {r['MiniLM (Baseline)']:<12} | {r['MPNet (Akurasi Tinggi)']:<12} | {r['Multilingual MPNet']:<15} | {r['IndoBERT (SBERT-Indo)']}")
-print("="*115)
+    print(f"{short_title:<30} | {short_talent:<20} | {r['MiniLM (Baseline)']:<12} | {r['MPNet (Akurasi Tinggi)']:<12} | {r['Multilingual MPNet']:<15} | {r['IndoBERT (SBERT-Indo)']}")
+print("="*125)

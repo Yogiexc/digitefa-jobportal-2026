@@ -1,4 +1,4 @@
-import pandas as pd
+﻿import pandas as pd
 import requests
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -186,7 +186,7 @@ app.add_middleware(
 JOBS_SEARCH_API_URL = os.getenv("JOBS_SEARCH_API_URL", "http://127.0.0.1:3000/api/jobs-search")
 
 # Changed model to MiniLM for faster inference and lightweight deployment
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-mpnet-base-v2')
 
 TOP_N_RECOMMENDATIONS = 5
 MIN_SCORE_THRESHOLD = 0.3 # Lowered slightly for MiniLM since cosine sim ranges are tighter
