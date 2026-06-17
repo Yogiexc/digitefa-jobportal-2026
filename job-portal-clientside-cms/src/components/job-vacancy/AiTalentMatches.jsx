@@ -17,7 +17,7 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     const [matches, setMatches] = useState([]);
     const [invitingId, setInvitingId] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState(["skills", "projects", "experience", "education", "summary", "certification"]);
-    const [showAppliedOnly, setShowAppliedOnly] = useState(false);
+    const [applicationSource, setApplicationSource] = useState([]);
     // Pagination state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -119,7 +119,9 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
     };
 
 
-    const filteredMatches = showAppliedOnly ? matches.filter(m => m.is_applied) : matches;
+    const filteredMatches = applicationSource.length > 0 
+        ? matches.filter(m => applicationSource.includes(m.candidate_source)) 
+        : matches;
 
     const startIndex = (page - 1) * pageSize;
     const displayedMatches = filteredMatches.slice(startIndex, startIndex + pageSize);
@@ -144,8 +146,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                     <AiTalentFilter
                         filterCriteria={filterCriteria}
                         onFilterChange={handleFilterChange}
-                        showAppliedOnly={showAppliedOnly}
-                        setShowAppliedOnly={setShowAppliedOnly}
+                        applicationSource={applicationSource}
+                        setApplicationSource={setApplicationSource}
                     />
                 </div>
 
@@ -276,8 +278,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
                             <UserCircleIcon className="size-12 text-gray-300 mx-auto mb-4" />
                             <Text type="secondary" className="text-gray-500 font-medium">
-                                {showAppliedOnly 
-                                    ? "No applied or invited talents found." 
+                                {applicationSource.length > 0 
+                                    ? "No talents found matching the selected application source." 
                                     : "No suitable talents found for this job description."}
                             </Text>
                         </div>

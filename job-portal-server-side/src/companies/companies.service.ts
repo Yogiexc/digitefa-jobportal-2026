@@ -349,12 +349,23 @@ export class CompaniesService {
           if (!seeker) return null;
           const invitation = invitations.find(inv => inv.job_seeker_id === seeker.job_seeker_id);
           const hasAppliedDirectly = applications.some(app => app.job_seeker_id === seeker.job_seeker_id);
+          const isInvited = invitedJobSeekerIds.includes(seeker.job_seeker_id);
+          const isApplied = appliedJobSeekerIds.includes(seeker.job_seeker_id);
+
+          let candidate_source = null;
+          if (isInvited) {
+            candidate_source = 'invited';
+          } else if (isApplied) {
+            candidate_source = 'manual';
+          }
+
           return {
             ...seeker,
             ai_score: r.similarity_score,
             match_details: r.match_details,
-            is_invited: invitedJobSeekerIds.includes(seeker.job_seeker_id),
-            is_applied: appliedJobSeekerIds.includes(seeker.job_seeker_id),
+            is_invited: isInvited,
+            is_applied: isApplied,
+            candidate_source,
           };
         })
         .filter(Boolean);

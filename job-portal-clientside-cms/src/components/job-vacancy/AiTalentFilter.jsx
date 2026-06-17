@@ -2,7 +2,7 @@ import { Card, Typography, Divider, Checkbox } from "antd";
 
 const { Title, Text } = Typography;
 
-const AiTalentFilter = ({ filterCriteria, onFilterChange, showAppliedOnly, setShowAppliedOnly }) => {
+const AiTalentFilter = ({ filterCriteria, onFilterChange, applicationSource, setApplicationSource }) => {
     return (
         <Card
             className="rounded-2xl border-gray-100 shadow-sm sticky top-6"
@@ -31,13 +31,16 @@ const AiTalentFilter = ({ filterCriteria, onFilterChange, showAppliedOnly, setSh
             <Divider className="my-4" />
 
             <div>
-                <Text className="font-bold text-black block mb-4">Application Status</Text>
-                <Checkbox
-                    checked={showAppliedOnly}
-                    onChange={(e) => setShowAppliedOnly(e.target.checked)}
-                >
-                    Show Applied Only
-                </Checkbox>
+                <Text className="font-bold text-black block mb-4">Application Source</Text>
+                <Checkbox.Group 
+                    value={applicationSource} 
+                    onChange={setApplicationSource}
+                    className="flex flex-col gap-2"
+                    options={[
+                        { value: "manual", label: "Manual Application" },
+                        { value: "invited", label: "Invited Candidate" }
+                    ]}
+                />
             </div>
         </Card>
     );
