@@ -417,7 +417,7 @@ export class ProfileService {
       const normalizeStringArray = (value: unknown): string[] => {
         let items: string[] = [];
         if (Array.isArray(value)) {
-          items = value.map((item) => String(item));
+          items = value.map((item) => typeof item === 'string' ? item : JSON.stringify(item));
         } else if (typeof value === 'string') {
           // Split by comma, semicolon, or vertical bar
           items = value.split(/[,;|•]/);
@@ -438,6 +438,25 @@ export class ProfileService {
           })
           .filter((item) => item.length > 0);
       };
+
+      const normalizeText = (value: unknown): string => {
+        if (!value) return '';
+        if (typeof value === 'string') return value;
+        if (Array.isArray(value)) {
+          return value
+            .map((item) => typeof item === 'string' ? item : JSON.stringify(item))
+            .join(' ')
+            .trim();
+        }
+        if (typeof value === 'object') return JSON.stringify(value);
+        return String(value);
+      };
+
+      const experienceText = normalizeText(parsedData.experience);
+      const projectsText = normalizeText(parsedData.projects);
+      const personalSummaryText = normalizeText(parsedData.personal_summary);
+      const addressText = normalizeText(parsedData.address);
+      const phoneText = normalizeText(parsedData.phone);
 
       const skillsFromCv = normalizeStringArray(parsedData.skills);
       const languagesFromCv = normalizeStringArray(parsedData.languages);
@@ -516,11 +535,11 @@ export class ProfileService {
             },
           });
         }
-      } else if (parsedData.experience) {
+      } else if (experienceText) {
         const existingExp = await this.prisma.experiences.findFirst({
           where: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
-            description: { contains: parsedData.experience.substring(0, 50) }
+            description: { contains: experienceText.substring(0, 50) }
           }
         });
 
@@ -530,7 +549,7 @@ export class ProfileService {
               job_seeker_detail_id: detail.job_seeker_detail_id,
               experience_title: 'Experience from CV',
               company_name: 'Various',
-              description: parsedData.experience.substring(0, 250),
+              description: experienceText.substring(0, 250),
             },
           });
         }
@@ -602,7 +621,7 @@ export class ProfileService {
       }
 
       // 3.5 PERSONAL_INFO
-      if (parsedData.address || parsedData.date_of_birth || parsedData.phone) {
+      if (addressText || parsedData.date_of_birth || phoneText) {
         let dobDate = null;
         if (parsedData.date_of_birth) {
           const parsedDate = new Date(parsedData.date_of_birth);
@@ -613,24 +632,24 @@ export class ProfileService {
         await this.prisma.personal_info.upsert({
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
           update: {
-            ...(parsedData.address && { address: parsedData.address }),
-            ...(parsedData.phone && { phone_number: parsedData.phone.substring(0, 15) }),
+            ...(addressText && { address: addressText }),
+            ...(phoneText && { phone_number: phoneText.substring(0, 15) }),
             ...(dobDate && { date_of_birth: dobDate }),
           },
           create: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
-            address: parsedData.address || null,
-            phone_number: parsedData.phone ? parsedData.phone.substring(0, 15) : null,
+            address: addressText || null,
+            phone_number: phoneText ? phoneText.substring(0, 15) : null,
             date_of_birth: dobDate,
           }
         });
       }
 
       // 4. SUMMARY
-      if (parsedData.personal_summary) {
+      if (personalSummaryText) {
         await this.prisma.job_seeker_details.update({
           where: { job_seeker_detail_id: detail.job_seeker_detail_id },
-          data: { personal_summary: parsedData.personal_summary }
+          data: { personal_summary: personalSummaryText }
         });
       }
 
@@ -657,7 +676,7 @@ export class ProfileService {
             },
           });
         }
-      } else if (parsedData.projects) {
+      } else if (projectsText) {
         const existingProj = await this.prisma.projects.findFirst({
           where: {
             job_seeker_detail_id: detail.job_seeker_detail_id,
@@ -670,7 +689,7 @@ export class ProfileService {
             data: {
               job_seeker_detail_id: detail.job_seeker_detail_id,
               project_name: 'Project from CV',
-              description: parsedData.projects.substring(0, 250),
+              description: projectsText.substring(0, 250),
             },
           });
         }

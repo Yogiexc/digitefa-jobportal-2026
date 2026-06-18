@@ -735,112 +735,65 @@ async def parse_cv(file: UploadFile = File(...)):
                 if text:
                     full_text += text + "\n"
 
-        # 3. GET GEMINI API KEY AND CONFIGURE
-        gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-        if not gemini_key or gemini_key == "YOUR_GEMINI_API_KEY":
+        # 3. GET NVIDIA API KEY AND CONFIGURE
+        nvidia_api_key = os.getenv("NVIDIA_API_KEY")
+        if not nvidia_api_key:
             raise HTTPException(
                 status_code=500,
-                detail="GEMINI_API_KEY tidak ditemukan atau masih menggunakan placeholder. Silakan atur kunci API Anda di file .env."
+                detail="NVIDIA_API_KEY not found"
             )
 
-        import google.generativeai as genai
+        from openai import OpenAI
         import json
 
-        genai.configure(api_key=gemini_key)
-        
-        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-        model = genai.GenerativeModel(model_name)
+        client = OpenAI(
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=nvidia_api_key
+        )
+
+        model_name = os.getenv("NVIDIA_MODEL", "meta/llama-3.1-8b-instruct")
 
         # 4. PREPARE PROMPT FOR STRUCTURAL EXTRACTION
         prompt = f"""
-        Anda adalah asisten AI yang ahli dalam mengekstrak informasi terstruktur dari CV atau Resume.
-        Tugas Anda adalah membaca teks CV berikut dan mengekstrak semua informasi penting ke dalam format JSON yang valid.
-        
-        Berikut adalah teks CV yang diekstrak:
-        --- Mulai Teks CV ---
+        Anda adalah asisten AI ahli ekstraksi data CV ke JSON.
+        Ekstrak teks berikut menjadi JSON valid sesuai skema. 
+        Jangan berikan teks penjelasan, hanya JSON murni.
+
+        TEKS CV:
         {full_text}
-        --- Selesai Teks CV ---
-        
-        Harap kembalikan data dalam format JSON murni tanpa markdown, tanpa ```json, tanpa teks pembuka atau penutup. 
-        JSON harus mematuhi skema berikut secara ketat:
-        
+
+        SKEMA JSON:
         {{
-          "name": "Nama lengkap kandidat (string, kosongkan jika tidak ada)",
-          "email": "Alamat email (string, kosongkan jika tidak ada)",
-          "phone": "Nomor telepon/HP (string, kosongkan jika tidak ada)",
-          "address": "Alamat tempat tinggal atau domisili (string, domisili kota saja sudah cukup, kosongkan jika tidak ada)",
-          "date_of_birth": "Tanggal lahir (string, format seperti YYYY-MM-DD atau tanggal aslinya, kosongkan jika tidak ada)",
-          "personal_summary": "Ringkasan profil profesional atau summary tentang saya (string, kosongkan jika tidak ada)",
-          "skills": ["Daftar keahlian teknis/soft skills, masing-masing sebagai string dalam array"],
-          "languages": ["Daftar bahasa yang dikuasai, masing-masing sebagai string dalam array"],
-          "experience": "Gabungan seluruh teks pengalaman kerja secara berurutan atau ringkasan singkatnya (string, kosongkan jika tidak ada)",
-          "experience_structured": [
-            {{
-              "title": "Judul pekerjaan / Posisi (string, wajib diisi jika ada entry ini)",
-              "company": "Nama perusahaan (string, wajib diisi jika ada entry ini)",
-              "employment_type": "Tipe pekerjaan seperti Full-time, Part-time, Internship, Freelance, Contract (string, default 'Full-time')",
-              "location_type": "Tipe lokasi seperti On-site, Hybrid, Remote (string, default 'On-site')",
-              "location": "Kota / Negara lokasi (string)",
-              "description": "Deskripsi tugas dan pencapaian (string)",
-              "start_date": "Tanggal mulai, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
-              "end_date": "Tanggal berakhir, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'Present' / 'Sekarang' jika masih bekerja (string)"
-            }}
-          ],
-          "education": "Gabungan seluruh teks riwayat pendidikan secara berurutan atau ringkasan singkatnya (string, kosongkan jika tidak ada)",
-          "education_structured": [
-            {{
-              "university": "Nama universitas, institut, atau sekolah (string, wajib diisi jika ada entry ini)",
-              "degree": "Gelar pendidikan, gunakan istilah standar seperti Bachelor Degree, Master Degree, Associate Degree, Doctoral Degree, High School, dll. (string)",
-              "major": "Jurusan / Bidang studi (string)",
-              "grade": "IPK / GPA jika dicantumkan, format desimal seperti '3.50' (string, kosongkan jika tidak ada)",
-              "start_date": "Tanggal mulai, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
-              "end_date": "Tanggal berakhir, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'Present' / 'Sekarang' (string)"
-            }}
-          ],
-          "projects": "Gabungan seluruh teks proyek yang pernah dikerjakan (string, kosongkan jika tidak ada)",
-          "projects_structured": [
-            {{
-              "title": "Nama proyek (string, wajib diisi jika ada entry ini)",
-              "description": "Deskripsi dan teknologi yang digunakan dalam proyek (string)",
-              "start_date": "Tanggal mulai, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
-              "end_date": "Tanggal berakhir, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'Present' / 'Sekarang' (string)"
-            }}
-          ],
-          "certifications": "Gabungan seluruh teks sertifikasi yang dimiliki (string, kosongkan jika tidak ada)",
-          "certifications_structured": [
-            {{
-              "certification_name": "Nama sertifikasi (string, wajib diisi jika ada entry ini)",
-              "issuing_organization": "Lembaga penerbit sertifikasi (string, wajib diisi jika ada entry ini)",
-              "issue_date": "Tanggal terbit sertifikasi, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
-              "expiration_date": "Tanggal kedaluwarsa sertifikasi, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'N/A' / 'No Expiration' (string)",
-              "credential_url": "URL kredensial sertifikasi jika ada (string, kosongkan jika tidak ada)"
-            }}
-          ]
+          "name": "", "email": "", "phone": "", "address": "", "date_of_birth": "",
+          "personal_summary": "", "skills": [], "languages": [],
+          "experience": "", "experience_structured": [{{ "title": "", "company": "", "start_date": "", "end_date": "", "description": "" }}],
+          "education": "", "education_structured": [{{ "university": "", "degree": "", "major": "", "grade": "", "start_date": "", "end_date": "" }}],
+          "projects": "", "projects_structured": [{{ "title": "", "description": "", "start_date": "" }}],
+          "certifications": "", "certifications_structured": [{{ "certification_name": "", "issuing_organization": "", "issue_date": "" }}]
         }}
-        
-        Catatan Penting:
-        1. Pastikan JSON valid secara sintaksis dan dapat di-parse dengan json.loads() di Python.
-        2. Jangan menambahkan penjelasan teks apa pun selain JSON yang diminta.
-        3. Jika sebuah bagian tidak ditemukan di CV, isi dengan nilai default sesuai tipe data (string kosong "" atau array kosong []).
         """
 
-        # 5. CALL GEMINI API
-        response = model.generate_content(
-            prompt,
-            generation_config={"response_mime_type": "application/json"}
-        )
-        
-        # 6. PARSE GEMINI RESPONSE
-        try:
-            parsed_data = json.loads(response.text)
-        except Exception as json_err:
-            cleaned_text = response.text.strip()
-            if cleaned_text.startswith("```json"):
-                cleaned_text = cleaned_text[7:]
-            if cleaned_text.endswith("```"):
-                cleaned_text = cleaned_text[:-3]
-            parsed_data = json.loads(cleaned_text.strip())
 
+        # 5. CALL NVIDIA API
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            top_p=0.7,
+            max_tokens=2048,
+        )
+
+        
+        # 6. PARSE NVIDIA RESPONSE
+        content = response.choices[0].message.content
+        try:
+            parsed_data = json.loads(content)
+        except Exception:
+            # Cleanup jika ada markdown ```json
+            cleaned = content.strip()
+            if cleaned.startswith("```json"): cleaned = cleaned[7:]
+            if cleaned.endswith("```"): cleaned = cleaned[:-3]
+            parsed_data = json.loads(cleaned.strip())
         # 7. MERGE & NORMALIZE INTO STANDARD SECTIONS
         sections = {
             "name": "", "email": "", "phone": "", "address": "", "date_of_birth": "",
