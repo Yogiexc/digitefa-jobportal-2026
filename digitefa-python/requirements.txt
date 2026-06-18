@@ -10,3 +10,5 @@ pdfplumber
 python-multipart
 wordcloud
 matplotlib
+google-generativeai
+python-dotenv

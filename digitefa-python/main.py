@@ -20,6 +20,10 @@ import nltk
 from nltk.corpus import stopwords
 import string
 from functools import lru_cache
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 try:
     stop_words_en = set(stopwords.words('english'))
@@ -712,7 +716,7 @@ async def parse_cv(file: UploadFile = File(...)):
     Alur Kerja:
     1. Menerima file PDF dari backend (NestJS).
     2. Membaca teks mentah dari PDF menggunakan library pdfplumber.
-    3. Mengekstrak informasi penting (Nama, Email, HP, Pengalaman, dll) menggunakan Regex (Pola Teks).
+    3. Menggunakan Gemini LLM untuk menganalisis teks secara global dan mengekstrak informasi terstruktur.
     4. Mengembalikan data terstruktur dalam bentuk JSON kembali ke NestJS.
     """
     if not file.filename or not file.filename.lower().endswith('.pdf'):
@@ -731,496 +735,320 @@ async def parse_cv(file: UploadFile = File(...)):
                 if text:
                     full_text += text + "\n"
 
+        # 3. GET GEMINI API KEY AND CONFIGURE
+        gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        if not gemini_key or gemini_key == "YOUR_GEMINI_API_KEY":
+            raise HTTPException(
+                status_code=500,
+                detail="GEMINI_API_KEY tidak ditemukan atau masih menggunakan placeholder. Silakan atur kunci API Anda di file .env."
+            )
 
-        def standardize_date(date_str):
-            if not date_str:
-                return ""
-            
-            from datetime import datetime
-            date_str = date_str.strip().lower()
-            
-            # Present / sekarang -> dynamic current month & year
-            if date_str in ["present", "sekarang", "current", "ongoing", "now", "active", "aktif"]:
-                return datetime.now().strftime("%B %Y")
-                
-            # 1. Check numeric format like MM/YYYY or MM-YYYY
-            numeric_match = re.search(r'\b(\d{1,2})\s*[/-]\s*(\d{2,4})\b', date_str)
-            if numeric_match:
-                month_num = int(numeric_match.group(1))
-                year_num = int(numeric_match.group(2))
-                if year_num < 100:
-                    year_num += 2000
-                months_list = [
-                    "January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"
-                ]
-                if 1 <= month_num <= 12:
-                    return f"{months_list[month_num - 1]} {year_num}"
-                    
-            # 2. Check year-only format like YYYY
-            year_match = re.search(r'\b(\d{4})\b', date_str)
-            if year_match and not re.search(r'[a-z]', date_str):
-                return f"January {year_match.group(1)}"
-                
-            # 3. Month name and year format
-            months_map = {
-                "jan": "January", "january": "January", "januari": "January",
-                "feb": "February", "february": "February", "februari": "February",
-                "mar": "March", "march": "March", "maret": "March",
-                "apr": "April", "april": "April",
-                "may": "May", "mei": "May",
-                "jun": "June", "june": "June", "juni": "June",
-                "jul": "July", "july": "July", "juli": "July",
-                "aug": "August", "august": "August", "agt": "August", "agu": "August", "agustus": "August",
-                "sep": "September", "september": "September",
-                "oct": "October", "october": "October", "okt": "October", "oktober": "October",
-                "nov": "November", "november": "November",
-                "dec": "December", "december": "December", "des": "December", "desember": "December"
-            }
-            
-            words = re.findall(r'[a-z]+', date_str)
-            year_match = re.search(r'\b(\d{2,4})\b', date_str)
-            
-            if year_match:
-                year_num = int(year_match.group(1))
-                if year_num < 100:
-                    year_num += 2000
-                for w in words:
-                    if w in months_map:
-                        return f"{months_map[w]} {year_num}"
-            
-            return date_str.title()
+        import google.generativeai as genai
+        import json
 
-        # Compile powerful unified date range patterns
-        DATE_PATTERN = r'(?:(?:jan(?:uari|uary)?|feb(?:ruari|ruary)?|mar(?:et|ch)?|apr(?:il)?|mei|may|jun(?:i|e)?|jul(?:i|y)?|agustus|agu(?:stus)?|agt|aug(?:ust)?|sep(?:tember)?|okt(?:ober)?|oct(?:ober)?|nov(?:ember)?|des(?:ember)?|dec(?:ember)?)\s+\d{2,4})|(?:\d{1,2}\s*[/-]\s*\d{2,4})|(?:\b\d{4}\b)'
-        END_DATE_PATTERN = rf'(?:{DATE_PATTERN})|(?:present|sekarang|current|now|ongoing|active|aktif)'
-
-        date_range_regex = re.compile(rf'(?i)({DATE_PATTERN})\s*(?:[–-]|—|to|s/d|s\.d\.|sampai|~)\s*({END_DATE_PATTERN})')
-                    
-        cv_lines = full_text.split('\n')
+        genai.configure(api_key=gemini_key)
         
+        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        model = genai.GenerativeModel(model_name)
+
+        # 4. PREPARE PROMPT FOR STRUCTURAL EXTRACTION
+        prompt = f"""
+        Anda adalah asisten AI yang ahli dalam mengekstrak informasi terstruktur dari CV atau Resume.
+        Tugas Anda adalah membaca teks CV berikut dan mengekstrak semua informasi penting ke dalam format JSON yang valid.
+        
+        Berikut adalah teks CV yang diekstrak:
+        --- Mulai Teks CV ---
+        {full_text}
+        --- Selesai Teks CV ---
+        
+        Harap kembalikan data dalam format JSON murni tanpa markdown, tanpa ```json, tanpa teks pembuka atau penutup. 
+        JSON harus mematuhi skema berikut secara ketat:
+        
+        {{
+          "name": "Nama lengkap kandidat (string, kosongkan jika tidak ada)",
+          "email": "Alamat email (string, kosongkan jika tidak ada)",
+          "phone": "Nomor telepon/HP (string, kosongkan jika tidak ada)",
+          "address": "Alamat tempat tinggal atau domisili (string, domisili kota saja sudah cukup, kosongkan jika tidak ada)",
+          "date_of_birth": "Tanggal lahir (string, format seperti YYYY-MM-DD atau tanggal aslinya, kosongkan jika tidak ada)",
+          "personal_summary": "Ringkasan profil profesional atau summary tentang saya (string, kosongkan jika tidak ada)",
+          "skills": ["Daftar keahlian teknis/soft skills, masing-masing sebagai string dalam array"],
+          "languages": ["Daftar bahasa yang dikuasai, masing-masing sebagai string dalam array"],
+          "experience": "Gabungan seluruh teks pengalaman kerja secara berurutan atau ringkasan singkatnya (string, kosongkan jika tidak ada)",
+          "experience_structured": [
+            {{
+              "title": "Judul pekerjaan / Posisi (string, wajib diisi jika ada entry ini)",
+              "company": "Nama perusahaan (string, wajib diisi jika ada entry ini)",
+              "employment_type": "Tipe pekerjaan seperti Full-time, Part-time, Internship, Freelance, Contract (string, default 'Full-time')",
+              "location_type": "Tipe lokasi seperti On-site, Hybrid, Remote (string, default 'On-site')",
+              "location": "Kota / Negara lokasi (string)",
+              "description": "Deskripsi tugas dan pencapaian (string)",
+              "start_date": "Tanggal mulai, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
+              "end_date": "Tanggal berakhir, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'Present' / 'Sekarang' jika masih bekerja (string)"
+            }}
+          ],
+          "education": "Gabungan seluruh teks riwayat pendidikan secara berurutan atau ringkasan singkatnya (string, kosongkan jika tidak ada)",
+          "education_structured": [
+            {{
+              "university": "Nama universitas, institut, atau sekolah (string, wajib diisi jika ada entry ini)",
+              "degree": "Gelar pendidikan, gunakan istilah standar seperti Bachelor Degree, Master Degree, Associate Degree, Doctoral Degree, High School, dll. (string)",
+              "major": "Jurusan / Bidang studi (string)",
+              "grade": "IPK / GPA jika dicantumkan, format desimal seperti '3.50' (string, kosongkan jika tidak ada)",
+              "start_date": "Tanggal mulai, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
+              "end_date": "Tanggal berakhir, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'Present' / 'Sekarang' (string)"
+            }}
+          ],
+          "projects": "Gabungan seluruh teks proyek yang pernah dikerjakan (string, kosongkan jika tidak ada)",
+          "projects_structured": [
+            {{
+              "title": "Nama proyek (string, wajib diisi jika ada entry ini)",
+              "description": "Deskripsi dan teknologi yang digunakan dalam proyek (string)",
+              "start_date": "Tanggal mulai, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
+              "end_date": "Tanggal berakhir, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'Present' / 'Sekarang' (string)"
+            }}
+          ],
+          "certifications": "Gabungan seluruh teks sertifikasi yang dimiliki (string, kosongkan jika tidak ada)",
+          "certifications_structured": [
+            {{
+              "certification_name": "Nama sertifikasi (string, wajib diisi jika ada entry ini)",
+              "issuing_organization": "Lembaga penerbit sertifikasi (string, wajib diisi jika ada entry ini)",
+              "issue_date": "Tanggal terbit sertifikasi, format seperti 'Month YYYY' atau 'YYYY-MM-DD' (string)",
+              "expiration_date": "Tanggal kedaluwarsa sertifikasi, format seperti 'Month YYYY', 'YYYY-MM-DD', atau 'N/A' / 'No Expiration' (string)",
+              "credential_url": "URL kredensial sertifikasi jika ada (string, kosongkan jika tidak ada)"
+            }}
+          ]
+        }}
+        
+        Catatan Penting:
+        1. Pastikan JSON valid secara sintaksis dan dapat di-parse dengan json.loads() di Python.
+        2. Jangan menambahkan penjelasan teks apa pun selain JSON yang diminta.
+        3. Jika sebuah bagian tidak ditemukan di CV, isi dengan nilai default sesuai tipe data (string kosong "" atau array kosong []).
+        """
+
+        # 5. CALL GEMINI API
+        response = model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json"}
+        )
+        
+        # 6. PARSE GEMINI RESPONSE
+        try:
+            parsed_data = json.loads(response.text)
+        except Exception as json_err:
+            cleaned_text = response.text.strip()
+            if cleaned_text.startswith("```json"):
+                cleaned_text = cleaned_text[7:]
+            if cleaned_text.endswith("```"):
+                cleaned_text = cleaned_text[:-3]
+            parsed_data = json.loads(cleaned_text.strip())
+
+        # 7. MERGE & NORMALIZE INTO STANDARD SECTIONS
         sections = {
             "name": "", "email": "", "phone": "", "address": "", "date_of_birth": "",
-            "personal_summary": [], "skills": [], "experience": [], 
-            "education": [], "projects": [], "certifications": [], "languages": []
+            "personal_summary": "", "skills": [], "experience": "", 
+            "education": "", "projects": "", "certifications": "", "languages": [],
+            "experience_structured": [], "education_structured": [], 
+            "projects_structured": [], "certifications_structured": []
         }
-      # =========================
-        # BASIC REGEX EXTRACTION
-        # =========================
 
-        email_regex = re.compile(
-            r'([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'
-        )
-
-        phone_regex = re.compile(
-            r'(\+?\d[\d\s\-]{8,20}\d)'
-        )
-
-        dob_regex = re.compile(
-            r'(?i)(\d{1,2}\s+[A-Za-z]+\s+\d{4})'
-        )
-
-        location_keywords = [
-            "jakarta", "bandung", "surabaya", "solo", "yogyakarta",
-            "semarang", "bali", "medan", "makassar"
-        ]
-
-        # EMAIL
-        emails = email_regex.findall(full_text)
-        if emails:
-            sections["email"] = emails[0].strip()
-
-        # PHONE
-        phones = phone_regex.findall(full_text)
-        if phones:
-            sections["phone"] = phones[0].strip()
-
-        # DATE OF BIRTH
-        dobs = dob_regex.findall(full_text)
-        if dobs:
-            sections["date_of_birth"] = dobs[0].strip()
-
-        # =========================
-        # LABEL-BASED EXTRACTION
-        # =========================
-
-        for i, line in enumerate(cv_lines):
-            current = line.strip().lower()
-
-            # EMAIL
-            if current in ["email", "e-mail"]:
-                if i + 1 < len(cv_lines):
-                    next_line = cv_lines[i + 1].strip()
-
-                    if email_regex.search(next_line):
-                        sections["email"] = next_line
-
-            # PHONE
-            elif current in ["phone", "phone number", "nomor hp", "no hp"]:
-                if i + 1 < len(cv_lines):
-                    next_line = cv_lines[i + 1].strip()
-
-                    if phone_regex.search(next_line):
-                        sections["phone"] = next_line
-
-            # DATE OF BIRTH
-            elif current in ["date of birth", "dob", "ttl", "lahir"]:
-                if i + 1 < len(cv_lines):
-                    next_line = cv_lines[i + 1].strip()
-
-                    sections["date_of_birth"] = next_line
-
-            # LOCATION / ADDRESS
-            elif current in ["location", "address", "alamat", "domisili"]:
-                if i + 1 < len(cv_lines):
-                    next_line = cv_lines[i + 1].strip()
-
-                    # hindari ketuker DOB lagi
-                    if not dob_regex.search(next_line):
-                        sections["address"] = next_line
-
-        # =========================
-        # FALLBACK LOCATION DETECTION
-        # =========================
-
-        if not sections["address"]:
-            for line in cv_lines:
-                clean = line.strip()
-
-                if clean.lower() in location_keywords:
-                    sections["address"] = clean
-                    break
-
-        for line in cv_lines[:10]:  # cuma cek 10 baris atas
-            line_clean = line.strip()
-
-            if not line_clean:
-                continue
-
-            # ngeclean simbol aneh
-            if re.search(r'\d', line_clean):
-                continue
-
-            # skip kalau keyword bukan nama
-            if any(k in line_clean.lower() for k in [
-                "cv", "resume", "profile", "profil",
-                "experience", "education", "skills"
-                ]):
-                continue
-
-            # kandidat nama: 2–4 kata, huruf semua
-            words = line_clean.split()
-            if 2 <= len(words) <= 4:
-                sections["name"] = line_clean
-            break
-                    
-        current_section = None
-        header_patterns = {
-
-            "experience": r"^(experiences?|pengalaman|work history|employment|riwayat kerja)$",
-            "education": r"^(pendidikan|education|academic|riwayat pendidikan)",
-            "skills": r"^(keahlian|skills|keterampilan|kemampuan|core competencies)",
-           "personal_summary": r"^(summary|profile|profil|personal summary|tentang saya|about me|ringkasan)",
-            "projects": r"^(projects|proyek|portfolio|portofolio)",
-            "certifications": r"(certif|license)",
-            "languages": r"^(languages|bahasa)"
-
-        }
-        
-        for line in cv_lines:
-            lline = line.lower().strip()
-
-            # DETECT HEADER BARU
-            new_section = None
-            for sec, pattern in header_patterns.items():
-                if re.search(pattern, lline):
-                    new_section = sec
-                    break
-
-            if new_section:
-                current_section = new_section
-                continue  
-
-            # MASUKKAN DATA
-            if current_section and line.strip():
-                target_section = sections[current_section]
-                if isinstance(target_section, list):
-                    if current_section in ["skills", "languages"]:
-                        parts = [p.strip() for p in re.split(r'[,|•;*\n]', line) if p.strip()]
-                        target_section.extend(parts)
-                    else:
-                        target_section.append(line.strip())
-        # Skill Cleanup
-        filtered_skills = []
-        for s in sections["skills"]:
-            # Remove parentheses and surrounding whitespace/symbols
-            s_clean = re.sub(r'[()\-•]', '', s).strip()
-            if len(s_clean) < 2 or len(s_clean) > 40: continue
-            if phone_regex.match(s_clean): continue
-            filtered_skills.append(s_clean)
-        sections["skills"] = list(set(filtered_skills))
-        
-        # Languages Cleanup (Increased length limit to 60 for cases like "Bahasa Indonesia (Native)")
-        sections["languages"] = list(set([s.strip('-• ') for s in sections["languages"] if 1 < len(s.strip()) < 60]))
-        
-        # Summary
-        sections["personal_summary"] = [
-            line for line in sections["personal_summary"]
-            if len(line.strip()) > 5
-        ]
-
-        sections["personal_summary"] = re.sub(
-            r'\s+',
-            ' ',
-            " ".join(sections["personal_summary"])
-        ).strip()
-
-        # Projects
-        projects = []
-        current_proj = None
-
-        for line in sections["projects"]:
-            line = line.strip('-• ').strip()
-            if not line:
-                continue
-
-            # 1. DATE
-            date_match = date_range_regex.search(line)
-            if date_match:
-                if current_proj:
-                    current_proj["start_date"] = standardize_date(date_match.group(1))
-                    current_proj["end_date"] = standardize_date(date_match.group(2))
-                continue
-
-            # 2. TITLE → HANYA kalau BELUM ADA project
-            if current_proj is None:
-                current_proj = {
-                    "title": line,
-                    "description": "",
-                    "start_date": "",
-                    "end_date": ""
-                }
-                continue
-
-            # 3. DETECT PROJECT BARU (STRONG SIGNAL)
-            if (
-                current_proj["description"]
-                and len(current_proj["description"]) > 50
-                and line.istitle()
-            ):
-                projects.append(current_proj)
-                current_proj = {
-                    "title": line,
-                    "description": "",
-                    "start_date": "",
-                    "end_date": ""
-                }
-                continue
-
-            # 4. DESCRIPTION (DEFAULT)
-            current_proj["description"] += line + " "
-
-        # simpan terakhir
-        if current_proj:
-            projects.append(current_proj)
-
-        sections["projects_structured"] = projects
-        
-        # Certifications
-        raw_lines = sections.get("certifications", [])
-
-        # pastikan list
-        if isinstance(raw_lines, str):
-            raw_lines = [raw_lines]
-
-        # gabung semua jadi 1 string
-        text = " ".join(raw_lines)
-
-        # normalize dash
-        text = text.replace("–", "-").replace("—", "-")
-
-        # regex ambil semua field
-        pattern = r'(.+?)\s*-\s*(.+?)\s+((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s*-\s*((?:[A-Za-z]+\s+\d{4})|(?:\d{1,2}\s*[/-]\s*\d{2,4}))\s+(https?://\S+|www\.\S+)'
-
-        matches = re.findall(pattern, text)
-
-        cert_list = []
-
-        for m in matches:
-            cert = {
-                "certification_name": m[0].strip(),
-                "issuing_organization": m[1].strip(),
-                "issue_date": standardize_date(m[2]),
-                "expiration_date": standardize_date(m[3]),
-                "credential_url": m[4].rstrip('.,);')
-            }
-            cert_list.append(cert)
-
-        sections["certifications_structured"] = cert_list
-        
-
-
-        # Experience
-        print("RAW EXPERIENCE LINES:")
-        for l in sections["experience"]:
-            print(">>", repr(l))
-        exp_list = []
-        current_exp = None
-        prev_line = ""
-
-        for line in sections["experience"]:
-            line = line.strip()
-            if not line:
-                continue
-
-            # skip header
-            if line.lower() in ["experience", "experiences", "pengalaman"]:
-                continue
-
-            # DETECT DATE 
-            match = date_range_regex.search(line)
-            if match:
-                start_raw = match.group(1)
-                end_raw = match.group(2)
-
-                # simpan sebelumnya
-                if current_exp:
-                    exp_list.append(current_exp)
-
-                current_exp = {
-                    "title": prev_line,  
-                    "company": "",
-                    "employment_type": "",
-                    "location_type": "",
-                    "location": "",
-                    "description": "",
-                    "start_date": standardize_date(start_raw),
-                    "end_date": standardize_date(end_raw)
-                }
-
-                prev_line = line
-                continue
-
-            # kalau belum mulai record → cuma simpan prev_line
-            if current_exp is None:
-                prev_line = line
-                continue
-
-            # COMPANY
-            if not current_exp["company"]:
-                current_exp["company"] = line
-                prev_line = line
-                continue
-
-            # EMPLOYMENT TYPE
-            if line.lower() in ["full time", "full-time", "part time", "internship", "freelance"]:
-                current_exp["employment_type"] = line
-                prev_line = line
-                continue
-
-            # LOCATION TYPE
-            if line.lower() in ["remote", "on-site", "onsite", "hybrid"]:
-                current_exp["location_type"] = line
-                prev_line = line
-                continue
-
-            # LOCATION
-            if not current_exp["location"]:
-                current_exp["location"] = line
-                prev_line = line
-                continue
-
-            # DESCRIPTION
-            current_exp["description"] += line + " "
-            prev_line = line
-
-        # simpan terakhir
-        if current_exp:
-            exp_list.append(current_exp)
-
-        sections["experience_structured"] = exp_list
-        sections["experience"] = " ".join(sections["experience"][:20])
+        # 8. SAFEGUARDS & SPECIAL NORMALIZATION
+        # Degree Normalization
         def normalize_degree(text):
+            if not text:
+                return ""
             text_lower = text.lower()
-
-            # Diploma / D3 / D4
-            if re.search(r'\b(d1|d2|d3|d4|diploma|associate)\b', text_lower):
+            if any(k in text_lower for k in ["d1", "d2", "d3", "d4", "diploma", "associate"]):
                 return "Associate Degree"
-
-            # S1
-            elif re.search(r'\b(s1|sarjana|bachelor)\b', text_lower):
+            elif any(k in text_lower for k in ["s1", "sarjana", "bachelor"]):
                 return "Bachelor Degree"
-
-            # S2
-            elif re.search(r'\b(s2|magister|master)\b', text_lower):
+            elif any(k in text_lower for k in ["s2", "magister", "master"]):
                 return "Master Degree"
-
-            # S3
-            elif re.search(r'\b(s3|doktor|doctor|phd)\b', text_lower):
+            elif any(k in text_lower for k in ["s3", "doktor", "doctor", "phd"]):
                 return "Doctoral Degree"
-
             return text
-        edu = {
-            "university": "",
-            "degree": "",
-            "major": "",
-            "grade": "",
-            "start_date": "",
-            "end_date": "",
-            "length_of_study": ""
-        }
 
-        for line in sections["education"]:
-            line = line.strip()
-            if not line:
-                continue
+        # Extract root-level primitive properties (pure strings only)
+        for key in ["name", "email", "phone", "address", "date_of_birth", "personal_summary", "experience", "education", "projects"]:
+            if key in parsed_data:
+                val = parsed_data[key]
+                if isinstance(val, list):
+                    sections[key] = " ".join(str(v) for v in val if v)
+                else:
+                    sections[key] = str(val) if val is not None else ""
 
-            # UNIVERSITY
-            if "university" in line.lower() or "universitas" in line.lower():
-                edu["university"] = line
-
-            # DATE
-            elif date_range_regex.search(line):
-                match = date_range_regex.search(line)
-                if match:
-                    edu["start_date"] = standardize_date(match.group(1))
-                    edu["end_date"] = standardize_date(match.group(2))
-
-            # DEGREE
-            elif re.search(r'(?i)degree|sarjana|diploma|associate|bachelor|master|magister|doktor|phd|s1|s2|s3|d3|d4', line):
-                    edu["degree"] = normalize_degree(line)
-
-            # GPA
-            elif re.search(r'(?i)(gpa|ipk)?[:\s]*\b\d[.,]\d{1,2}\b', line):
-                gpa_match = re.search(r'\b\d[.,]\d{1,2}\b', line)
-                if gpa_match:
-                    edu["grade"] = gpa_match.group(0).replace(",", ".")
-
-            # MAJOR
+        # Certifications plain text: handle both list and string from Gemini
+        if "certifications" in parsed_data:
+            val = parsed_data["certifications"]
+            if isinstance(val, list):
+                sections["certifications"] = " ".join(str(v) for v in val if v)
             else:
-                edu["major"] = line
+                sections["certifications"] = str(val) if val is not None else ""
 
-        # LENGTH
-        if edu["start_date"] and edu["end_date"]:
-            try:
-                start_match = re.search(r'\d{4}', edu["start_date"])
-                end_match = re.search(r'\d{4}', edu["end_date"])
-                if start_match and end_match:
-                    start_year = start_match.group()
-                    end_year = end_match.group()
-                    edu["length_of_study"] = f"{int(end_year) - int(start_year)} years"
-            except:
-                pass
+        # Extract list-based primitive properties
+        for key in ["skills", "languages"]:
+            if key in parsed_data:
+                val = parsed_data[key]
+                if isinstance(val, list):
+                    sections[key] = [str(item).strip() for item in val if item is not None]
+                elif isinstance(val, str):
+                    sections[key] = [item.strip() for item in val.split(",") if item.strip()]
 
-        sections["education_structured"] = [edu]
-        sections["education"] = " ".join(sections["education"][:10])
-        
+        # Normalize Experience Structured
+        normalized_exp = []
+        raw_exp_structured = parsed_data.get("experience_structured")
+        if isinstance(raw_exp_structured, list):
+            for exp in raw_exp_structured:
+                if isinstance(exp, dict):
+                    title = exp.get("title") or exp.get("role") or exp.get("position") or ""
+                    company = exp.get("company") or exp.get("company_name") or exp.get("organization") or ""
+                    emp_type = exp.get("employment_type") or exp.get("type") or "Full-time"
+                    loc_type = exp.get("location_type") or "On-site"
+                    location = exp.get("location") or ""
+                    desc = exp.get("description") or exp.get("desc") or ""
+                    start = exp.get("start_date") or exp.get("start") or ""
+                    end = exp.get("end_date") or exp.get("end") or ""
+                    normalized_exp.append({
+                        "title": str(title),
+                        "company": str(company),
+                        "employment_type": str(emp_type),
+                        "location_type": str(loc_type),
+                        "location": str(location),
+                        "description": str(desc),
+                        "start_date": str(start),
+                        "end_date": str(end)
+                    })
+        sections["experience_structured"] = normalized_exp
+
+        # Normalize Education Structured
+        normalized_edu = []
+        raw_edu_structured = parsed_data.get("education_structured")
+        if isinstance(raw_edu_structured, list):
+            for edu in raw_edu_structured:
+                if isinstance(edu, dict):
+                    univ = edu.get("university") or edu.get("school") or edu.get("institution") or edu.get("college") or ""
+                    degree = edu.get("degree") or edu.get("education_level") or ""
+                    major = edu.get("major") or edu.get("field_of_study") or ""
+                    grade = edu.get("grade") or edu.get("gpa") or edu.get("ipk") or ""
+                    start = edu.get("start_date") or edu.get("start") or ""
+                    end = edu.get("end_date") or edu.get("end") or ""
+                    
+                    # Normalize degree
+                    degree = normalize_degree(str(degree))
+                    
+                    # Normalize grade
+                    if grade:
+                        grade = str(grade).replace(",", ".")
+                        
+                    # Calculate length of study
+                    length = edu.get("length_of_study") or ""
+                    if start and end and not length:
+                        try:
+                            import re as local_re
+                            start_match = local_re.search(r'\d{4}', str(start))
+                            end_match = local_re.search(r'\d{4}', str(end))
+                            if start_match and end_match:
+                                start_year = int(start_match.group())
+                                end_year = int(end_match.group())
+                                length = f"{end_year - start_year} years"
+                        except:
+                            pass
+                            
+                    normalized_edu.append({
+                        "university": str(univ),
+                        "degree": str(degree),
+                        "major": str(major),
+                        "grade": str(grade) if grade else "",
+                        "start_date": str(start),
+                        "end_date": str(end),
+                        "length_of_study": str(length)
+                    })
+        sections["education_structured"] = normalized_edu
+
+        # Normalize Projects Structured
+        normalized_proj = []
+        raw_proj_structured = parsed_data.get("projects_structured")
+        if isinstance(raw_proj_structured, list):
+            for proj in raw_proj_structured:
+                if isinstance(proj, dict):
+                    title = proj.get("title") or proj.get("project_name") or proj.get("name") or ""
+                    desc = proj.get("description") or proj.get("desc") or ""
+                    start = proj.get("start_date") or proj.get("start") or ""
+                    end = proj.get("end_date") or proj.get("end") or ""
+                    normalized_proj.append({
+                        "title": str(title),
+                        "description": str(desc),
+                        "start_date": str(start),
+                        "end_date": str(end)
+                    })
+        sections["projects_structured"] = normalized_proj
+
+        # Normalize Certifications Structured
+        normalized_cert = []
+        raw_cert_structured = parsed_data.get("certifications_structured")
+        if isinstance(raw_cert_structured, list):
+            for cert in raw_cert_structured:
+                if isinstance(cert, dict):
+                    name = cert.get("certification_name") or cert.get("title") or cert.get("name") or ""
+                    org = cert.get("issuing_organization") or cert.get("organization") or cert.get("authority") or cert.get("org") or ""
+                    start = cert.get("issue_date") or cert.get("date") or cert.get("start") or ""
+                    end = cert.get("expiration_date") or cert.get("expiry") or cert.get("end") or ""
+                    url = cert.get("credential_url") or cert.get("url") or cert.get("link") or ""
+                    
+                    if url:
+                        url = str(url).strip().rstrip('.,);')
+                        
+                    normalized_cert.append({
+                        "certification_name": str(name),
+                        "issuing_organization": str(org),
+                        "issue_date": str(start),
+                        "expiration_date": str(end),
+                        "credential_url": str(url)
+                    })
+        sections["certifications_structured"] = normalized_cert
+
+        # Ensure experience string fallback is populated if structure is empty
+        if not sections["experience"] and sections["experience_structured"]:
+            exp_texts = []
+            for exp in sections["experience_structured"][:20]:
+                title = exp.get("title", "")
+                company = exp.get("company", "")
+                desc = exp.get("description", "")
+                exp_texts.append(f"{title} at {company}. {desc}".strip())
+            sections["experience"] = " ".join(exp_texts)
+
+        # Ensure education string fallback is populated if structure is empty
+        if not sections["education"] and sections["education_structured"]:
+            edu_texts = []
+            for edu in sections["education_structured"][:10]:
+                univ = edu.get("university", "")
+                deg = edu.get("degree", "")
+                major = edu.get("major", "")
+                edu_texts.append(f"{deg} in {major} at {univ}".strip())
+            sections["education"] = " ".join(edu_texts)
+
+        # Ensure projects string fallback is populated
+        if not sections["projects"] and sections["projects_structured"]:
+            proj_texts = []
+            for proj in sections["projects_structured"]:
+                title = proj.get("title", "")
+                desc = proj.get("description", "")
+                proj_texts.append(f"{title}. {desc}".strip())
+            sections["projects"] = " ".join(proj_texts)
+
+        # Ensure certifications string fallback is populated
+        if not sections["certifications"] and sections["certifications_structured"]:
+            cert_texts = []
+            for cert in sections["certifications_structured"]:
+                name = cert.get("certification_name", "")
+                org = cert.get("issuing_organization", "")
+                cert_texts.append(f"{name} by {org}".strip())
+            sections["certifications"] = " ".join(cert_texts)
+
         sections["full_name"] = sections["name"]
 
-        # Track unread/missing sections with deeper dictionary checks
+        # 9. COMPUTE UNREAD SECTIONS (TO REMAIN FULLY COMPATIBLE WITH ORIGINAL OUTPUT)
         unread_sections = []
         
-        # 1. Basic Info
+        # Basic Info Check
         if not sections.get("name"): unread_sections.append("Name")
         if not sections.get("email"): unread_sections.append("Email")
         if not sections.get("phone"): unread_sections.append("Phone Number")
@@ -1230,38 +1058,50 @@ async def parse_cv(file: UploadFile = File(...)):
         if not sections.get("skills"): unread_sections.append("Skills")
         if not sections.get("languages"): unread_sections.append("Languages")
 
-        # 2. Experience Check
+        # Experience Check
         if not sections.get("experience_structured"):
             unread_sections.append("Experience")
         else:
             for exp in sections["experience_structured"]:
+                if not isinstance(exp, dict):
+                    unread_sections.append("Experience (Some details missing)")
+                    break
                 if not exp.get("title") or not exp.get("company") or not exp.get("start_date") or not exp.get("end_date"):
                     unread_sections.append("Experience (Some details missing)")
                     break
 
-        # 3. Education Check
+        # Education Check
         if not sections.get("education_structured"):
             unread_sections.append("Education")
         else:
             for edu in sections["education_structured"]:
+                if not isinstance(edu, dict):
+                    unread_sections.append("Education (Some details missing)")
+                    break
                 if not edu.get("university") or not edu.get("major") or not edu.get("degree") or not edu.get("start_date"):
                     unread_sections.append("Education (Some details missing)")
                     break
 
-        # 4. Projects Check
+        # Projects Check
         if not sections.get("projects_structured"):
             unread_sections.append("Projects")
         else:
             for proj in sections["projects_structured"]:
+                if not isinstance(proj, dict):
+                    unread_sections.append("Projects (Some details missing)")
+                    break
                 if not proj.get("title") or not proj.get("description") or not proj.get("start_date"):
                     unread_sections.append("Projects (Some details missing)")
                     break
 
-        # 5. Certifications Check
+        # Certifications Check
         if not sections.get("certifications_structured"):
             unread_sections.append("Certifications")
         else:
             for cert in sections["certifications_structured"]:
+                if not isinstance(cert, dict):
+                    unread_sections.append("Certifications (Some details missing)")
+                    break
                 if not cert.get("certification_name") or not cert.get("issuing_organization") or not cert.get("issue_date"):
                     unread_sections.append("Certifications (Some details missing)")
                     break
@@ -1270,14 +1110,13 @@ async def parse_cv(file: UploadFile = File(...)):
             "parsed_data": {
                 **sections,
                 "full_name": sections["name"],
-                "unread_sections": list(set(unread_sections)) # Remove duplicates
+                "unread_sections": list(set(unread_sections))
             },
             "raw_text": full_text
         }
     except Exception as e:
         print("Error Parsing CV:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
-        
 @app.get("/wordcloud")
 async def get_wordcloud():
     """
