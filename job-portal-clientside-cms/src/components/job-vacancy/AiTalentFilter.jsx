@@ -20,8 +20,8 @@ const AiTalentFilter = ({ filterCriteria, onFilterChange, applicationSource, set
                         { value: "projects", label: "By Projects" },
                         { value: "experience", label: "By Experience" },
                         { value: "education", label: "By Education" },
-                        { value: "summary", label: "By Personal Summary" }, // Tambahan Baru
-                        { value: "certification", label: "By Certification" }, // Tambahan Baru
+                        { value: "personal_summary", label: "By Personal Summary" }, // Tambahan Baru
+                        { value: "certifications", label: "By Certification" }, // Tambahan Baru
                     ]}
                     value={filterCriteria}
                     onChange={onFilterChange}

@@ -1,1 +1,1 @@
-Failed to confirm CV data: parsedData.projects.substring is not a function
+{"detail":"HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=30)"}

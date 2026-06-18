@@ -154,6 +154,7 @@ const Profiles = ({ onAutofillSuccess }) => {
       messageApi.loading({ content: 'Uploading and extracting CV via AI...', key: 'cvupload' });
       const response = await Api.post("/profile/cv-autofill", formData, {
         headers: { "content-type": "multipart/form-data" },
+        timeout: 120000, // 2 minutes timeout for AI processing
       });
       messageApi.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
       
