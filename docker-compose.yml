@@ -80,6 +80,9 @@ services:
     restart: unless-stopped
     ports:
       - "5173:5173"
+    environment:
+      - VITE_APP_API_URL=http://103.253.213.183:3000/api
+      - VITE_IMAGE_API=http://103.253.213.183:3000
     networks:
       - app_network
 
@@ -91,6 +94,9 @@ services:
     container_name: lms-be-container
     restart: unless-stopped
     working_dir: /var/www/
+    environment:
+      - DB_HOST=db
+      - DB_PASSWORD=root
     volumes:
       - ./lms-server-side:/var/www
     networks:
@@ -118,12 +124,12 @@ services:
     ports:
       - "8800:80"
     environment:
-      - VUE_APP_API_URL=http://localhost:8888/api
-      - VUE_APP_STUDENT_PROFILE_URL=http://localhost:8888/uploads/Student/Student Profile
-      - VUE_APP_TEACHER_PROFILE_URL=http://localhost:8888/uploads/Teacher/Profile Picture
-      - VUE_APP_COURSE_THUMBNAIL_URL=http://localhost:8888/uploads/Courses/Thumbnail
-      - VUE_APP_TEACHER_ABOUT_URL=http://localhost:8888/uploads
-      - VUE_APP_TEACHER_MEDIA_PARTNER_URL=http://localhost:8888/uploads/media_partner
+      - VUE_APP_API_URL=http://103.253.213.183:8888/api
+      - VUE_APP_STUDENT_PROFILE_URL=http://103.253.213.183:8888/uploads/Student/Student Profile
+      - VUE_APP_TEACHER_PROFILE_URL=http://103.253.213.183:8888/uploads/Teacher/Profile Picture
+      - VUE_APP_COURSE_THUMBNAIL_URL=http://103.253.213.183:8888/uploads/Courses/Thumbnail
+      - VUE_APP_TEACHER_ABOUT_URL=http://103.253.213.183:8888/uploads
+      - VUE_APP_TEACHER_MEDIA_PARTNER_URL=http://103.253.213.183:8888/uploads/media_partner
     working_dir: /app
     volumes:
       - ./lms-client-side:/app
@@ -151,12 +157,12 @@ services:
     ports:
       - "8880:80"
     environment:
-      - VUE_APP_API_URL=http://localhost:8888/api
-      - VUE_APP_TEACHER_IDENTITY_URL=http://localhost:8888/uploads/Teacher/Identity
-      - VUE_APP_TEACHER_PORTOFOLIO_URL=http://localhost:8888/uploads/Teacher/Portofolio
-      - VUE_APP_TEACHER_PROFILE_URL=http://localhost:8888/uploads/Teacher/Profile Picture
-      - VUE_APP_TEACHER_CERTIFICATE_URL=http://localhost:8888/uploads/Teacher/Teacher Certificates
-      - VUE_APP_COURSE_THUMBNAIL_URL=http://localhost:8888/uploads/Courses/Thumbnail
+      - VUE_APP_API_URL=http://103.253.213.183:8888/api
+      - VUE_APP_TEACHER_IDENTITY_URL=http://103.253.213.183:8888/uploads/Teacher/Identity
+      - VUE_APP_TEACHER_PORTOFOLIO_URL=http://103.253.213.183:8888/uploads/Teacher/Portofolio
+      - VUE_APP_TEACHER_PROFILE_URL=http://103.253.213.183:8888/uploads/Teacher/Profile Picture
+      - VUE_APP_TEACHER_CERTIFICATE_URL=http://103.253.213.183:8888/uploads/Teacher/Teacher Certificates
+      - VUE_APP_COURSE_THUMBNAIL_URL=http://103.253.213.183:8888/uploads/Courses/Thumbnail
     working_dir: /app
     volumes:
       - ./lms-cms:/app
