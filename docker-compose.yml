@@ -14,7 +14,7 @@ services:
       # Use the container names for inter-service communication
       - URL_SERVER_PYTHON=http://ai_http_server:9090
       - SOCKET_SERVER_PYTHON=tcp://python_server:5555
-      - DATABASE_URL=mysql://root:root@db:3306/sample-db-job-portal
+      - DATABASE_URL=mysql://root:root@db:3306/digitefa_job_portal
     env_file:
       - ./job-portal-server-side/.env.development
     volumes:
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=sample-db-job-portal
+      - MYSQL_DATABASE=digitefa_job_portal
     ports:
       - "3307:3306"
     volumes:
