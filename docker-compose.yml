@@ -64,6 +64,7 @@ services:
       - MPLBACKEND=Agg
       - HF_HUB_DISABLE_TELEMETRY=1
       - HF_HUB_ENABLE_HF_TRANSFER=0
+      - HF_HUB_OFFLINE=1
     networks:
       - app_network
 

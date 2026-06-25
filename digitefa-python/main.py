@@ -3,6 +3,13 @@ import requests
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["RAYON_NUM_THREADS"] = "1"
+import torch
+torch.set_num_threads(1)
 from sentence_transformers import SentenceTransformer, util
 import time 
 import threading
@@ -19,7 +26,7 @@ import nltk
 from nltk.corpus import stopwords
 import string
 from functools import lru_cache
-
+from wordcloud import WordCloud
 try:
     stop_words_en = set(stopwords.words('english'))
     stop_words_id = set(stopwords.words('indonesian'))
@@ -163,8 +170,16 @@ async def lifespan(app: FastAPI):
         thread.start()
         print("Startup berhasil: Background refresh berjalan.")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Error saat startup: {e}")
-    yield
+    
+    try:
+        yield
+    finally:
+        print("=== SHUTDOWN DIPANGGIL! Uvicorn sedang exit! ===")
+        import traceback
+        traceback.print_stack()
 
 app = FastAPI(
     title="Digitefa AI API",
@@ -271,7 +286,7 @@ class CourseRecommendationRequestBody(BaseModel):
     job_id: str
 
 @app.post("/recommend-courses")
-def recommend_courses(req: CourseRecommendationRequestBody):
+async def recommend_courses(req: CourseRecommendationRequestBody):
     job_url = f"{JOB_API_URL}/{req.job_id}"
     try:
         job_response = requests.get(job_url, timeout=10)
@@ -348,7 +363,7 @@ class CandidateSuitabilityRequest(BaseModel):
     completed_courses: List[CompletedCourse] = Field(default_factory=list)
 
 @app.post("/calculate-candidate-suitability")
-def calculate_candidate_suitability(req: CandidateSuitabilityRequest):
+async def calculate_candidate_suitability(req: CandidateSuitabilityRequest):
     job_desc = req.job_description.strip()
     if not job_desc:
         return {"suitability_score": 0.0, "reason": "Job description is empty."}
@@ -389,7 +404,7 @@ class TextComparisonResponse(BaseModel):
     similarity_score: float
 
 @app.post("/compare-texts", response_model=TextComparisonResponse)
-def compare_two_texts(request: TextComparisonRequest):
+async def compare_two_texts(request: TextComparisonRequest):
     text1 = request.text1.strip()
     text2 = request.text2.strip()
     if not text1 or not text2:
@@ -432,7 +447,7 @@ class MatchScoreRequest(BaseModel):
     candidate: MatchScoreCandidateData
 
 @app.post("/calculate-match-score")
-def calculate_match_score(req: MatchScoreRequest):
+async def calculate_match_score(req: MatchScoreRequest):
     """
     Mirror rumus talent match legacy dari branch file-asli-banget,
     tetapi tetap memakai kontrak HTTP yang dipakai branch ael-bagas.
@@ -527,7 +542,7 @@ class JobRecommendationRequest(BaseModel):
     is_filter: Optional[str] = "false"
 
 @app.post("/recommend-jobs")
-def recommend_jobs(req: JobRecommendationRequest):
+async def recommend_jobs(req: JobRecommendationRequest):
     try:
         title_weight = 0.3
         detail_weight = 0.7
@@ -620,7 +635,7 @@ class TalentSearchRequest(BaseModel):
     is_filter: Optional[str] = "false"
 
 @app.post("/search-talents")
-def search_talents(req: TalentSearchRequest):
+async def search_talents(req: TalentSearchRequest):
     try:
         title_weight = 0.3
         detail_weight = 0.7
@@ -1309,24 +1324,23 @@ async def get_wordcloud():
             
             text = " ".join(text_parts)
 
+        def random_color_func(word=None, font_size=None, position=None, orientation=None, font_path=None, random_state=None):
+            import random
+            return "hsl({}, 100%, 40%)".format(random.randint(0, 360))
+
         # Generate WordCloud
         wordcloud = WordCloud(
             width=800, 
             height=400, 
             background_color='white',
-            colormap='viridis',
+            color_func=random_color_func,
             max_words=100
         ).generate(text)
 
         # Save to buffer
         img_buffer = io.BytesIO()
-        plt.figure(figsize=(10, 5))
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis('off')
-        plt.tight_layout(pad=0)
-        plt.savefig(img_buffer, format='png')
-        plt.close()
-        
+        image = wordcloud.to_image()
+        image.save(img_buffer, format='PNG')
         img_buffer.seek(0)
         return StreamingResponse(img_buffer, media_type="image/png")
 
