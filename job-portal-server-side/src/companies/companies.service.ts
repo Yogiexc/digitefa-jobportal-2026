@@ -364,7 +364,7 @@ export class CompaniesService {
             ai_score: r.similarity_score,
             match_details: r.match_details,
             is_invited: isInvited,
-            is_applied: isApplied,
+            is_applied: isApplied, applied_from_invitation: !!(isApplied && invitation),
             candidate_source,
           };
         })
@@ -506,3 +506,4 @@ export class CompaniesService {
     }
   }
 }
+

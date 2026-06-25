@@ -11,6 +11,13 @@ export class ApplyJobDto {
 
     @ApiProperty({
         type: 'string',
+        description: 'Skip CV Upload',
+        default: 'false',
+    })
+    skip_resume?: string;
+
+    @ApiProperty({
+        type: 'string',
         description: 'Expected Salary',
         default: '10000000',
     })

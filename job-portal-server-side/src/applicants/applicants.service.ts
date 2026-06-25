@@ -1,4 +1,4 @@
-﻿import {
+import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
@@ -18,22 +18,23 @@ export class ApplicantsService {
     applyJobDto: any,
     resume: Express.Multer.File,
   ) {
-    if (!resume) {
+    const { expected_salary, experience_years } = applyJobDto;
+    const isSkipResume = applyJobDto.skip_resume === 'true' || applyJobDto.skip_resume === true;
+    if (!resume && !isSkipResume) {
       throw new BadRequestException('Resume file is required');
     }
-    const { expected_salary, experience_years } = applyJobDto;
     const existingJob = await this.prisma.jobs.findUnique({
       where: { job_id },
     });
     if (!existingJob) {
-      await fs.unlink(resume?.path);
+      if (resume?.path) await fs.unlink(resume.path);
       throw new NotFoundException(`Job with ID ${job_id} not found`);
     }
     const existingJobSeeker = await this.prisma.job_seekers.findUnique({
       where: { job_seeker_id: user.job_seeker_id },
     });
     if (!existingJobSeeker) {
-      await fs.unlink(resume?.path);
+      if (resume?.path) await fs.unlink(resume.path);
       throw new NotFoundException('Job Seeker not found');
     }
 
@@ -45,7 +46,7 @@ export class ApplicantsService {
     });
 
     if (applicant) {
-      await fs.unlink(resume.path);
+      if (resume?.path) await fs.unlink(resume.path);
       throw new BadRequestException(
         'Job is already applied. Please wait for the result.',
       );
@@ -199,8 +200,8 @@ export class ApplicantsService {
           data: {
             job_id,
             job_seeker_id: user.job_seeker_id,
-            resume_url: resume.path,
-            expected_salary: expected_salary,
+            resume_url: resume?.path || '',
+            expected_salary: expected_salary ? BigInt(expected_salary) : null,
             experience_years: experience_years,
           },
         });
