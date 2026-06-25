@@ -4,8 +4,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { StaticFilesMiddleware } from './middleware/static-files.middleware';
 import { ConfigService } from '@nestjs/config';
-// @ts-ignore
-import { apiReference } from '@scalar/nestjs-api-reference';
 import 'dotenv/config';
 
 (BigInt.prototype as any).toJSON = function () {
@@ -212,18 +210,23 @@ async function bootstrap() {
     // const yamlString = yaml.stringify(document);
     // fs.writeFileSync('./swagger.yaml', yamlString);
 
-    app.use(
-      '/docs',
-      apiReference({
-        theme: 'default',
-        spec: {
-          content: document,
-        },
-      }),
-    );
+    try {
+      const { apiReference } = await import('@scalar/nestjs-api-reference');
+      app.use(
+        '/docs',
+        apiReference({
+          theme: 'default',
+          spec: {
+            content: document,
+          },
+        }),
+      );
+    } catch (err) {
+      console.warn('Scalar API docs could not be loaded due to ESM issues, skipping:', err.message);
+    }
   }
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

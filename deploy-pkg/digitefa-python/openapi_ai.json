@@ -1,0 +1,627 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Digitefa AI API",
+    "description": "API for AI-based features like CV Parsing, Job Matching, Course Recommendation, and Talent Search.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health/courses-cache": {
+      "get": {
+        "summary": "Get Courses Cache Status",
+        "operationId": "get_courses_cache_status_health_courses_cache_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recommend-courses": {
+      "post": {
+        "summary": "Recommend Courses",
+        "operationId": "recommend_courses_recommend_courses_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseRecommendationRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculate-candidate-suitability": {
+      "post": {
+        "summary": "Calculate Candidate Suitability",
+        "operationId": "calculate_candidate_suitability_calculate_candidate_suitability_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateSuitabilityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compare-texts": {
+      "post": {
+        "summary": "Compare Two Texts",
+        "operationId": "compare_two_texts_compare_texts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextComparisonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextComparisonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculate-match-score": {
+      "post": {
+        "summary": "Calculate Match Score",
+        "description": "ENDPOINT INI MENGHITUNG KECOCOKAN (MATCH SCORE) ANTARA KANDIDAT & LOWONGAN.\nIni BUKAN sekadar pencocokan kata (word matching) biasa!\nIni menggunakan AI model (all-MiniLM-L6-v2) untuk mencocokkan \"MAKNA\" kalimat (Semantic Embedding).\n\nHitungan Bobot:\n- Skill (40%), Experience (25%), Summary (10%), Education (10%), Others (15%)",
+        "operationId": "calculate_match_score_calculate_match_score_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchScoreRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search-talents": {
+      "post": {
+        "summary": "Search Talents",
+        "description": "Given a job requirement query and a list of talent profiles,\nranks the talents based on semantic similarity.",
+        "operationId": "search_talents_search_talents_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TalentSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recommend-jobs": {
+      "post": {
+        "summary": "Recommend Jobs",
+        "description": "Given a talent profile block and a list of job postings,\nranks the jobs based on semantic fit for that exact talent.",
+        "operationId": "recommend_jobs_recommend_jobs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobRecommendationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parse-cv": {
+      "post": {
+        "summary": "Parse Cv",
+        "description": "ENDPOINT INI BERFUNGSI SEBAGAI OTAR UTAMA FITUR AUTOFILL CV.\nAlur Kerja:\n1. Menerima file PDF dari backend (NestJS).\n2. Membaca teks mentah dari PDF menggunakan library pdfplumber.\n3. Mengekstrak informasi penting (Nama, Email, HP, Pengalaman, dll) menggunakan Regex (Pola Teks).\n4. Mengembalikan data terstruktur dalam bentuk JSON kembali ke NestJS.",
+        "operationId": "parse_cv_parse_cv_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_parse_cv_parse_cv_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wordcloud": {
+      "get": {
+        "summary": "Get Wordcloud",
+        "description": "Fetches all active jobs and generates a WordCloud image from their descriptions.",
+        "operationId": "get_wordcloud_wordcloud_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_parse_cv_parse_cv_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_parse_cv_parse_cv_post"
+      },
+      "CandidateSuitabilityRequest": {
+        "properties": {
+          "job_description": {
+            "type": "string",
+            "title": "Job Description"
+          },
+          "completed_courses": {
+            "items": {
+              "$ref": "#/components/schemas/CompletedCourse"
+            },
+            "type": "array",
+            "title": "Completed Courses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_description"
+        ],
+        "title": "CandidateSuitabilityRequest"
+      },
+      "CompletedCourse": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "title": "CompletedCourse"
+      },
+      "CourseRecommendationRequestBody": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id"
+        ],
+        "title": "CourseRecommendationRequestBody"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "JobItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "job_text": {
+            "type": "string",
+            "title": "Job Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "job_text"
+        ],
+        "title": "JobItem"
+      },
+      "JobRecommendationRequest": {
+        "properties": {
+          "talent_profile_text": {
+            "type": "string",
+            "title": "Talent Profile Text"
+          },
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/JobItem"
+            },
+            "type": "array",
+            "title": "Jobs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "talent_profile_text",
+          "jobs"
+        ],
+        "title": "JobRecommendationRequest"
+      },
+      "MatchScoreCandidateData": {
+        "properties": {
+          "skills": {
+            "type": "string",
+            "title": "Skills",
+            "default": ""
+          },
+          "experience": {
+            "type": "string",
+            "title": "Experience",
+            "default": ""
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "default": ""
+          },
+          "education": {
+            "type": "string",
+            "title": "Education",
+            "default": ""
+          },
+          "others": {
+            "type": "string",
+            "title": "Others",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "MatchScoreCandidateData"
+      },
+      "MatchScoreJobData": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "default": ""
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "skills_requirement": {
+            "type": "string",
+            "title": "Skills Requirement",
+            "default": ""
+          },
+          "education_requirement": {
+            "type": "string",
+            "title": "Education Requirement",
+            "default": ""
+          },
+          "experience_requirement": {
+            "type": "string",
+            "title": "Experience Requirement",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "MatchScoreJobData"
+      },
+      "MatchScoreRequest": {
+        "properties": {
+          "job": {
+            "$ref": "#/components/schemas/MatchScoreJobData"
+          },
+          "candidate": {
+            "$ref": "#/components/schemas/MatchScoreCandidateData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job",
+          "candidate"
+        ],
+        "title": "MatchScoreRequest"
+      },
+      "TalentProfile": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "profile_text": {
+            "type": "string",
+            "title": "Profile Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "profile_text"
+        ],
+        "title": "TalentProfile"
+      },
+      "TalentSearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "talents": {
+            "items": {
+              "$ref": "#/components/schemas/TalentProfile"
+            },
+            "type": "array",
+            "title": "Talents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "talents"
+        ],
+        "title": "TalentSearchRequest"
+      },
+      "TextComparisonRequest": {
+        "properties": {
+          "text1": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Text1",
+            "description": "Teks pertama untuk dibandingkan."
+          },
+          "text2": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Text2",
+            "description": "Teks kedua untuk dibandingkan."
+          }
+        },
+        "type": "object",
+        "required": [
+          "text1",
+          "text2"
+        ],
+        "title": "TextComparisonRequest"
+      },
+      "TextComparisonResponse": {
+        "properties": {
+          "text1_provided": {
+            "type": "string",
+            "title": "Text1 Provided"
+          },
+          "text2_provided": {
+            "type": "string",
+            "title": "Text2 Provided"
+          },
+          "similarity_score": {
+            "type": "number",
+            "title": "Similarity Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text1_provided",
+          "text2_provided",
+          "similarity_score"
+        ],
+        "title": "TextComparisonResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

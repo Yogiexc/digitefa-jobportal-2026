@@ -1,29 +1,30 @@
 # Use Python slim as base image
-FROM python:3.12-slim
+FROM python:3.8-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies needed for Python packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libffi-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple --default-timeout=1000 --retries 20 --progress-bar off --upgrade pip && \
+    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -f https://mirrors.aliyun.com/pytorch-wheels/cpu/ --default-timeout=1000 --retries 20 --progress-bar off -r requirements.txt
 
+RUN pip uninstall -y hf_xet || true
 # Copy application code
 COPY . .
 
 # Create non-root user for security
-RUN useradd -m -s /bin/sh appuser && \
-    chown -R appuser:appuser /app
+# Pre-download the model files individually to completely bypass threading issues
+ENV HF_HOME=/home/appuser/.cache/huggingface
+ENV HF_HUB_DISABLE_PROGRESS_BARS=1
+RUN python download_model.py
+
+RUN useradd -m -s /bin/sh appuser || true
+RUN chown -R appuser:appuser /app /home/appuser
+
 USER appuser
 
 # Expose port

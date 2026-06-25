@@ -12,8 +12,7 @@ import pdfplumber
 import re
 import io
 import os
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
+
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
 import nltk
