@@ -178,6 +178,11 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                                         <span>{(score * 100).toFixed(0)}% AI Match</span>
                                                     </div>
                                                 )}
+                                                {record.is_invited && record.is_applied && (
+                                                    <div className="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-br-xl rounded-tl-2xl z-10 shadow-sm">
+                                                        Applied from Invitation
+                                                    </div>
+                                                )}
 
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-start pt-2">
@@ -192,8 +197,8 @@ const AiTalentMatches = ({ open, setOpen, onBack, jobId, jobDescription, onViewP
                                                             </div>
                                                             <div className="flex flex-col flex-1 min-w-0">
                                                                 <h3 className="text-[16px] font-bold text-gray-900 leading-tight truncate">
-                                                                    {record.job_seeker?.full_name || "Unknown Candidate"}
-                                                                </h3>
+                                                                        {record.job_seeker?.full_name || "Unknown Candidate"}
+                                                                    </h3>
                                                                 <p className="text-[12px] text-gray-500 mt-1 truncate">
                                                                     {record.job_seeker?.email || "No email provided"}
                                                                 </p>
