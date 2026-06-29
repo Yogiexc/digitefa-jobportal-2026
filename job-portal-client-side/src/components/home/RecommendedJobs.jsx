@@ -117,12 +117,12 @@ const RecommendedJobs = () => {
                 <div className="text-center mb-8 flex flex-col items-center justify-center">
                     <div className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-green-100 px-4 py-2 rounded-full mb-3 shadow-[0_4px_10px_rgba(0,167,59,0.1)] border border-[#c2f0d1]">
                         <SparklesIcon className="w-5 h-5 text-[#06A73B]" />
-                        <span className="text-sm font-semibold text-[#06A73B]">DIREKOMENDASIKAN UNTUK ANDA</span>
+                        <span className="text-sm font-semibold text-[#06A73B]">RECOMMENDED FOR YOU</span>
                     </div>
                     <h2 className="text-2xl md:text-[36px] font-semibold text-gray-800">
-                        Cepat Dapatkan Pekerjaan Terkait
+                        Discover Relevant Jobs
                     </h2>
-                    <p className="text-gray-500 mt-2 text-sm max-w-lg">Berdasarkan profil Anda (kesesuaian kata/kalimat menggunakan AI), kami menemukan beberapa lowongan yang mungkin cocok.</p>
+                    <p className="text-gray-500 mt-2 text-sm max-w-lg">Based on your profile (AI keyword/sentence matching), we found some job openings that might be a good fit.</p>
                 </div>
                 <Row gutter={[16, 16]} justify="center">
                     {jobs.map((job, index) => (

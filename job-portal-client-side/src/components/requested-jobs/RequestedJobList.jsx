@@ -117,13 +117,16 @@ const RequestedJobList = () => {
                               borderColor: "#BBB",
                             }}
                             icon={<EyeIcon className="w-4 h-4"/>}
-                          >
-                            <span
-                              className="text-[12px] font-medium"
-                              onClick={() => {
+                            onClick={() => {
+                              const isExpired = job.expired_at ? new Date(job.expired_at) - new Date() <= 0 : false;
+                              if (isExpired) {
+                                navigate(`/invitation-expired`);
+                              } else {
                                 navigate(`/jobs/${job.job_id}`);
-                              }}
-                            >
+                              }
+                            }}
+                          >
+                            <span className="text-[12px] font-medium">
                               Detail
                             </span>
                           </Button>
@@ -138,7 +141,10 @@ const RequestedJobList = () => {
                               color: job.status === "applied" ? "black" : "white",
                             }}
                             onClick={() => {
-                              if (job.status !== "applied") {
+                              const isExpired = job.expired_at ? new Date(job.expired_at) - new Date() <= 0 : false;
+                              if (isExpired) {
+                                navigate(`/invitation-expired`);
+                              } else if (job.status !== "applied") {
                                 handleApplyJob(job.job_id);
                               }
                             }}

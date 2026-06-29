@@ -20,6 +20,7 @@ import JobApply from "../pages/job-apply/JobApply";
 import DetailEventNews from "../pages/event-news/DetailEventNews";
 import PagesNotFound from "../pages/PagesNotFound";
 import RecommendedJobs from "../pages/recommended-jobs/RecommendedJobs";
+import ExpiredInvitationNotFound from "../pages/ExpiredInvitationNotFound";
 
 function AuthMiddleware() {
   const token = localStorage.getItem("token") || localStorage.getItem("token");
@@ -76,6 +77,7 @@ function RoutesIndex() {
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/event-news" element={<EventNews />} />
       <Route path="/event-news/:slug" element={<DetailEventNews />} />
+      <Route path="/invitation-expired" element={<ExpiredInvitationNotFound />} />
 
       <Route path="*" element={<PagesNotFound />} />
     </Routes>

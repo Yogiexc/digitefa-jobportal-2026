@@ -110,7 +110,7 @@ const AddData = ({
           skills_requirement: values.skills_requirement || [],
           education_requirement: values.education_requirement,
           experience_requirement: values.experience_requirement,
-          benefits: dataSource.map((item) => item.benefits),
+          benefits: dataSource.map((item) => item.benefits).filter((benefit) => benefit && benefit.trim() !== ""),
           status: "active",
         };
 

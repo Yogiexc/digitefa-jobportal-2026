@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsEnum, IsInt, IsString } from "class-validator";
+import { IsArray, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
 import { JobCategory } from "./job-category.enum";
 
 export class CreateJobDto {
@@ -115,13 +115,14 @@ export class CreateJobDto {
     })
     skills_requirement: Array<string>;
 
+    @IsOptional()
     @IsArray()
     @ApiProperty({
         type: String,
-        description: 'This is a required property',
+        description: 'This is an optional property',
         default: ['Benefits1', 'Benefits2', 'Benefits3', 'Benefits4'],
     })
-    benefits: Array<string>;
+    benefits?: Array<string>;
 
     @IsEnum(['active', 'draft'])
     @ApiProperty({
