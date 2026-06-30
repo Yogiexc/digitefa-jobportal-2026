@@ -13,6 +13,8 @@ import re
 import io
 import os
 from wordcloud import WordCloud
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
@@ -1279,6 +1281,8 @@ async def parse_cv(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
         
 @app.get("/wordcloud")
+@app.get("/wordcloud/")
+@app.get("/")
 async def get_wordcloud():
     """
     Fetches all active jobs and generates a WordCloud image from their descriptions.
