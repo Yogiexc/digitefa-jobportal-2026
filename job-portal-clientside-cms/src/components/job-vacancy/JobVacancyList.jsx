@@ -9,6 +9,7 @@ import {
   UsersIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import { SparklesIcon } from "@heroicons/react/24/solid";
 import {
   Button,
   Dropdown,
@@ -18,6 +19,7 @@ import {
   Select,
   Table,
   Segmented,
+  App,
 } from "antd";
 import Api from "../../services/Api";
 import AddData from "./AddData";
@@ -28,10 +30,13 @@ import ViewApplicants from "./ViewApplicants";
 import Delete from "./Delete";
 import Pagination from "../Pagination";
 import StatusModal from "../StatusModal";
+import AiTalentMatches from "./AiTalentMatches";
+import ShowApplicants from "./ShowApplicants";
 
 const { Content } = Layout;
 
 const JobVacancyList = () => {
+  const { message } = App.useApp();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -42,6 +47,7 @@ const JobVacancyList = () => {
   const [loading, setLoading] = useState(false);
   const [valueSegmented, setValueSegmented] = useState("all");
   const [selectJobData, setSelectedJobData] = useState(null);
+  const [selectJobDescription, setSelectedJobDescription] = useState("");
 
   const [openDetailView, setOpenDetailView] = useState(false);
   const [openAddData, setOpenAddData] = useState(false);
@@ -49,6 +55,9 @@ const JobVacancyList = () => {
   const [openReuploadData, setOpenReuploadData] = useState(false);
   const [openViewApplicants, setOpenViewApplicants] = useState(false);
   const [openDeleteData, setOpenDeleteData] = useState(false);
+  const [openAiMatches, setOpenAiMatches] = useState(false);
+  const [openAiProfile, setOpenAiProfile] = useState(false);
+  const [selectedSeekerId, setSelectedSeekerId] = useState(null);
 
   const [modalMessage, setModalMessage] = useState("");
   const [modalStatus, setModalStatus] = useState("");
@@ -74,22 +83,32 @@ const JobVacancyList = () => {
     } else if (action === "delete") {
       setSelectedJobData(record.job_id);
       setOpenDeleteData(true);
+    } else if (action === "aimatches") {
+      setSelectedJobData(record.job_id);
+      setSelectedJobDescription(record.description || "");
+      setOpenAiMatches(true);
     }
   };
 
-  const menu = (record) => (
-    <Menu
-      onClick={({ key }) => handleMenuClick(record, key)}
-      className="custom-menu"
-    >
-      <Menu.ItemGroup title="ACTION" className="custom-menu-item-group" />
-      <Menu.Item key="show" icon={<EyeIcon className="size-5" />}>
-        Show
-      </Menu.Item>
-      <Menu.Item key="edit" icon={<PencilSquareIcon className="size-5" />}>
-        Edit
-      </Menu.Item>
-      <Menu.Item key="view_applicants" icon={<UsersIcon className="size-5" />}>
+  const getMenuItems = (record) => [
+    {
+      key: "action-title",
+      label: "ACTION",
+      type: "group",
+    },
+    {
+      key: "show",
+      label: "Show",
+      icon: <EyeIcon className="size-5" />,
+    },
+    {
+      key: "edit",
+      label: "Edit",
+      icon: <PencilSquareIcon className="size-5" />,
+    },
+    {
+      key: "view_applicants",
+      label: (
         <div className="relative">
           View <br />
           Applicants
@@ -98,15 +117,25 @@ const JobVacancyList = () => {
             <span className="ml-1">New</span>
           </badge>
         </div>
-      </Menu.Item>
-      <Menu.Item key="reupload" icon={<ArrowPathIcon className="size-5" />}>
-        Reupload
-      </Menu.Item>
-      <Menu.Item key="delete" icon={<TrashIcon className="size-5" />}>
-        Delete
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+      icon: <UsersIcon className="size-5" />,
+    },
+    {
+      key: "reupload",
+      label: "Reupload",
+      icon: <ArrowPathIcon className="size-5" />,
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      icon: <TrashIcon className="size-5" />,
+    },
+    {
+      key: "aimatches",
+      label: <span className="font-semibold text-purple-700">AI Matches</span>,
+      icon: <SparklesIcon className="size-5 text-purple-600" />,
+    },
+  ];
 
   const columns = [
     {
@@ -151,7 +180,14 @@ const JobVacancyList = () => {
       key: "action",
       width: "10%",
       render: (text, record) => (
-        <Dropdown overlay={menu(record)} trigger={["click"]}>
+        <Dropdown
+          menu={{
+            items: getMenuItems(record),
+            onClick: ({ key }) => handleMenuClick(record, key),
+            className: "custom-menu",
+          }}
+          trigger={["click"]}
+        >
           <button className="size-5 text-red-600 ml-3">
             <EllipsisVerticalIcon />
           </button>
@@ -224,6 +260,20 @@ const JobVacancyList = () => {
     setOpenDetailView(false);
     setOpenEditData(false);
     setOpenReuploadData(false);
+    setOpenAiMatches(false);
+    setOpenAiProfile(false);
+    setOpenViewApplicants(false);
+  };
+
+  const handleViewAiProfile = (id) => {
+    setSelectedSeekerId(id);
+    setOpenAiProfile(true);
+    setOpenAiMatches(false);
+  };
+
+  const handleBackToMatches = () => {
+    setOpenAiProfile(false);
+    setOpenAiMatches(true);
   };
 
   return (
@@ -270,6 +320,22 @@ const JobVacancyList = () => {
           setOpen={setOpenViewApplicants}
           onBack={handleBack}
           jobId={selectJobData}
+        />
+      ) : openAiProfile ? (
+        <ShowApplicants
+          open={openAiProfile}
+          setOpen={setOpenAiProfile}
+          onBack={handleBackToMatches}
+          jobSeekerId={selectedSeekerId}
+        />
+      ) : openAiMatches ? (
+        <AiTalentMatches
+          open={openAiMatches}
+          setOpen={setOpenAiMatches}
+          onBack={handleBack}
+          jobId={selectJobData}
+          jobDescription={selectJobDescription}
+          onViewProfile={handleViewAiProfile}
         />
       ) : (
         <>

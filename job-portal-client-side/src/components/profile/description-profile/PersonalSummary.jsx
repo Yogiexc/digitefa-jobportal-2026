@@ -37,11 +37,10 @@ const PersonalSummary = ({
   };
 
   useEffect(() => {
-    if (open && initialValues) {
-      form.setFieldsValue({
-        ...initialValues,
-      });
-    }
+  if (open && initialValues) {
+    form.setFieldsValue(initialValues);
+    setInputValue(initialValues.personal_summary || "");
+  }
   }, [open, initialValues, form]);
 
   const characterLimit = 700;
@@ -101,12 +100,18 @@ const PersonalSummary = ({
             },
             {
               validator: (_, value) => {
-                if (value && value.length > characterLimit) {
-                  return Promise.reject(
-                    new Error(
-                      `Character limit exceeded! Maximum is ${characterLimit} characters.`
-                    )
-                  );
+                if (value) {
+                  const wordCount = value.trim().split(/\s+/).filter(word => word.length > 0).length;
+                  if (wordCount < 3) {
+                    return Promise.reject(new Error("Personal summary must contain at least 3 words."));
+                  }
+                  if (value.length > characterLimit) {
+                    return Promise.reject(
+                      new Error(
+                        `Character limit exceeded! Maximum is ${characterLimit} characters.`
+                      )
+                    );
+                  }
                 }
                 return Promise.resolve();
               },
@@ -119,8 +124,10 @@ const PersonalSummary = ({
               borderRadius: 12,
               height: 100,
             }}
-            value={inputValue}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              form.setFieldsValue({ personal_summary: e.target.value });
+            }}
           />
         </Form.Item>
         <div className="mt-7" style={{ textAlign: "center" }}>

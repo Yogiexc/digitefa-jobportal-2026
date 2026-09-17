@@ -8,6 +8,7 @@ import FindJobs from "../pages/find-jobs/FindJobs";
 import Profile from "../pages/profile/Profile";
 import VerificationSuccessfully from "../components/register/VerificationSuccessfully";
 import SavedJobs from "../pages/saved-jobs/SavedJobs";
+import MyInvitedJobs from "../pages/job-apply-requests/MyInvitedJobs";
 import JobApplicationHistory from "../pages/job-application-history/JobApplicationHistory";
 import Settings from "../pages/settings/Settings";
 import CompanyDetail from "../pages/company-detail/CompanyDetail";
@@ -51,6 +52,7 @@ function RoutesIndex() {
       <Route element={<ProtectedAuthMiddleware />}>
         <Route path="/profile" element={<Profile />} />
         <Route path="/saved-jobs" element={<SavedJobs />} />
+        <Route path="/invited-jobs" element={<MyInvitedJobs />} />
         <Route path="/recommended-jobs" element={<RecommendedJobs />} />
         <Route
           path="/job-application-history"

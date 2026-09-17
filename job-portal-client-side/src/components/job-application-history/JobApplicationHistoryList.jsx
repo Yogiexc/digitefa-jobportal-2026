@@ -3,13 +3,28 @@ import { Card, Button, Col, Row, message, Spin } from "antd";
 import { BookmarkIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import { useNavigate } from "react-router-dom";
+import JobFallback from "../../assets/images/job.jpg";
 
-const calculateDaysAgo = (published_at) => {
-  const publishedDate = new Date(published_at);
+const calculateExpiresIn = (expired_at) => {
+  if (!expired_at) return "No expiration date";
+  const expiredDate = new Date(expired_at);
   const currentDate = new Date();
-  const differenceInTime = currentDate - publishedDate;
+  const differenceInTime = expiredDate - currentDate;
+  
+  if (differenceInTime <= 0) return "Expired";
+  
   const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-  return differenceInDays;
+  if (differenceInDays > 0) {
+    return `expires in ${differenceInDays} days`;
+  }
+  
+  const differenceInHours = Math.floor(differenceInTime / (1000 * 3600));
+  if (differenceInHours > 0) {
+    return `expires in ${differenceInHours} hours`;
+  }
+
+  const differenceInMinutes = Math.floor(differenceInTime / (1000 * 60));
+  return `expires in ${differenceInMinutes} minutes`;
 };
 
 const JobApplicationHistoryList = () => {
@@ -99,9 +114,10 @@ const JobApplicationHistoryList = () => {
                     <Card className="relative rounded-2xl border-[#D8D8D8]">
                       <div className="flex justify-between items-start">
                         <img
-                          src={`${API_URL}/${job.company.logo_url}`}
+                          src={job.company.logo_url ? `${API_URL}/${job.company.logo_url}` : JobFallback}
                           alt="Job Icon"
-                          className="w-16"
+                          onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
+                          className="w-16 h-16 object-cover rounded-full"
                         />
                         <div className="flex flex-col">
                           <h3 className="text-[15px] font-semibold">
@@ -138,7 +154,19 @@ const JobApplicationHistoryList = () => {
                         </Button>
                       </div>
 
-                      <div className="relative flex justify-end items-start mt-8">
+                      <div className="relative flex justify-end items-start mt-8 space-x-2">
+                        <div
+                          style={{
+                            padding: "0 12px",
+                            height: "35px",
+                            backgroundColor: job.status === 'Accepted' ? '#dcfce7' : job.status === 'Rejected' ? '#fee2e2' : job.status === 'Interviewing' ? '#f3e8ff' : job.status === 'Screening' ? '#dbeafe' : '#fef3c7',
+                            color: job.status === 'Accepted' ? '#166534' : job.status === 'Rejected' ? '#991b1b' : job.status === 'Interviewing' ? '#6b21a8' : job.status === 'Screening' ? '#1e40af' : '#92400e',
+                            borderRadius: "12px",
+                          }}
+                          className="flex items-center justify-center font-medium text-xs whitespace-nowrap"
+                        >
+                          {job.status}
+                        </div>
                         <div
                           style={{
                             width: "210px",
@@ -160,11 +188,7 @@ const JobApplicationHistoryList = () => {
 
                       <div className="flex justify-between items-center mt-4">
                         <span className="text-xs text-[#232323]">
-                          {calculateDaysAgo(job.published_at) === 0
-                            ? "Posted today"
-                            : `${calculateDaysAgo(
-                                job.job.published_at
-                              )} days ago`}
+                          {calculateExpiresIn(job.job?.expired_at)}
                         </span>
 
                         <div className="flex space-x-2">

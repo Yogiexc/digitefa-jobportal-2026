@@ -45,7 +45,7 @@ const TalentsAcceptanceRatio = () => {
           showInfo={false}
           strokeColor="#DC362E"
           trailColor="#FECCCA"
-          strokeWidth={12}
+          size={{ strokeWidth: 12 }}
         />
         <div className="flex justify-end mt-2">
           <Text className="text-[14px]" style={{ color: "#9A9A9A" }}>

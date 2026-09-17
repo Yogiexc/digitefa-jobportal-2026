@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pandas
+requests
+sentence-transformers
+torch==2.4.1+cpu
+typing-extensions
+pdfplumber
+python-multipart
+wordcloud
+matplotlib

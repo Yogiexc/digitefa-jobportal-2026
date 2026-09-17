@@ -4,7 +4,7 @@ import { LinkIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import Api from "../../../services/Api";
 import { getUserSession } from "../../../utils";
 
-const LinkAccount = ({ open, setOpen }) => {
+const LinkAccount = ({ open, setOpen, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -49,6 +49,7 @@ const LinkAccount = ({ open, setOpen }) => {
 
       message.success("Account linked successfully!");
       // Refresh profile data after successful linking
+      if (onSuccess) await onSuccess();
       await getUserProfile();
       handleCancel();
     } catch (error) {
@@ -64,6 +65,7 @@ const LinkAccount = ({ open, setOpen }) => {
     try {
       await Api.post("/lms/unlink-account");
       message.success("Account unlinked successfully!");
+      if (onSuccess) await onSuccess();
       await getUserProfile();
     } catch (error) {
       const errorMessage = error?.response?.data?.message || "Failed to unlink account. Please try again.";

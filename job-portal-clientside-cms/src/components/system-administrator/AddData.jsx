@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button, Form, Input, Modal, Select } from "antd";
 import StatusModal from "../StatusModal";
 import AddDataIcon from "../../assets/svg/AddData.svg";
+import Api from "../../services/Api";
 
-const AddData = ({ open, setOpen }) => {
+const AddData = ({ open, setOpen, fetchData }) => {
   const [form] = Form.useForm();
   const [modalMessage, setModalMessage] = useState("");
   const [modalStatus, setModalStatus] = useState("");
@@ -15,7 +16,30 @@ const AddData = ({ open, setOpen }) => {
   };
 
   const handleSave = () => {
-    form.validateFields();
+    form.validateFields().then((values) => {
+      Api.post("/admins", values)
+        .then(() => {
+          setModalStatus("success");
+          setModalMessage("Admin has been successfully added!");
+          setOpenStatusModal(true);
+          setTimeout(() => {
+            setOpenStatusModal(false);
+            setOpen(false);
+            form.resetFields();
+            if (fetchData) fetchData(1, true);
+          }, 2000);
+        })
+        .catch((error) => {
+          console.error("Error adding admin:", error);
+          setModalStatus("failed");
+          const msg = error?.response?.data?.message;
+          setModalMessage(Array.isArray(msg) ? msg.join(", ") : (msg || "Failed to add admin data."));
+          setOpenStatusModal(true);
+          setTimeout(() => setOpenStatusModal(false), 2000);
+        });
+    }).catch((info) => {
+      console.log("Validate Failed:", info);
+    });
   };
 
   return (
@@ -84,6 +108,21 @@ const AddData = ({ open, setOpen }) => {
             <Input
               style={{ height: 56, borderRadius: 12 }}
               placeholder="email"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            label="Password"
+            style={{ marginBottom: 10 }}
+            rules={[
+              { required: true, message: "Please enter password" },
+              { min: 8, message: "Password must be at least 8 characters" }
+            ]}
+          >
+            <Input.Password
+              style={{ height: 56, borderRadius: 12 }}
+              placeholder="Password"
             />
           </Form.Item>
 

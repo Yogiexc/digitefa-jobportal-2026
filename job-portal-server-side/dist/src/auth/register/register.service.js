@@ -87,16 +87,12 @@ let RegisterService = class RegisterService {
                     },
                 });
             }
-<<<<<<< HEAD
             try {
                 await this.sendOtpEmail(email, otp);
             }
             catch (err) {
                 console.error('Failed to send OTP email. For development, OTP is:', otp);
             }
-=======
-            await this.sendOtpEmail(email, otp);
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
             return {
                 status: 'success',
                 message: 'OTP sent successfully.Please check your email for the OTP code.',
@@ -149,6 +145,7 @@ let RegisterService = class RegisterService {
                     data: {
                         email,
                         full_name,
+                        phone_number,
                         password: hashedPassword,
                         otp: otpHash,
                         otpExpires: new Date(Date.now() + 15 * 60 * 1000),
@@ -179,16 +176,12 @@ let RegisterService = class RegisterService {
                 },
             });
         }
-<<<<<<< HEAD
         try {
             await this.sendOtpEmail(email, otp);
         }
         catch (err) {
             console.error('Failed to send OTP email. For development, OTP is:', otp);
         }
-=======
-        await this.sendOtpEmail(email, otp);
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         return {
             status: 'success',
             message: 'OTP sent successfully.Please check your email for the OTP code.',
@@ -265,16 +258,12 @@ let RegisterService = class RegisterService {
                 },
             });
         }
-<<<<<<< HEAD
         try {
             await this.sendOtpEmail(email, otp);
         }
         catch (err) {
             console.error('Failed to send OTP email. For development, OTP is:', otp);
         }
-=======
-        await this.sendOtpEmail(email, otp);
->>>>>>> d7b606e12cb92238e67bccc72e4ad6563e2db204
         return {
             status: 'success',
             message: 'OTP sent successfully.Please check your email for the OTP code.',
@@ -284,7 +273,7 @@ let RegisterService = class RegisterService {
         const transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: parseInt(process.env.EMAIL_PORT),
-            secure: false,
+            secure: process.env.EMAIL_PORT === '465',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -295,11 +284,16 @@ let RegisterService = class RegisterService {
         });
         const htmlContent = (0, otp_email_template_1.otpEmailTemplate)(otp, email);
         await transporter.sendMail({
-            from: '"Digitefa" <no-reply@zenify.my.id>',
+            from: `"Digitefa" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Digitefa OTP Verification Code',
             text: `Your OTP code is ${otp}`,
             html: htmlContent,
+            attachments: [{
+                    filename: 'Digitefa.png',
+                    path: process.cwd() + '/../job-portal-client-side/src/assets/images/Digitefa.png',
+                    cid: 'digitefa-logo'
+                }],
         });
     }
     async verifyOtp(email, otp) {
@@ -316,11 +310,11 @@ let RegisterService = class RegisterService {
         if (!job_seeker && !company && !university) {
             throw new common_1.HttpException('User not found', common_1.HttpStatus.NOT_FOUND);
         }
+        console.log('[verifyOtp Debug] email:', email, 'otpHash:', otpHash);
+        console.log('[verifyOtp Debug] Dates - now:', new Date(), ' company.otpExpires:', company?.otpExpires);
+        console.log('[verifyOtp Debug] company:', !!company, 'otpMatch:', company?.otp === otpHash, 'unexpired:', company ? new Date() <= company.otpExpires : false);
         let user;
-        if (job_seeker) {
-            if (job_seeker.otp !== otpHash || new Date() > job_seeker.otpExpires) {
-                throw new common_1.HttpException('Invalid or expired OTP', common_1.HttpStatus.BAD_REQUEST);
-            }
+        if (job_seeker && job_seeker.otp === otpHash && new Date() <= new Date(job_seeker.otpExpires)) {
             user = await this.prisma.job_seekers.update({
                 where: { email },
                 data: {
@@ -331,10 +325,7 @@ let RegisterService = class RegisterService {
             });
             user.role = 'job_seeker';
         }
-        else if (company) {
-            if (company.otp !== otpHash || new Date() > company.otpExpires) {
-                throw new common_1.HttpException('Invalid or expired OTP', common_1.HttpStatus.BAD_REQUEST);
-            }
+        else if (company && company.otp === otpHash && new Date() <= new Date(company.otpExpires)) {
             user = await this.prisma.companies.update({
                 where: { email },
                 data: {
@@ -342,13 +333,12 @@ let RegisterService = class RegisterService {
                     otp: null,
                     otpExpires: null,
                 },
+                include: { company_detail: true }
             });
+            user.legal_name = user?.company_detail?.legal_name;
             user.role = 'company';
         }
-        else if (university) {
-            if (university.otp !== otpHash || new Date() > university.otpExpires) {
-                throw new common_1.HttpException('Invalid or expired OTP', common_1.HttpStatus.BAD_REQUEST);
-            }
+        else if (university && university.otp === otpHash && new Date() <= new Date(university.otpExpires)) {
             user = await this.prisma.universities.update({
                 where: { email },
                 data: {
@@ -356,8 +346,13 @@ let RegisterService = class RegisterService {
                     otp: null,
                     otpExpires: null,
                 },
+                include: { university_detail: true }
             });
+            user.university_name = user?.university_detail?.university_name;
             user.role = 'university';
+        }
+        else {
+            throw new common_1.HttpException('Invalid or expired OTP', common_1.HttpStatus.BAD_REQUEST);
         }
         let payload;
         if (user.role === 'job_seeker') {

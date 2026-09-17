@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Form, Input, Modal, Row, Col, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -7,12 +7,40 @@ dayjs.extend(customParseFormat);
 import ProjectsIcon from "../../../assets/svg/Projects.svg"
 
 const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) => {
-  const form = Form.useFormInstance();
+  const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState('');
+
+  const transformInitialValues = (data) => {
+    if (!data) return {};
+
+    // fungsi bantu parsing tanggal
+    const parseDate = (date) => {
+      if (!date) return null;
+      const d = dayjs(date);
+      return d.isValid() ? d : null;
+    };
+
+    // bersihin description (hapus tahun & title)
+    let cleanDescription = data.description || "";
+    const pName = data.project_name || data.title || "";
+    if (pName) {
+      cleanDescription = cleanDescription.replace(pName, "");
+    }
+    cleanDescription = cleanDescription.replace(/\d{4}\s*-\s*\d{4}/, "").trim();
+
+    return {
+      project_name: pName,
+      description: cleanDescription,
+      start_date: parseDate(data.start_date),
+      end_date: parseDate(data.end_date),
+    };
+  };
 
   const closed = () => {
     resetForm({})
     setOpen(section, false)
+    form.resetFields()
+    setInputValue('')
   }
 
   const handleFinish = async (values) => {
@@ -36,6 +64,15 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
   const characterLimit = 250;
   const isOverLimit = inputValue.length > characterLimit;
 
+  useEffect(() => {
+  if (open && initialValues) {
+    const transformed = transformInitialValues(initialValues);
+
+    form.setFieldsValue(transformed);
+    setInputValue(transformed.description || "");
+  }
+}, [open, initialValues]);
+
   return (
     <Modal
       title={
@@ -46,7 +83,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
             className="menu-icon"
             style={{ marginRight: 10, marginBottom: 10, height: 40, width: 40 }}
           />
-          <span>Projects</span>
+          <span>{initialValues && 'project_id' in initialValues ? 'Edit Project' : 'Add Project'}</span>
         </div>
       }
       centered
@@ -70,7 +107,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
         layout="vertical"
         requiredMark={true}
         onFinish={handleFinish}
-        initialValues={initialValues}
+        initialValues={transformInitialValues(initialValues)}
         className='text-right'
       >
         <Form.Item
@@ -85,7 +122,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
             <Form.Item
               name="start_date"
               label="Start Date"
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'Start date cannot be empty' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />
@@ -95,7 +132,7 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
             <Form.Item
               name="end_date"
               label="End Date"
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'End date cannot be empty' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />
@@ -116,15 +153,17 @@ const Projects = ({ open, setOpen, section, initialValues, resetForm, action }) 
               height: 100,
               borderColor: isOverLimit ? 'red' : undefined
             }}
-            value={inputValue}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              form.setFieldsValue({ description: e.target.value });
+            }}
           />
         </Form.Item>
         <div style={{ textAlign: 'center' }}>
           <Button onClick={handleCancel} style={{ width: 120, height: 40, borderRadius: 12, borderColor: "#BBB", marginRight: 8 }}>
             <span className='font-medium'> Cancel </span>
           </Button>
-          <Button type="primary" htmlType="submit" style={{width: 120, height: 40, borderRadius: 12}}>
+          <Button type="primary" htmlType="submit" style={{ width: 120, height: 40, borderRadius: 12 }}>
             <span className='font-medium'> Save </span>
           </Button>
         </div>

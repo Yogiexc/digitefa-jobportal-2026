@@ -21,7 +21,7 @@ import './assets/js/main.js';
 const app = createApp(App);
 
 // Set up axios
-axios.defaults.baseURL = process.env.VUE_APP_API_URL;
+axios.defaults.baseURL = process.env.VUE_APP_API_URL || 'http://localhost:8888/api';
 app.config.globalProperties.$http = axios;
 
 store.dispatch('fetchUser');

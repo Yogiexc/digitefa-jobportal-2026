@@ -93,6 +93,9 @@ const Navbar = () => {
       <Menu.Item key="saved-jobs" icon={<BriefcaseIcon className="size-5" />}>
         <Link to="/saved-jobs">Saved Jobs</Link>
       </Menu.Item>
+      <Menu.Item key="invited-jobs" icon={<BriefcaseIcon className="size-5" />}>
+        <Link to="/invited-jobs">My Invitations</Link>
+      </Menu.Item>
       <Menu.Item
         key="job-history"
         icon={<DocumentDuplicateIcon className="size-5" />}
@@ -131,6 +134,9 @@ const Navbar = () => {
       </Menu.Item>
       <Menu.Item key="saved-jobs" icon={<BriefcaseIcon className="size-5" />}>
         <Link to="/saved-jobs">Saved Jobs</Link>
+      </Menu.Item>
+      <Menu.Item key="invited-jobs" icon={<BriefcaseIcon className="size-5" />}>
+        <Link to="/invited-jobs">My Invitations (DEMO)</Link>
       </Menu.Item>
       <Menu.Item
         key="job-history"
@@ -225,7 +231,7 @@ const Navbar = () => {
           <Button
             type="button"
             className="bg-white text-[#06A73B] border-none hover:text-[#06A73B] hidden md:flex"
-            href={cmsUrl}
+            onClick={() => window.location.href = cmsUrl || 'http://localhost:5173'}
           >
             For Company / University
           </Button>

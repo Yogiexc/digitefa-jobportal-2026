@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
+  DatePicker,
   Form,
   Typography,
   Input,
@@ -9,6 +10,7 @@ import {
   Switch,
   Table,
 } from "antd";
+import dayjs from "dayjs";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import BriefcaseIcon from "../../assets/svg/BriefcaseRed.svg";
@@ -30,6 +32,7 @@ const EditData = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [statusJob, setStatusJob] = useState(null);
+  const requiredLabel = (text) => (<span><span className="text-red-500">*</span> {text}</span>);
 
   const [dataSource, setDataSource] = useState([]);
   const [skillsData, setSkillsData] = useState([]);
@@ -121,6 +124,7 @@ const EditData = ({
               .split(" ")
               .map((word) => word.charAt(0).toLowerCase() + word.slice(1))
               .join("_"),
+            expired_at: jobDetail.expired_at ? dayjs(jobDetail.expired_at) : null,
             description: jobDetail.description,
             salary_type: jobDetail.salary_type
               .split(" ")
@@ -189,6 +193,7 @@ const EditData = ({
           employment_type: values.employment_type,
           location: values.location,
           work_type: values.work_type,
+          expired_at: values.expired_at ? values.expired_at.toISOString() : null,
           description: values.description,
           salary_type: values.salary_type,
           ...(values.minimum_salary
@@ -312,7 +317,7 @@ const EditData = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
           <Form.Item
             name="title"
-            label="Job Title"
+            label={requiredLabel("Job Title")}
             rules={[{ required: true, message: "Please enter job title" }]}
           >
             <Input style={{ borderColor: "#BBBBBB", height: "56px" }} />
@@ -320,7 +325,7 @@ const EditData = ({
 
           <Form.Item
             name="category"
-            label="Job Category"
+            label={requiredLabel("Job Category")}
             rules={[{ required: true, message: "Please select job category" }]}
           >
             <Select style={{ borderColor: "#BBBBBB", height: "56px" }}>
@@ -366,7 +371,7 @@ const EditData = ({
 
           <Form.Item
             name="employment_type"
-            label="Employment Type"
+            label={requiredLabel("Employment Type")}
             rules={[
               { required: true, message: "Please select employment type" },
             ]}
@@ -381,7 +386,7 @@ const EditData = ({
 
           <Form.Item
             name="location"
-            label="Location"
+            label={requiredLabel("Location")}
             rules={[{ required: true, message: "Please enter location" }]}
             style={{ marginTop: "-16px" }}
           >
@@ -390,7 +395,7 @@ const EditData = ({
 
           <Form.Item
             name="work_type"
-            label="Work Type"
+            label={requiredLabel("Work Type")}
             rules={[{ required: true, message: "Please select work type" }]}
             style={{ marginTop: "-16px" }}
           >
@@ -402,8 +407,21 @@ const EditData = ({
           </Form.Item>
 
           <Form.Item
+            name="expired_at"
+            label={requiredLabel("Expired Date & Time")}
+            rules={[{ required: true, message: "Please select expired date" }]}
+            style={{ marginTop: "-16px" }}
+          >
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              style={{ borderColor: "#BBBBBB", height: "56px", width: "100%" }}
+            />
+          </Form.Item>
+
+          <Form.Item
             name="description"
-            label="Job Description"
+            label={requiredLabel("Job Description")}
             rules={[
               { required: true, message: "Please enter job description" },
             ]}
@@ -428,7 +446,7 @@ const EditData = ({
         <div className="grid grid-cols-2 gap-4 mb-4">
           <Form.Item
             name="salary_type"
-            label="Salary Based"
+            label={requiredLabel("Salary Based")}
             rules={[{ required: true, message: "Please select salary based" }]}
             style={{ gridColumn: "span 1" }}
           >
@@ -444,7 +462,7 @@ const EditData = ({
           >
             <Form.Item
               name="minimum_salary"
-              label="Minimum Salary"
+              label={requiredLabel("Minimum Salary")}
               rules={[
                 {
                   required: !isSalaryHidden,
@@ -462,7 +480,7 @@ const EditData = ({
 
             <Form.Item
               name="maximum_salary"
-              label="Maximum Salary"
+              label={requiredLabel("Maximum Salary")}
               rules={[
                 {
                   required: !isSalaryHidden,
@@ -505,7 +523,7 @@ const EditData = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Form.Item
               name="skills_category"
-              label="Skills Category"
+              label={requiredLabel("Skills Category")}
               rules={[
                 { required: true, message: "Please select skills category" },
               ]}
@@ -527,7 +545,7 @@ const EditData = ({
 
             <Form.Item
               name="skills_requirement"
-              label="Skills"
+              label={requiredLabel("Skills")}
               rules={[
                 { required: true, message: "Please select skills requirement" },
               ]}
@@ -586,7 +604,7 @@ const EditData = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Form.Item
               name="education_requirement"
-              label="Education Level"
+              label={requiredLabel("Education Level")}
               rules={[
                 { required: true, message: "Please select education level" },
               ]}
@@ -621,7 +639,7 @@ const EditData = ({
 
             <Form.Item
               name="experience_requirement"
-              label="Experience Level"
+              label={requiredLabel("Experience Level")}
               rules={[
                 { required: true, message: "Please select experience level" },
               ]}

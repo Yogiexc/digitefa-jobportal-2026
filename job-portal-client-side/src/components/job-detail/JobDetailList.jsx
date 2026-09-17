@@ -16,6 +16,7 @@ import { Spin, Button, message } from "antd";
 import Api from "../../services/Api";
 import NotFoundIcon from "../../assets/images/404.png";
 import { CheckBadgeIcon } from "@heroicons/react/24/solid";
+import JobFallback from "../../assets/images/job.jpg";
 
 const getEmploymentTypeIcon = (employmentType) => {
   switch (employmentType) {
@@ -190,8 +191,9 @@ const JobDetailList = ({ jobId }) => {
         <div className="md:w-3/4">
           <div className="flex md:flex-row items-center">
             <img
-              src={`${API_URL}/${jobData?.company?.logo_url}`}
+              src={jobData?.company?.logo_url ? `${API_URL}/${jobData.company.logo_url}` : JobFallback}
               alt="Company Logo"
+              onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
               className="w-20 h-auto md:w-24 md:h-auto mr-4"
             />
             <div>
@@ -284,7 +286,11 @@ const JobDetailList = ({ jobId }) => {
             >
               <span className="text-xs font-medium">
                 {" "}
-                {jobData?.is_applied ? "Applied" : "Apply"}{" "}
+                {jobData?.application_status === 'waiting_interview'
+                  ? 'Interview Scheduled'
+                  : jobData?.is_applied
+                  ? "Applied"
+                  : "Apply"}{" "}
               </span>
             </Button>
             <Button
@@ -304,6 +310,35 @@ const JobDetailList = ({ jobId }) => {
               />
             </Button>
           </div>
+
+
+          {jobData?.is_applied && jobData?.application_status && (
+            <div className="mb-6 flex flex-col gap-2">
+              <h3 className="text-sm font-medium text-[#232323]">
+                Application Status
+              </h3>
+              <div 
+                className={`flex items-center justify-center p-2 rounded-xl text-xs font-semibold ${
+                  jobData.application_status === 'pending' ? 'bg-blue-100 text-blue-700' :
+                  jobData.application_status === 'waiting_interview' ? 'bg-yellow-100 text-yellow-700' :
+                  jobData.application_status === 'accepted' ? 'bg-green-100 text-green-700' :
+                  jobData.application_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {jobData.application_status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </div>
+              {jobData.application_status === 'waiting_interview' && (
+                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+                  <p className="text-xs text-yellow-800">
+                    <span className="font-semibold text-yellow-900">Note: </span> 
+                    Please check your email regularly. We have sent or will be sending you an interview invitation and further instructions.
+                  </p>
+                </div>
+              )}
+
+            </div>
+          )}
 
           {jobData?.recommendation?.matched_job === true && (
             <div className="items-center gap-2 p-3 mb-6 rounded-[12px] bg-[#E3FCEC] text-green-700">
@@ -325,22 +360,22 @@ const JobDetailList = ({ jobId }) => {
               Job Information
             </h3>
             <div className="flex flex-wrap gap-2">
-              <badge className="bg-[#E3FCEC] text-[#2E7D32] text-xs font-medium rounded-[12px] p-2 flex items-center">
+              <span className="bg-[#E3FCEC] text-[#2E7D32] text-xs font-medium rounded-[12px] p-2 flex items-center">
                 <InformationCircleIcon
                   className="size-[14px] mr-2"
                   style={{ color: "#2E7D32" }}
                 />
                 {jobData?.category}
-              </badge>
-              <badge className="bg-[#E3FCEC] text-[#2E7D32] text-xs font-medium rounded-[12px] p-2 flex items-center">
+              </span>
+              <span className="bg-[#E3FCEC] text-[#2E7D32] text-xs font-medium rounded-[12px] p-2 flex items-center">
                 {getEmploymentTypeIcon(jobData?.employment_type)}
                 {jobData?.employment_type}
-              </badge>
-              <badge className="bg-[#E3FCEC] text-[#2E7D32] text-xs font-medium rounded-[12px] p-2 flex items-center">
+              </span>
+              <span className="bg-[#E3FCEC] text-[#2E7D32] text-xs font-medium rounded-[12px] p-2 flex items-center">
                 {getWorkTypeIcon(jobData?.work_type)}
                 {jobData?.work_type}
-              </badge>
-              <badge className="bg-[#E0F7FA] text-[#00796B] text-xs font-medium rounded-[12px] p-2 flex items-center">
+              </span>
+              <span className="bg-[#E0F7FA] text-[#00796B] text-xs font-medium rounded-[12px] p-2 flex items-center">
                 <CurrencyDollarIcon
                   className="size-[14px] mr-2"
                   style={{ color: "#00796B" }}
@@ -348,21 +383,29 @@ const JobDetailList = ({ jobId }) => {
                 {jobData?.minimum_salary > 0
                   ? `Rp ${jobData?.minimum_salary.toLocaleString()} - Rp ${jobData?.maximum_salary.toLocaleString()}`
                   : "Salary Undisclosed"}
-              </badge>
+              </span>
             </div>
           </div>
+
+          {jobData?.is_applied && (
+            <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+              <p className="text-xs text-yellow-800">
+                Note: All updates regarding your application will be sent via email. Please ensure that you regularly check your inbox.
+              </p>
+            </div>
+          )}
 
           <div className="mb-6">
             <h3 className="text-sm font-medium text-[#232323] mb-4">
               Job Requirement
             </h3>
             <div className="flex flex-wrap gap-2">
-              <badge className="bg-[#E4E4E4] text-[#232323] text-xs font-medium rounded-[12px] p-2 h-[40px] w-auto flex items-center">
+              <span className="bg-[#E4E4E4] text-[#232323] text-xs font-medium rounded-[12px] p-2 h-[40px] w-auto flex items-center">
                 {jobData?.experience_requirement}
-              </badge>
-              <badge className="bg-[#E4E4E4] text-[#232323] text-xs font-medium rounded-[12px] p-2 h-[40px] w-auto flex items-center">
+              </span>
+              <span className="bg-[#E4E4E4] text-[#232323] text-xs font-medium rounded-[12px] p-2 h-[40px] w-auto flex items-center">
                 {jobData?.education_requirement}
-              </badge>
+              </span>
             </div>
           </div>
 
@@ -372,12 +415,12 @@ const JobDetailList = ({ jobId }) => {
             </h3>
             <div className="flex flex-wrap gap-2">
               {jobData?.skills_requirement?.map((skill, index) => (
-                <badge
+                <span
                   key={index}
                   className="bg-[#E4E4E4] text-[#232323] text-xs font-medium rounded-[12px] p-2 h-[40px] w-auto flex items-center"
                 >
                   {skill}
-                </badge>
+                </span>
               ))}
             </div>
           </div>

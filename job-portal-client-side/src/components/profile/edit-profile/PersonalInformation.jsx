@@ -16,6 +16,7 @@ import ImgCrop from "antd-img-crop";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import PersonalInformationIcon from "../../../assets/svg/Personal.svg";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
+import BrokenImage from "../../../assets/images/broken.jpg";
 
 dayjs.extend(customParseFormat);
 
@@ -25,35 +26,50 @@ const PersonalInformation = ({
   initialValues,
   onSubmit,
   onUploadImage,
+  onRemoveImage,
 }) => {
   const [form] = Form.useForm();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState(
-    initialValues?.profile_picture_url ?? ""
+    initialValues?.imageUrl ?? BrokenImage
   );
   const [fileList, setFileList] = useState([]);
   const [imageFile, setImageFile] = useState(null);
+  const [isImageDeleted, setIsImageDeleted] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const customUploadRequest = (detail) => {
     const { onSuccess } = detail;
     // Simpan file gambar ke state
     setImageFile(detail);
+    setIsImageDeleted(false);
     // Tidak melakukan upload langsung
     onSuccess();
   };
 
   const handleFinish = async (values) => {
-    if (values.date_of_birth) {
-      values.date_of_birth = dayjs(values.date_of_birth).format("YYYY-MM-DD");
+    try {
+      setSaveLoading(true);
+      if (values.date_of_birth) {
+        values.date_of_birth = dayjs(values.date_of_birth).format("YYYY-MM-DD");
+      }
+      if (isImageDeleted) {
+        // Panggil fungsi hapus gambar jika ditandai untuk dihapus
+        await onRemoveImage?.();
+      } else if (imageFile) {
+        // Upload file gambar jika ada yang baru
+        await onUploadImage(imageFile);
+      }
+      console.log(values);
+      await onSubmit(values);
+      setOpen(false);
+      message.success("Profile updated successfully!");
+    } catch (error) {
+      console.error("handleFinish error:", error);
+      message.error("Failed to update profile. Please try again.");
+    } finally {
+      setSaveLoading(false);
     }
-    if (imageFile) {
-      // Upload file gambar jika ada
-      await onUploadImage(imageFile);
-    }
-    console.log(values);
-    onSubmit(values);
-    setOpen(false);
-    message.success("Profile updated successfully!");
   };
 
   const handleCancel = () => {
@@ -77,28 +93,30 @@ const PersonalInformation = ({
     setPreviewOpen(true);
   };
 
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  const handleChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+    if (newFileList.length > 0) {
+      setIsImageDeleted(false);
+    }
+  };
 
   const uploadButton = (
-    <button
-      style={{
-        border: 0,
-        background: "none",
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      type="button"
-    >
-      <DocumentArrowUpIcon className="size-7 ml-3" />
-      <span className="font-medium text-xs mr-3"> Upload Image</span>
-    </button>
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <img
+        src={BrokenImage}
+        alt="Default"
+        className="absolute inset-0 w-full h-full object-cover rounded-full opacity-30"
+      />
+      <DocumentArrowUpIcon className="size-7 z-10" />
+      <span className="font-medium text-[10px] z-10"> Upload Image</span>
+    </div>
   );
 
   const handleRemove = () => {
     setFileList([]);
-    setPreviewImage("");
+    setPreviewImage(BrokenImage);
+    setImageFile(null);
+    setIsImageDeleted(true);
     setPreviewOpen(false);
   };
 
@@ -117,17 +135,27 @@ const PersonalInformation = ({
   };
 
   useEffect(() => {
-    if (initialValues?.imageUrl) {
-      setFileList([
-        {
-          uid: "-1",
-          name: initialValues?.profile_picture_url,
-          status: "done",
-          url: initialValues?.imageUrl,
-        },
-      ]);
+    if (open && initialValues) {
+      form.setFieldsValue({
+        ...initialValues,
+        date_of_birth: initialValues.date_of_birth ? dayjs(initialValues.date_of_birth) : null,
+      });
+      if (initialValues.imageUrl) {
+        setPreviewImage(initialValues.imageUrl);
+        setFileList([
+          {
+            uid: "-1",
+            name: initialValues.profile_picture_url,
+            status: "done",
+            url: initialValues.imageUrl,
+          },
+        ]);
+      } else {
+        setPreviewImage(BrokenImage);
+        setFileList([]);
+      }
     }
-  }, [initialValues?.imageUrl]);
+  }, [initialValues, form, open]);
 
   return (
     <Modal
@@ -143,7 +171,7 @@ const PersonalInformation = ({
         </div>
       }
       centered
-      visible={open}
+      open={open}
       onCancel={handleCancel}
       width={700}
       maskClosable={false}
@@ -181,13 +209,18 @@ const PersonalInformation = ({
         </ImgCrop>
         {previewImage && (
           <Image
-            wrapperStyle={{ display: "none" }}
+            wrapperStyle={{ 
+              display: "none",
+              backgroundImage: `url(${BrokenImage})`,
+              backgroundSize: "cover",
+            }}
             preview={{
               visible: previewOpen,
               onVisibleChange: (visible) => setPreviewOpen(visible),
               afterOpenChange: (visible) => !visible && setPreviewImage(""),
             }}
             src={previewImage}
+            fallback={BrokenImage}
           />
         )}
         <div className="ml-8 mt-4">
@@ -292,6 +325,7 @@ const PersonalInformation = ({
             type="primary"
             style={{ width: 120, height: 40, borderRadius: 12 }}
             htmlType="submit"
+            loading={saveLoading}
           >
             <span className="font-medium text-sm"> Save </span>
           </Button>

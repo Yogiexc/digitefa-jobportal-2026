@@ -81,14 +81,6 @@ const MenuSidebar = [
     ["superadmin"]
   ),
 
-  getItem(
-    "Talents",
-    <Link to={`/talents`}>Talents </Link>,
-    "talents",
-    "/talents",
-    <IdentificationIcon className="size-5" />,
-    ["superadmin"]
-  ),
 
   getItem(
     "Profile Company",
@@ -106,6 +98,15 @@ const MenuSidebar = [
     "/job-vacancy",
     <BriefcaseIcon className="size-5" />,
     ["company"]
+  ),
+
+  getItem(
+    "Interviews",
+    <Link to={`/interviews`}>Interviews</Link>,
+    "interviews",
+    "/interviews",
+    <UserGroupIcon className="size-5" />,
+    [""]
   ),
 
   getItem(

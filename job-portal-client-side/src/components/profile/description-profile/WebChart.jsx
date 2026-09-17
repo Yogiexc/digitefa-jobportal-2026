@@ -22,12 +22,12 @@ const WebChart = ({ sectionItems }) => {
     const data = [
         {
             subject: 'Skills',
-            A: getScore(sectionItems.skill?.list, 'array', 8),
+            A: getScore(sectionItems.skill?.list, 'array', 10),
             fullMark: 100,
         },
         {
             subject: 'Experience',
-            A: getScore(sectionItems.experience?.list, 'array', 4),
+            A: getScore(sectionItems.experience?.list, 'array', 3),
             fullMark: 100,
         },
         {

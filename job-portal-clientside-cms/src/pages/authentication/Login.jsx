@@ -89,7 +89,7 @@ const Login = () => {
             "Incorrect password. Please check your password again."
           );
         } else {
-          message.error("Login failed. Please try again.");
+          message.error(error.data.message || "Login failed. Please try again.");
         }
       }
     } finally {

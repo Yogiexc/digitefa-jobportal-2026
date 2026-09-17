@@ -31,6 +31,7 @@ const Profile = () => {
       getUserInfo();
     } catch (error) {
       console.log("updatePersonalInfo :", error);
+      throw error;
     }
   };
 
@@ -46,6 +47,17 @@ const Profile = () => {
       getUserInfo();
     } catch (error) {
       console.log("uploadImageProfile :", error);
+      throw error;
+    }
+  };
+
+  const onRemoveImage = async () => {
+    try {
+      await Api.delete("/profile/job-seeker/profile-picture");
+      getUserInfo();
+    } catch (error) {
+      console.log("removeImageProfile :", error);
+      throw error;
     }
   };
 
@@ -69,8 +81,9 @@ const Profile = () => {
           {...personalInfo}
           onSubmit={onSubmit}
           onUploadImage={onUploadImage}
+          onRemoveImage={onRemoveImage}
         />
-        <Profiles />
+        <Profiles onAutofillSuccess={getUserInfo} />
         <Footers />
       </Layout>
     </HelmetProvider>

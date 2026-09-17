@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { Form, Typography, Select, Input, Button, Checkbox, Table } from "antd";
+import { Form, Typography, Select, Input, Button, Checkbox, Table, DatePicker } from "antd";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
 import BriefcaseIcon from "../../assets/svg/BriefcaseRed.svg";
@@ -21,6 +21,7 @@ const AddData = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const requiredLabel = (text) => (<span><span className="text-red-500">*</span> {text}</span>);
 
   const [dataSource, setDataSource] = useState([{ key: "1", benefitName: "" }]);
   const [skillsData, setSkillsData] = useState([]);
@@ -95,6 +96,7 @@ const AddData = ({
           // position_level: values.position_level,
           location: values.location,
           work_type: values.work_type,
+          expired_at: values.expired_at ? values.expired_at.toISOString() : null,
           description: values.description,
           salary_type: values.salary_type,
           ...(values.minimum_salary
@@ -234,7 +236,7 @@ const AddData = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
             <Form.Item
               name="title"
-              label="Job Title"
+              label={requiredLabel("Job Title")}
               rules={[{ required: true, message: "Please enter job title" }]}
             >
               <Input />
@@ -242,7 +244,7 @@ const AddData = ({
 
             <Form.Item
               name="category"
-              label="Job Category"
+              label={requiredLabel("Job Category")}
               rules={[
                 { required: true, message: "Please select job category" },
               ]}
@@ -292,7 +294,7 @@ const AddData = ({
 
             <Form.Item
               name="employment_type"
-              label="Employment Type"
+              label={requiredLabel("Employment Type")}
               rules={[
                 { required: true, message: "Please select employment type" },
               ]}
@@ -306,8 +308,17 @@ const AddData = ({
             </Form.Item>
 
             <Form.Item
+              name="location"
+              label={requiredLabel("Location")}
+              rules={[{ required: true, message: "Please enter location" }]}
+              style={{ marginTop: "-16px" }}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
               name="work_type"
-              label="Work Type"
+              label={requiredLabel("Work Type")}
               rules={[{ required: true, message: "Please select work type" }]}
               style={{ marginTop: "-16px" }}
             >
@@ -319,17 +330,21 @@ const AddData = ({
             </Form.Item>
 
             <Form.Item
-              name="location"
-              label="Location"
-              rules={[{ required: true, message: "Please enter location" }]}
+              name="expired_at"
+              label={requiredLabel("Expired Date & Time")}
+              rules={[{ required: true, message: "Please select expired date" }]}
               style={{ marginTop: "-16px" }}
             >
-              <Input />
+              <DatePicker
+                showTime
+                format="YYYY-MM-DD HH:mm"
+                style={{ borderColor: "#BBBBBB", height: "56px", width: "100%" }}
+              />
             </Form.Item>
 
             <Form.Item
               name="description"
-              label="Job Description"
+              label={requiredLabel("Job Description")}
               rules={[
                 { required: true, message: "Please enter job description" },
               ]}
@@ -355,7 +370,7 @@ const AddData = ({
             <div className="grid md:grid-cols-2 gap-4 mb-4">
               <Form.Item
                 name="salary_type"
-                label="Salary Based"
+                label={requiredLabel("Salary Based")}
                 rules={[
                   { required: true, message: "Please select salary based" },
                 ]}
@@ -373,7 +388,7 @@ const AddData = ({
               <div className="grid grid-cols-2 gap-2 w-full">
                 <Form.Item
                   name="minimum_salary"
-                  label="Minimum Salary"
+                  label={requiredLabel("Minimum Salary")}
                   rules={[
                     {
                       required: !isSalaryHidden,
@@ -392,7 +407,7 @@ const AddData = ({
 
                 <Form.Item
                   name="maximum_salary"
-                  label="Maximum Salary"
+                  label={requiredLabel("Maximum Salary")}
                   rules={[
                     {
                       required: !isSalaryHidden,
@@ -431,7 +446,7 @@ const AddData = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <Form.Item
                 name="skills_category"
-                label="Skills Category"
+                label={requiredLabel("Skills Category")}
                 rules={[
                   { required: true, message: "Please select skills category" },
                 ]}
@@ -453,7 +468,7 @@ const AddData = ({
 
               <Form.Item
                 name="skills_requirement"
-                label="Skills"
+                label={requiredLabel("Skills")}
                 rules={[
                   {
                     required: true,
@@ -512,21 +527,12 @@ const AddData = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <Form.Item
                 name="education_requirement"
-                label="Education Level"
+                label={requiredLabel("Education Level")}
                 rules={[
                   { required: true, message: "Please select education level" },
                 ]}
               >
                 <Select style={{ borderColor: "#BBBBBB", height: "56px" }}>
-                  <Select.Option value="Elementary School">
-                    Elementary School
-                  </Select.Option>
-                  <Select.Option value="Junior High School">
-                    Junior High School
-                  </Select.Option>
-                  <Select.Option value="Senior High School">
-                    Senior High School
-                  </Select.Option>
                   <Select.Option value="Associate Degree">
                     Associate Degree
                   </Select.Option>
@@ -544,7 +550,7 @@ const AddData = ({
 
               <Form.Item
                 name="experience_requirement"
-                label="Experience Level"
+                label={requiredLabel("Experience Level")}
                 rules={[
                   { required: true, message: "Please select experience level" },
                 ]}

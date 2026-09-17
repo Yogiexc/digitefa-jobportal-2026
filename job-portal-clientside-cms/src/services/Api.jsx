@@ -13,9 +13,14 @@ Api.defaults.timeout = 20000;
 
 Api.interceptors.request.use(
   (config) => {
-    const token = JSON.parse(sessionStorage.getItem("token"));
+    let token = sessionStorage.getItem("token") || localStorage.getItem("token");
     if (token) {
-      config.headers.Authorization = `Bearer ${token?.value}`;
+      token = token.replace(/^"(.*)"$/, '$1');
+      try {
+        const obj = JSON.parse(token);
+        if (obj && obj.value) token = obj.value;
+      } catch (e) { }
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

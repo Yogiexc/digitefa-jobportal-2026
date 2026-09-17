@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Card, Col, Row, Pagination, message, Spin } from "antd";
 import {
   BriefcaseIcon,
@@ -12,7 +13,7 @@ import {
   ComputerDesktopIcon,
 } from "@heroicons/react/24/outline";
 import Api from "../../services/Api";
-import { useNavigate } from "react-router-dom";
+import JobFallback from "../../assets/images/job.jpg";
 
 const getEmploymentTypeIcon = (employmentType) => {
   switch (employmentType) {
@@ -54,21 +55,35 @@ const getWorkTypeIcon = (workType) => {
   }
 };
 
-const calculateDaysAgo = (published_at) => {
-  const publishedDate = new Date(published_at);
+const calculateExpiresIn = (expired_at) => {
+  if (!expired_at) return "No expiration date";
+  const expiredDate = new Date(expired_at);
   const currentDate = new Date();
-  const differenceInTime = currentDate - publishedDate;
+  const differenceInTime = expiredDate - currentDate;
+  
+  if (differenceInTime <= 0) return "Expired";
+  
   const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-  return differenceInDays;
+  if (differenceInDays > 0) {
+    return `expires in ${differenceInDays} days`;
+  }
+  
+  const differenceInHours = Math.floor(differenceInTime / (1000 * 3600));
+  if (differenceInHours > 0) {
+    return `expires in ${differenceInHours} hours`;
+  }
+
+  const differenceInMinutes = Math.floor(differenceInTime / (1000 * 60));
+  return `expires in ${differenceInMinutes} minutes`;
 };
 
-const JobList = ({ filters }) => {
+const JobListing = ({ filters }) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [shouldRefetch, setShouldRefetch] = useState(false);
   const [totalJobs, setTotalJobs] = useState(0);
-  const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_IMAGE_API;
   const pageSize = 8;
 
@@ -106,7 +121,7 @@ const JobList = ({ filters }) => {
         });
     };
     fetchJobs();
-  }, [shouldRefetch, filters, currentPage]); // Add currentPage to dependencies
+  }, [shouldRefetch, filters, currentPage]);
 
   const handleBookmarkClick = useCallback(
     (index, job_id, is_saved) => {
@@ -183,8 +198,9 @@ const JobList = ({ filters }) => {
                     <div className="flex justify-between items-start">
                       <div className="flex gap-6 items-center">
                         <img
-                          src={`${API_URL}/${job.company.logo_url}`}
+                          src={job.company.logo_url ? `${API_URL}/${job.company.logo_url}` : JobFallback}
                           alt="Job Icon"
+                          onError={(e) => { e.target.onerror = null; e.target.src = JobFallback; }}
                           className="w-16 h-16 object-cover rounded-full"
                         />
                         <div className="flex flex-col mr-8">
@@ -221,22 +237,22 @@ const JobList = ({ filters }) => {
 
                     <div className="mt-4">
                       <div className="flex flex-wrap gap-3 mt-4">
-                        <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           {getEmploymentTypeIcon(job.employment_type)}
                           {job.employment_type}
-                        </badge>
-                        <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        </span>
+                        <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           {getWorkTypeIcon(job.work_type)}
                           {job.work_type}
-                        </badge>
-                        <badge className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        </span>
+                        <span className="bg-[#E3FCEC] text-[#2E7D32] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           <PresentationChartBarIcon
                             className="size-[14px] mr-2"
                             style={{ color: "#2E7D32" }}
                           />
                           {job.experience_requirement}
-                        </badge>
-                        <badge className="bg-[#E0F7FA] text-[#00796B] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
+                        </span>
+                        <span className="bg-[#E0F7FA] text-[#00796B] text-[12px] font-medium rounded-[12px] p-2 flex items-center">
                           <CurrencyDollarIcon
                             className="size-[14px] mr-2"
                             style={{ color: "#00796B" }}
@@ -244,18 +260,14 @@ const JobList = ({ filters }) => {
                           {job.minimum_salary > 0
                             ? `Rp ${job.minimum_salary.toLocaleString()} - Rp ${job.maximum_salary.toLocaleString()}`
                             : "Salary Undisclosed "}
-                        </badge>
+                        </span>
                       </div>
                       <div className="flex justify-between items-center mt-4">
                         <span className="text-xs text-[#232323]">
-                          {calculateDaysAgo(job.published_at) === 0
-                            ? "Posted today"
-                            : `${calculateDaysAgo(job.published_at)} days ago`}
+                          {calculateExpiresIn(job.expired_at)}
                         </span>
                         <div className="flex space-x-2">
                           <Button
-                            component="a"
-                            href={`/jobs/${job.job_id}`}
                             style={{
                               borderRadius: 12,
                               height: 40,
@@ -263,6 +275,7 @@ const JobList = ({ filters }) => {
                               borderColor: "#BBB",
                               borderWidth: 1,
                             }}
+                            onClick={() => navigate(`/jobs/${job.job_id}`)}
                           >
                             <span className="text-[12px] font-medium">
                               View Detail
@@ -313,4 +326,4 @@ const JobList = ({ filters }) => {
   );
 };
 
-export default JobList;
+export default JobListing;

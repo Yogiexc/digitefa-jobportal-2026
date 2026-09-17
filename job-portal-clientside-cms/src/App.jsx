@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import RoutesIndex from "./routes/RoutesIndex";
-import { ConfigProvider, Spin } from "antd";
+import { ConfigProvider, Spin, App as AntdApp } from "antd";
 import { useEffect, useState } from "react";
 import Api from "./services/Api";
 
@@ -205,7 +205,9 @@ function App() {
         },
       }}
     >
-      <RoutesIndex />
+      <AntdApp>
+        <RoutesIndex />
+      </AntdApp>
     </ConfigProvider>
   );
 }

@@ -4,6 +4,7 @@
  */
 export function previewImageUrl(options) {
   if (!options.url_image) return null;
+  if (isProtocol(options.url_image)) return options.url_image;
   return `${import.meta.env.VITE_IMAGE_API}/${options.url_image}`;
 }
 

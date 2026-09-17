@@ -18,7 +18,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use PHPUnit\Event\Code\Throwable;
 
 class AuthController extends Controller
 {
@@ -566,7 +565,7 @@ class AuthController extends Controller
 
             $errorMessage = $response->json('message', 'Failed to link account.');
             return response()->json(['message' => $errorMessage], $response->status());
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             Log::error('Failed to connect to Job Portal service: ' . $e);
             return response()->json(['message' => 'Could not connect to the linking service.'], 503);
         }
@@ -593,7 +592,7 @@ class AuthController extends Controller
                     'job_seeker_id' => $jobPortalId, 
                 ]);
                 Log::info("Successfully notified Job Portal to unlink account for job_seeker_id: {$jobPortalId}");
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
 
                 Log::error("Failed to notify Job Portal to unlink account: " . $e->getMessage());
             }

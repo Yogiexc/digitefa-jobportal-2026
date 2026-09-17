@@ -19,6 +19,7 @@ import {
   Segmented,
   Form,
   DatePicker,
+  App,
 } from "antd";
 import Api from "../../services/Api";
 import ExportData from "./ExportData";
@@ -30,17 +31,20 @@ import Pagination from "../Pagination";
 const { Content } = Layout;
 const { RangePicker } = DatePicker;
 
-const ViewApplicants = ({ jobId }) => {
+const ViewApplicants = ({ jobId, onBack }) => {
+  const { message } = App.useApp();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalData, setTotalData] = useState(0);
   const [totalPending, setTotalPending] = useState(0);
+  const [totalWaitingInterview, setTotalWaitingInterview] = useState(0);
   const [totalAccepted, setTotalAccepted] = useState(0);
   const [totalRejected, setTotalRejected] = useState(0);
   const [loading, setLoading] = useState(false);
   const [valueSegmented, setValueSegmented] = useState("all");
   const [selectApplicantsData, setSelectedApplicantsData] = useState(null);
+  const [selectedApplicantRecord, setSelectedApplicantRecord] = useState(null);
 
   const [openExportData, setOpenExportData] = useState(false);
   const [openDetailView, setOpenDetailView] = useState(false);
@@ -55,98 +59,111 @@ const ViewApplicants = ({ jobId }) => {
   const handleMenuClick = (record, action) => {
     if (action === "show") {
       setSelectedApplicantsData(record.application_id);
+      setSelectedApplicantRecord(record);
       setOpenDetailView(true);
     } else if (action === "cv_resume") {
       setSelectedApplicantsData(record.application_id);
+      setSelectedApplicantRecord(record);
       setOpenCVResume(true);
     } else if (action === "approval") {
       setSelectedApplicantsData(record.application_id);
+      setSelectedApplicantRecord(record);
       setOpenApproval(true);
     }
   };
 
-  const menu = (record) => (
-    <Menu
-      onClick={({ key }) => handleMenuClick(record, key)}
-      className="custom-menu"
-    >
-      <Menu.ItemGroup title="ACTION" className="custom-menu-item-group" />
-      <Menu.Item key="show" icon={<EyeIcon className="size-5" />}>
-        Show
-      </Menu.Item>
-      <Menu.Item key="cv_resume" icon={<PencilSquareIcon className="size-5" />}>
-        CV / Resume
-      </Menu.Item>
-      <Menu.Item key="approval" icon={<UsersIcon className="size-5" />}>
-        Approval
-      </Menu.Item>
-    </Menu>
-  );
+  const getMenuItems = (record) => [
+    {
+      key: "action-title",
+      label: "ACTION",
+      type: "group",
+    },
+    {
+      key: "show",
+      label: "Show",
+      icon: <EyeIcon className="size-5" />,
+    },
+    {
+      key: "cv_resume",
+      label: "CV / Resume",
+      icon: <PencilSquareIcon className="size-5" />,
+    },
+    {
+      key: "approval",
+      label: "Approval",
+      icon: <UsersIcon className="size-5" />,
+    },
+  ];
 
-  const filterMenu = (
-    <Menu className="p-4" style={{ width: 330, padding: "16px" }}>
-      <Form layout="vertical">
-        <p className="text-gray-400 text-bold">Filter</p>
-        <Form.Item label="Select Date">
-          <RangePicker
-            style={{
-              borderColor: "#BBBBBB",
-              height: "56px",
-              width: "298px",
-              borderRadius: 12,
-            }}
-          />
-        </Form.Item>
+  const filterMenuItems = [
+    {
+      key: "filter-form",
+      label: (
+        <div className="p-2" onClick={(e) => e.stopPropagation()}>
+          <Form layout="vertical">
+            <p className="text-gray-400 text-bold">Filter</p>
+            <Form.Item label="Select Date">
+              <RangePicker
+                style={{
+                  borderColor: "#BBBBBB",
+                  height: "56px",
+                  width: "298px",
+                  borderRadius: 12,
+                }}
+              />
+            </Form.Item>
 
-        <Form.Item label="Salary">
-          <Select
-            placeholder="Select Salary"
-            style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
-          >
-            <Select.Option value="informatics">
-              Informatics Engineering
-            </Select.Option>
-            <Select.Option value="business">
-              Business Administration
-            </Select.Option>
-          </Select>
-        </Form.Item>
+            <Form.Item label="Salary">
+              <Select
+                placeholder="Select Salary"
+                style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
+              >
+                <Select.Option value="informatics">
+                  Informatics Engineering
+                </Select.Option>
+                <Select.Option value="business">
+                  Business Administration
+                </Select.Option>
+              </Select>
+            </Form.Item>
 
-        <Form.Item label="Experience">
-          <Select
-            placeholder="Select Experience"
-            style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
-          >
-            <Select.Option value="informatics">
-              Informatics Engineering
-            </Select.Option>
-            <Select.Option value="business">
-              Business Administration
-            </Select.Option>
-          </Select>
-        </Form.Item>
+            <Form.Item label="Experience">
+              <Select
+                placeholder="Select Experience"
+                style={{ borderColor: "#BBBBBB", height: "56px", width: "298px" }}
+              >
+                <Select.Option value="informatics">
+                  Informatics Engineering
+                </Select.Option>
+                <Select.Option value="business">
+                  Business Administration
+                </Select.Option>
+              </Select>
+            </Form.Item>
 
-        <div className="flex justify-end space-x-2">
-          <Button
-            style={{
-              width: 54,
-              height: 40,
-              borderColor: "#BBB",
-              borderRadius: 12,
-            }}
-          >
-            <span className="text-xs">Reset</span>
-          </Button>
-          <Button
-            type="primary"
-            style={{ width: 54, height: 40, borderRadius: 12 }}
-          >
-            <span className="text-xs">Apply</span>
-          </Button>
+            <div className="flex justify-end space-x-2">
+              <Button
+                style={{
+                  width: 54,
+                  height: 40,
+                  borderColor: "#BBB",
+                  borderRadius: 12,
+                }}
+              >
+                <span className="text-xs">Reset</span>
+              </Button>
+              <Button
+                type="primary"
+                style={{ width: 54, height: 40, borderRadius: 12 }}
+              >
+                <span className="text-xs">Apply</span>
+              </Button>
+            </div>
+          </Form>
         </div>
-      </Form>
-    </Menu>
-  );
+      ),
+    },
+  ];
 
   const columns = [
     {
@@ -186,7 +203,14 @@ const ViewApplicants = ({ jobId }) => {
       key: "action",
       width: "10%",
       render: (text, record) => (
-        <Dropdown overlay={menu(record)} trigger={["click"]}>
+        <Dropdown
+          menu={{
+            items: getMenuItems(record),
+            onClick: ({ key }) => handleMenuClick(record, key),
+            className: "custom-menu",
+          }}
+          trigger={["click"]}
+        >
           <button className="size-5 text-red-600 ml-3">
             <EllipsisVerticalIcon />
           </button>
@@ -204,6 +228,7 @@ const ViewApplicants = ({ jobId }) => {
           setData(response.data);
           setTotalData(response.totalData);
           setTotalPending(response.totalPending);
+          setTotalWaitingInterview(response.totalWaitingInterview);
           setTotalAccepted(response.totalAccepted);
           setTotalRejected(response.totalRejected);
           setLoading(false);
@@ -252,6 +277,24 @@ const ViewApplicants = ({ jobId }) => {
     setOpenDetailView(false);
   };
 
+  const handleApplicantStatusUpdated = (applicationId, nextStatus) => {
+    const normalizedStatus = (nextStatus || "").replace(/\s+/g, "_");
+
+    setData((prev) =>
+      prev.map((item) =>
+        item.application_id === applicationId
+          ? { ...item, status: normalizedStatus }
+          : item
+      )
+    );
+
+    setSelectedApplicantRecord((prev) =>
+      prev && prev.application_id === applicationId
+        ? { ...prev, status: normalizedStatus }
+        : prev
+    );
+  };
+
   return (
     <Content>
       {openDetailView ? (
@@ -280,6 +323,7 @@ const ViewApplicants = ({ jobId }) => {
               options={[
                 { label: `All ${totalData}`, value: "all" },
                 { label: `Pending ${totalPending}`, value: "pending" },
+                { label: `Waiting Interview ${totalWaitingInterview}`, value: "waiting_interview" },
                 { label: `Accepted ${totalAccepted}`, value: "accepted" },
                 { label: `Rejected ${totalRejected}`, value: "rejected" },
               ]}
@@ -312,9 +356,9 @@ const ViewApplicants = ({ jobId }) => {
               />
 
               <Dropdown
-                overlay={filterMenu}
-                visible={filterVisible}
-                onVisibleChange={setFilterVisible}
+                menu={{ items: filterMenuItems }}
+                open={filterVisible}
+                onOpenChange={setFilterVisible}
                 trigger={["click"]}
               >
                 <Button
@@ -366,6 +410,14 @@ const ViewApplicants = ({ jobId }) => {
               />
             )}
           />
+          <div className="flex justify-end mt-6">
+            <Button
+              size="large"
+              onClick={onBack}
+            >
+              <span className="text-sm font-medium"> Back </span>
+            </Button>
+          </div>
         </>
       )}
       {openExportData && (
@@ -387,8 +439,9 @@ const ViewApplicants = ({ jobId }) => {
         <Approval
           open={openApproval}
           setOpen={setOpenApproval}
-          applicantsData={selectApplicantsData}
+          applicantsData={selectedApplicantRecord}
           fetchData={fetchData}
+          onStatusUpdated={handleApplicantStatusUpdated}
         />
       )}
     </Content>

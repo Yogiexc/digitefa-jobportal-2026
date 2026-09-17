@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
   backend:
@@ -25,9 +25,19 @@ services:
       - db
 
   db:
-    image: mysql:8.0
+    image: mysql:5.7
     container_name: job_portal_db
     restart: unless-stopped
+    command: [
+      "--performance_schema=OFF",
+      "--key_buffer_size=16M",
+      "--tmp_table_size=1M",
+      "--max_connections=10",
+      "--innodb_buffer_pool_size=16M",
+      "--innodb_log_buffer_size=1M",
+      "--query_cache_size=0",
+      "--max_heap_table_size=1M"
+    ]
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=digitefa_job_portal
@@ -35,20 +45,10 @@ services:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./sample-db-job-portal.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db-init:/docker-entrypoint-initdb.d
     networks:
       - app_network
 
-  python_server:
-    build:
-      context: ./job-portal-server-side/python
-      dockerfile: Dockerfile.python
-    container_name: job_portal_python_server
-    restart: unless-stopped
-    ports:
-      - "5555:5555"
-    networks:
-      - app_network
 
   ai_http_server:
     build:
@@ -56,36 +56,21 @@ services:
       dockerfile: Dockerfile
     container_name: job_portal_ai_http_server
     restart: unless-stopped
+    volumes:
+      - ./digitefa-python:/app
     ports:
       - "9090:9090"
-    networks:
-      - app_network
-
-  frontend_client:
-    build:
-      context: ./job-portal-client-side
-      dockerfile: Dockerfile
-    container_name: job_portal_client
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    networks:
-      - app_network
-
-  frontend_cms:
-    build:
-      context: ./job-portal-clientside-cms
-      dockerfile: dockerfile
-    container_name: job_portal_cms
-    restart: unless-stopped
-    ports:
-      - "5173:5173"
+    environment:
+      - MPLBACKEND=Agg
+      - HF_HUB_DISABLE_TELEMETRY=1
+      - HF_HUB_ENABLE_HF_TRANSFER=0
+      - HF_HUB_OFFLINE=1
     networks:
       - app_network
 
 networks:
   app_network:
-    name: digitefa_app_network
+    driver: bridge
 
 volumes:
   db_data:

@@ -6,6 +6,10 @@ import { StaticFilesMiddleware } from './middleware/static-files.middleware';
 import { ConfigService } from '@nestjs/config';
 import 'dotenv/config';
 
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
@@ -18,9 +22,8 @@ async function bootstrap() {
   app.use('/public', new StaticFilesMiddleware().use);
   app.setGlobalPrefix('api');
   app.enableCors({
-    allowedHeaders: '*',
-    origin: '*',
-    methods: '*',
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
   // Swagger Configuration
@@ -199,17 +202,31 @@ async function bootstrap() {
 
     ];
 
-    // // Save the Swagger JSON to a file
-    // fs.writeFileSync('./swagger.json', JSON.stringify(document));
+    // Save the Swagger JSON to a file
+    const fs = require('fs');
+    fs.writeFileSync('./swagger.json', JSON.stringify(document));
 
-    // // Convert JSON to YAML and save
+    // Convert JSON to YAML and save
     // const yamlString = yaml.stringify(document);
     // fs.writeFileSync('./swagger.yaml', yamlString);
 
-    SwaggerModule.setup('api', app, document);
+    try {
+      const { apiReference } = await import('@scalar/nestjs-api-reference');
+      app.use(
+        '/docs',
+        apiReference({
+          theme: 'default',
+          spec: {
+            content: document,
+          },
+        }),
+      );
+    } catch (err) {
+      console.warn('Scalar API docs could not be loaded due to ESM issues, skipping:', err.message);
+    }
   }
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

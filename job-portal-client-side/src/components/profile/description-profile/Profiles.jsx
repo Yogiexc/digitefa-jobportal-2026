@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, List, Progress } from "antd";
+import { Button, Card, List, Progress, Modal, Typography, Divider } from "antd";
 import PersonalSummary from "./PersonalSummary";
 import Education from "./Education";
 import Experience from "./Experience";
@@ -16,7 +16,9 @@ import {
   TrashIcon,
   LinkIcon,
   SparklesIcon,
-  DocumentArrowUpIcon
+  DocumentArrowUpIcon,
+  ArrowDownTrayIcon,
+  ExclamationTriangleIcon
 } from "@heroicons/react/24/outline";
 import { message, Upload } from "antd";
 import { useProfile } from "../../../hooks/useProfile";
@@ -24,7 +26,7 @@ import { useOnMountUnsafe } from "../../../hooks/useMountUnsave.jsx";
 import { toPascalCase, dateToMonthYear } from "../../../utils";
 import Api from "../../../services/Api";
 
-const Profiles = () => {
+const Profiles = ({ onAutofillSuccess }) => {
   const [profileCompletion, setProfileCompletion] = useState({
     percentage: 30,
     show: false,
@@ -41,13 +43,23 @@ const Profiles = () => {
     sectionItems,
     contextHolder,
     percentage,
+    messageApi,
     setInitialValues,
     getAllSectionData,
     action,
   } = useProfile({ defaultPercentage: 30 });
 
+  const { Title, Text } = Typography;
+  const [cvPreviewVisible, setCvPreviewVisible] = useState(false);
+  const [parsedCvData, setParsedCvData] = useState(null);
+  const [isConfirmingCv, setIsConfirmingCv] = useState(false);
+
   const [popup, setPopUp] = useState(defaultPopUp);
+  const [isAutofilling, setIsAutofilling] = useState(false);
   const [linkAccountOpen, setLinkAccountOpen] = useState(false);
+  const [isAutofillModalOpen, setIsAutofillModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [emptyFields, setEmptyFields] = useState([]);
 
   const sections = {
     [sectionEnums.PERSONAL_SUMMARY]: {
@@ -135,21 +147,45 @@ const Profiles = () => {
 
   const onCvUpload = async (options) => {
     const { file, onSuccess, onError } = options;
+    setIsAutofilling(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
-      message.loading({ content: 'Parsing CV with AI...', key: 'cvupload' });
-      await Api.post("/profile/cv-autofill", formData, {
+      messageApi.loading({ content: 'Uploading and extracting CV via AI...', key: 'cvupload' });
+      const response = await Api.post("/profile/cv-autofill", formData, {
         headers: { "content-type": "multipart/form-data" },
       });
-      message.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
+      messageApi.success({ content: 'Profile successfully updated from CV!', key: 'cvupload' });
+      
+      // Check for unread sections from the backend response
+      // We check multiple paths to be sure we catch it regardless of wrapper structure
+      const unreadSections = 
+        response.data?.data?.unread_sections || 
+        response.data?.unread_sections || 
+        response.data?.parsed_data?.unread_sections;
+      
+      if (unreadSections && Array.isArray(unreadSections) && unreadSections.length > 0) {
+        setEmptyFields(unreadSections);
+        setIsErrorModalOpen(true);
+      }
+
+      // Refresh section data
+      await getAllSectionData();
+      
+      // Refresh banner data
+      if (onAutofillSuccess) {
+        await onAutofillSuccess();
+      }
+      
+      // Close modal on success
+      setIsAutofillModalOpen(false);
       onSuccess();
-      // Reload the data gracefully instead of full page reload if possible
-      getAllSectionData();
     } catch (error) {
       console.error(error);
-      message.error({ content: 'Failed to process CV', key: 'cvupload' });
+      messageApi.error({ content: 'Failed to process CV', key: 'cvupload' });
       onError(error);
+    } finally {
+      setIsAutofilling(false);
     }
   };
 
@@ -191,18 +227,13 @@ const Profiles = () => {
               <div className="text-base font-semibold mb-6 md:mb-8">
                 Profile Completion
               </div>
-              <Upload
-                accept=".pdf"
-                customRequest={onCvUpload}
-                showUploadList={false}
+              <Button
+                icon={<SparklesIcon className="w-5 h-5 text-purple-600" />}
+                className="mb-8 w-full border-purple-300 bg-purple-50 hover:bg-purple-100 flex items-center justify-center h-12 rounded-xl shadow-sm"
+                onClick={() => setIsAutofillModalOpen(true)}
               >
-                <Button
-                  icon={<SparklesIcon className="w-5 h-5 text-purple-600" />}
-                  className="mb-8 w-full border-purple-300 bg-purple-50 hover:bg-purple-100 flex items-center justify-center h-12 rounded-xl shadow-sm"
-                >
-                  <span className="text-purple-700 font-semibold text-sm">Autofill from CV</span>
-                </Button>
-              </Upload>
+                <span className="text-purple-700 font-semibold text-sm">Autofill from CV</span>
+              </Button>
               <Progress
                 type="circle"
                 percent={percentage}
@@ -265,7 +296,13 @@ const Profiles = () => {
         </div>
       </div>
 
-      <LinkAccount open={linkAccountOpen} setOpen={setLinkAccountOpen} />
+
+
+      <LinkAccount
+        open={linkAccountOpen}
+        setOpen={setLinkAccountOpen}
+        onSuccess={getAllSectionData}
+      />
 
       <PersonalSummary
         action={action}
@@ -319,6 +356,123 @@ const Profiles = () => {
         open={popup[sectionEnums.LANGUAGE]}
         setOpen={onHandlePopUp}
       />
+
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <SparklesIcon className="w-5 h-5 text-purple-600" />
+            <span>Autofill Profile from CV</span>
+          </div>
+        }
+        open={isAutofillModalOpen}
+        onCancel={() => setIsAutofillModalOpen(false)}
+        footer={null}
+        centered
+        width={400}
+        styles={{ body: { padding: '24px 20px' } }}
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-gray-500 text-sm mb-2">
+            Choose an option to automatically populate your profile information using our AI extraction tool.
+          </p>
+
+          <a href="/template/Digitefa CV Template.docx" download>
+            <Button
+              type="default"
+              size="large"
+              block
+              className="h-16 flex items-center justify-between px-10 rounded-2xl bg-[#E3FCEC] hover:bg-[#E3FCEC]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-[#06A73B]/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                  <ArrowDownTrayIcon className="w-5 h-5 text-[#06A73B] group-hover:text-[#E3FCEC]" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-sm text-[#06A73B] group-hover:text-[#E3FCEC]">Download Template</div>
+                  <div className="text-[11px] font-medium text-[#06A73B]/70 group-hover:text-[#E3FCEC]/80">Use our standard format</div>
+                </div>
+              </div>
+            </Button>
+          </a>
+
+          <div className="flex items-center gap-2 my-1">
+            <div className="flex-1 h-[1px] bg-gray-100"></div>
+            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider text-center px-2">
+              if you already have your own CV you can directly upload it
+            </p>
+            <div className="flex-1 h-[1px] bg-gray-100"></div>
+          </div>
+
+          <Upload
+            accept=".pdf"
+            customRequest={onCvUpload}
+            showUploadList={false}
+            className="w-full"
+          >
+            <Button
+              type="primary"
+              size="large"
+              block
+              loading={isAutofilling}
+              className="h-16 flex items-center justify-between px-14 rounded-2xl bg-purple-100 hover:bg-purple-700"
+            >
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2 bg-purple-500/30 rounded-xl group-hover:bg-purple-500/50 transition-colors">
+                  <DocumentArrowUpIcon className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-purple-500 text-sm">Upload & Autofill</div>
+                  <div className="text-[11px] text-purple-500 font-medium">Extract data from your CV</div>
+                </div>
+              </div>
+            </Button>
+          </Upload>
+        </div>
+      </Modal>
+      
+      <Modal
+        title={
+          <div className="flex items-center gap-2 text-red-600">
+            <ExclamationTriangleIcon className="w-6 h-6" />
+            <span className="font-bold">Incomplete Profile Information</span>
+          </div>
+        }
+        open={isErrorModalOpen}
+        onCancel={() => setIsErrorModalOpen(false)}
+        footer={[
+          <Button 
+            key="close" 
+            type="primary" 
+            danger
+            onClick={() => setIsErrorModalOpen(false)}
+            className="rounded-lg px-6"
+          >
+            I'll fix it manually
+          </Button>
+        ]}
+        centered
+        width={450}
+        styles={{ body: { padding: '24px' } }}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
+            <p className="text-red-800 text-sm font-medium mb-3">
+              We successfully processed your CV, but some sections could not be extracted or are still empty:
+            </p>
+            <ul className="grid grid-cols-1 gap-2">
+              {emptyFields.map((field, index) => (
+                <li key={index} className="flex items-center gap-2 text-red-700 text-sm">
+                  <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
+                  {field}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="text-gray-500 text-xs italic">
+            Tip: Make sure your CV follows a standard format for better extraction results. You can download our template for the best experience.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -412,14 +566,17 @@ const TextCard = (props) => (
             <p>{props.text}</p>
           ) : (
             <div className="w-4/5" style={{ fontSize: "0.8rem" }}>
+
               <p className="text-xl font-medium leading-7">
-                {props.text?.grade}
+                {props.text?.university_name}
               </p>
-              <p className="text-sm">
-                {props.text?.university_name} • {props.text?.major}
+              <p className="text-[15px]">
+                {props.text?.major}
               </p>
               <p className="text-xs">{props.text?.degree}</p>
-              <br />
+              <p className="text-xs">
+                GPA :{props.text?.grade}
+              </p>
               <p className="text-[10px]">
                 {dateToMonthYear(props.text?.start_date)} -{" "}
                 {dateToMonthYear(props.text?.end_date)}
@@ -466,17 +623,26 @@ const ListItemCard = (props) => {
                 <p className="text-xl font-medium leading-7">
                   {item?.experience_title ||
                     item?.project_name ||
-                    item?.certification_name}
+                    item?.certification_name ||
+                    item?.university_name}
                 </p>
                 {sectionId === "EXPERIENCE" && (
                   <p className="text-sm">
                     {item?.company_name} • {item.employment_type}
                   </p>
                 )}
+                {sectionId === "EDUCATION" && (
+                  <p className="text-sm">
+                    {item?.major} • {item?.degree}
+                  </p>
+                )}
                 <p className="text-xs">
                   {item?.location && item?.location + " -"}{" "}
                   {item?.location_type}
                 </p>
+                {sectionId === "EDUCATION" && (
+                  <p className="text-xs">GPA: {item?.grade}</p>
+                )}
                 <p className="text-sm">{item?.issuing_organization}</p>
                 <p className="text-xs font-normal">
                   {dateToMonthYear(item?.start_date || item?.issue_date)} -

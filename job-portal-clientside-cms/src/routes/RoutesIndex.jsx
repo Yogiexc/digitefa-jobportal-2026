@@ -15,7 +15,6 @@ import ExperienceLevel from "../pages/master-data/ExperienceLevel";
 import Skills from "../pages/master-data/Skills";
 import UniversityManagement from "../pages/university-management/UniversityManagement";
 import CompanyManagement from "../pages/company-management/CompanyManagement";
-import Talents from "../pages/talents/Talents";
 import AboutUs from "../pages/content/AboutUs";
 import EventNews from "../pages/content/EventNews";
 import PrivacyPolicy from "../pages/content/PrivacyPolicy";
@@ -35,6 +34,7 @@ import FillProfileUniversity from "../components/profile/university/FillProfileU
 // COMPANY
 import ProfileCompany from "../pages/profile/ProfileCompany";
 import JobVacancy from "../pages/job-vacancy/JobVacancy";
+import InterviewList from "../pages/interviews/InterviewList";
 import VerificationSuccessfullyCompany from "../components/profile/company/VerificationSuccessfullyCompany";
 import FillDataCompany from "../components/profile/company/FileDataCompany";
 import FillProfileCompany from "../components/profile/company/FillProfileCompany";
@@ -127,7 +127,6 @@ function RoutesIndex() {
           element={<UniversityManagement />}
         />
         <Route path="/company-management" element={<CompanyManagement />} />
-        <Route path="/talents" element={<Talents />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/event-news" element={<EventNews />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -144,10 +143,6 @@ function RoutesIndex() {
         <Route path="/profile-completed" element={<ProfileCompleted />} />
         <Route path="/request-profile" element={<RequestProfile />} />
       </Route>
-
-      <Route
-        element={<ProtectedRoute requiredRole={["superadmin", "company"]} />}
-      ></Route>
 
       <Route element={<ProtectedRoute requiredRole={["university"]} />}>
         <Route path="/profile-university" element={<ProfileUniversity />} />
@@ -170,6 +165,7 @@ function RoutesIndex() {
       <Route element={<ProtectedRoute requiredRole={["company"]} />}>
         <Route path="/profile-company" element={<ProfileCompany />} />
         <Route path="/job-vacancy" element={<JobVacancy />} />
+        <Route path="/interviews" element={<InterviewList />} />
         <Route
           path="/verification-successfully-company"
           element={<VerificationSuccessfullyCompany />}

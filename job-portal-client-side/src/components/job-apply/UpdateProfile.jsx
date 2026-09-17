@@ -354,72 +354,75 @@ const TextCard = (props) => (
 
 const ListItemCard = (props) => {
   const { sectionId, componentId, onButtonClick, onDestroy, ...item } = props;
+
   return (
     <div className="flex">
-      <Card key={componentId} className="jobportal-section my-1">
+      <Card key={componentId} className="jobportal-section my-1 w-full">
         <Card.Meta
           description={
             sectionId !== "SKILL" && sectionId !== "LANGUAGE" ? (
-              <div className="flex justify-between text-black">
-                <div className="w-4/5">
+              <div className="flex justify-between text-black gap-4">
+                <div className="flex-1">
                   <p className="text-[20px] font-medium leading-7">
                     {item?.experience_title ||
                       item?.project_name ||
                       item?.certification_name}
                   </p>
+
                   {sectionId === "EXPERIENCE" && (
                     <p className="text-sm">
                       {item?.company_name} &#9679; {item.employment_type}
                     </p>
                   )}
+
                   <p className="text-xs">
                     {item?.location && item?.location + " -"}
                     {item?.location_type}
                   </p>
+
                   <p className="text-sm">{item?.issuing_organization}</p>
+
                   <p className="text-xs font-normal">
                     {dateToMonthYear(item?.start_date || item?.issue_date)} -
                     {sectionId === "EXPERIENCE" &&
                     item?.start_date === item?.end_date
-                      ? "Now"
+                      ? " Now"
                       : dateToMonthYear(
                           item?.end_date || item?.expiration_date
                         )}
                   </p>
+
                   <p className="mt-2 text-xs">
                     {item?.description || item?.credential_url}
                   </p>
                 </div>
-                <div className="w-1/5 text-right">
+
+                <div className="flex items-start gap-2 flex-shrink-0">
                   <Button
                     type="text"
                     onClick={() => onButtonClick({ sectionId, data: item })}
-                    icon={<PencilSquareIcon className="size-5" />}
-                    className="mr-1"
+                    icon={<PencilSquareIcon className="w-5 h-5" />}
                   />
+
                   <Button
                     type="text"
                     onClick={() => onDestroy({ sectionId, data: item })}
-                    icon={<TrashIcon className="size-5" />}
-                    className="ml-1"
+                    icon={<TrashIcon className="w-5 h-5" />}
                   />
                 </div>
               </div>
             ) : (
-              <div className="flex items-center text-black">
-                <div className="w-4/5">
-                  <p className="text-[14px] leading-5">
-                    {item?.skill_name || item?.language_name}
-                  </p>
-                </div>
-                <div className="w-1/5 text-right">
-                  <Button
-                    type="text"
-                    onClick={() => onDestroy({ sectionId, data: item })}
-                    icon={<TrashIcon className="size-5" />}
-                    className="ml-1"
-                  />
-                </div>
+              <div className="flex items-center justify-between text-black">
+                <p className="text-[14px] leading-5">
+                  {item?.skill_name || item?.language_name}
+                </p>
+
+                <Button
+                  type="text"
+                  onClick={() => onDestroy({ sectionId, data: item })}
+                  icon={<TrashIcon className="w-6 h-6" />}
+                  className="flex-shrink-0"
+                />
               </div>
             )
           }

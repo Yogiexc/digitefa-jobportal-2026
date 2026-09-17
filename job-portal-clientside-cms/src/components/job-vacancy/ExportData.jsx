@@ -66,7 +66,7 @@ const ExportData = ({ open, setOpen, jobId }) => {
           </div>
         }
         centered
-        visible={open}
+        open={open}
         onCancel={handleCancel}
         width={470}
         maskClosable={false}

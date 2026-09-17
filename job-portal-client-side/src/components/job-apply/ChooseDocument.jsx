@@ -4,10 +4,21 @@ import { ArrowRightIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { getUserSession, previewImageUrl } from "../../utils";
 import PersonalInformation from "./PersonalInformation";
 import { useJobApply } from "../../pages/job-apply/JobApplyContext";
-import { InboxOutlined } from "@ant-design/icons";
+import {
+  InboxOutlined,
+  UserOutlined,
+  FilePdfOutlined,
+  FileWordOutlined,
+  FileImageOutlined,
+  FileTextOutlined,
+  FileUnknownOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
+
 import Api from "../../services/Api";
 import { useOnMountUnsafe } from "../../hooks/useMountUnsave";
-import { UserOutlined } from "@ant-design/icons";
+
+import brokenImage from "../../assets/images/broken.jpg";
 
 const { Dragger } = Upload;
 
@@ -30,26 +41,43 @@ const ChooseDocument = ({ onNext }) => {
     if (formData.upload_resume) {
       setFileList([
         {
-          uid: formData.upload_resume.uid,
+          uid: formData.upload_resume.uid || Date.now(),
           name: formData.upload_resume.name,
           status: "done", 
-          url: URL.createObjectURL(formData.upload_resume), 
+          url: formData.upload_resume instanceof File ? URL.createObjectURL(formData.upload_resume) : formData.upload_resume, 
         },
       ]);
     } else {
       setFileList([]);
     }
   }, [formData.upload_resume]);
+  const getFileIcon = (file) => {
+    const name = file.name || "";
+    if (name.endsWith(".pdf")) return <FilePdfOutlined style={{ color: "#f5222d", fontSize: "24px" }} />;
+    if (name.match(/\.(doc|docx)$/i)) return <FileWordOutlined style={{ color: "#1890ff", fontSize: "24px" }} />;
+    if (name.match(/\.(png|jpg|jpeg)$/i)) return <FileImageOutlined style={{ color: "#52c41a", fontSize: "24px" }} />;
+    if (name.match(/\.(txt|rtf)$/i)) return <FileTextOutlined style={{ color: "#fa8c16", fontSize: "24px" }} />;
+    return <FileUnknownOutlined style={{ fontSize: "24px" }} />;
+  };
 
   const props = {
     name: "file",
     multiple: false,
-    listType: "picture",
+    showUploadList: false,
     fileList,
-    onChange(info) {
-      updateFormData("upload_resume", info.file.originFileObj);
+    accept: ".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg,",
+    iconRender: getFileIcon,
+  
+    beforeUpload(file) {
+      updateFormData("upload_resume", file);
+      return false; // Prevent auto upload
     },
-    onDrop() {
+  
+    onChange(info) {
+      const { status } = info.file;
+      if (status === 'removed') {
+        updateFormData("upload_resume", null);
+      }
     },
   };
 
@@ -87,7 +115,7 @@ const ChooseDocument = ({ onNext }) => {
     try {
       const formData = new FormData();
       formData.append("profile_picture", file);
-
+ 
       await Api.post("/profile/job-seeker/profile-picture", formData, {
         headers: { "content-type": "multipart/form-data" },
       });
@@ -124,9 +152,13 @@ const ChooseDocument = ({ onNext }) => {
               description={
                 <div className="flex justify-between items-center w-full">
                   <img
-                    src={imageUrl || UserOutlined}
+                    src={imageUrl || brokenImage}
                     alt="Profile"
                     className="w-[110px] h-[110px] rounded-full mr-5 ml-1 border border-[#BBBBBB] p-2"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = brokenImage;
+                    }}
                   />
 
                   <div className="w-4/5" style={{ fontSize: "0.8rem" }}>
@@ -177,6 +209,32 @@ const ChooseDocument = ({ onNext }) => {
               prohibited files is strictly forbidden.
             </p>
           </Dragger>
+
+          {formData.upload_resume && (
+            <div className="mt-4 p-4 border border-dashed border-[#E0E0E0] rounded-2xl flex items-center justify-between bg-[#F9F9F9]">
+              <div className="flex items-center gap-4">
+                <div className="bg-white p-2 rounded-xl shadow-sm border border-[#EEEEEE]">
+                  {getFileIcon(formData.upload_resume.name)}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-[#232323] truncate max-w-[200px]">
+                    {formData.upload_resume.name}
+                  </span>
+                  <span className="text-[10px] text-[#9A9A9A] font-medium uppercase tracking-wider">
+                    {(formData.upload_resume.size / 1024).toFixed(0)} KB
+                  </span>
+                </div>
+              </div>
+              <Button 
+                type="text" 
+                danger 
+                shape="circle"
+                icon={<DeleteOutlined className="size-4" />} 
+                onClick={() => updateFormData("upload_resume", null)}
+                className="hover:bg-red-50 flex items-center justify-center"
+              />
+            </div>
+          )}
         </div>
         {/* <Upload maxCount={1}>
           <Button

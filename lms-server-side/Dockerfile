@@ -1,13 +1,22 @@
-FROM dunglas/frankenphp:latest
+FROM php:8.2-fpm-bullseye
+
+# Configure apt to ignore GPG verification errors and remove docker-clean to bypass post-invoke failures (seccomp bypass)
+RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
+    echo 'Acquire::AllowInsecureRepositories "true";' > /etc/apt/apt.conf.d/99insecure && \
+    echo 'Acquire::AllowUnsecureRepositories "true";' >> /etc/apt/apt.conf.d/99insecure && \
+    echo 'APT::Get::AllowUnauthenticated "true";' >> /etc/apt/apt.conf.d/99insecure
+
+# Download the latest mlocati extension installer
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
-    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP Extensions
+# Install PHP Extensions using the installer (downloads precompiled binaries when possible)
 RUN install-php-extensions \
     pcntl \
     zip \
@@ -15,37 +24,26 @@ RUN install-php-extensions \
     pdo_mysql \
     mysqli
 
-# Install Composer secara manual
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /app
+WORKDIR /var/www
 
 # Copy all files
 COPY . .
 
-# Install dependencies lebih awal untuk caching
+# Install dependencies
 RUN composer install --ignore-platform-reqs --no-dev -a
 
-# Copy semua file aplikasi setelah dependencies terinstall
+# Set permission Laravel storage & cache
+RUN mkdir -p storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 
-# Set Environment Production
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-
-# Install Octane dengan FrankenPHP tanpa interaksi
-RUN echo "yes" | php artisan octane:install --server=frankenphp --no-interaction
-
-# Set permission Laravel storage & cache dengan user www-data
-RUN chown -R www-data:www-data storage bootstrap/cache && \
-    chmod -R 777 storage bootstrap/cache
-
-# Konfigurasi PHP upload limit
+# Configure PHP upload limit
 RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/custom.ini && \
     echo "post_max_size = 50M" >> /usr/local/etc/php/conf.d/custom.ini
 
-# Expose port 8010
-EXPOSE 8010
-
-# Jalankan Laravel Octane dengan FrankenPHP
-CMD ["php", "artisan", "octane:frankenphp", "--host=0.0.0.0", "--port=8010"]
+EXPOSE 9000
+CMD ["php-fpm"]

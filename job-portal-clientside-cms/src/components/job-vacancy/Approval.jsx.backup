@@ -1,0 +1,263 @@
+import { useEffect, useState } from "react";
+import { App, Button, DatePicker, Form, Modal, Select } from "antd";
+import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
+import dayjs from "dayjs";
+import Api from "../../services/Api";
+import StatusModal from "../StatusModal";
+import ApprovalIcon from "../../assets/svg/Status.svg";
+
+const normalizeStatus = (status) =>
+  (status || "pending").toLowerCase().replace(/\s+/g, "_");
+
+const Approval = ({
+  open,
+  setOpen,
+  applicantsData,
+  fetchData,
+  onStatusUpdated,
+}) => {
+  const { message } = App.useApp();
+  const [form] = Form.useForm();
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalStatus, setModalStatus] = useState("");
+  const [openStatusModal, setOpenStatusModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+
+  const normalizedStatus = normalizeStatus(applicantsData?.status);
+  const isPostInterview = normalizedStatus === "waiting_interview";
+  const isFinalStatus =
+    normalizedStatus === "rejected" || normalizedStatus === "accepted";
+
+  const handleCancel = () => {
+    form.resetFields();
+    setSelectedStatus(null);
+    setOpen(false);
+  };
+
+  const openFeedbackModal = (status, msg) => {
+    setModalMessage(msg);
+    setModalStatus(status === "success" ? "success" : "failed");
+    setOpenStatusModal(true);
+  };
+
+  const handleSave = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        setSaving(true);
+        const payload = { status: values.status };
+
+        if (values.status === "waiting_interview") {
+          payload.interview_date = values.interview_date
+            ? values.interview_date.format("YYYY-MM-DDTHH:mm")
+            : null;
+          payload.notes = values.notes;
+        }
+
+        Api.put(
+          `/jobs/applicants/change-status/${applicantsData.application_id}`,
+          payload
+        )
+          .then(() => {
+            onStatusUpdated?.(applicantsData.application_id, payload.status);
+            form.resetFields();
+            setSelectedStatus(null);
+            setOpen(false);
+            message.success("Status updated successfully.");
+          })
+          .catch((error) => {
+            openFeedbackModal(
+              "failed",
+              error?.data?.message || "Failed to update application status"
+            );
+          })
+          .finally(() => {
+            setSaving(false);
+          });
+      })
+      .catch(() => {
+        setSaving(false);
+      });
+  };
+
+  const handleFinalDecision = (status) => {
+    setSaving(true);
+    Api.put(
+      `/jobs/applicants/change-status/${applicantsData.application_id}`,
+      { status }
+    )
+      .then(() => {
+        onStatusUpdated?.(applicantsData.application_id, status);
+        setOpen(false);
+        message.success("Status updated successfully.");
+      })
+      .catch((error) => {
+        openFeedbackModal(
+          "failed",
+          error?.data?.message || "Failed to update application status"
+        );
+      })
+      .finally(() => {
+        setSaving(false);
+      });
+  };
+
+  useEffect(() => {
+    if (!open || !applicantsData) return;
+    form.resetFields();
+    setSelectedStatus(null);
+  }, [applicantsData, form, open]);
+
+  useEffect(() => {
+    if (open === false) {
+      fetchData(1, true);
+    }
+  }, [fetchData, open]);
+
+  return (
+    <>
+      <Modal
+        title={
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src={ApprovalIcon}
+              alt="Approval"
+              className="menu-icon"
+              style={{ marginRight: 10, marginBottom: 10, height: 40, width: 40 }}
+            />
+            <span>{isPostInterview ? "Final Approval" : "Schedule Interview"}</span>
+          </div>
+        }
+        centered
+        open={open}
+        onCancel={handleCancel}
+        width={420}
+        maskClosable={false}
+        destroyOnClose
+        footer={null}
+        style={{ borderRadius: 20, overflow: "hidden" }}
+      >
+        <hr style={{ borderColor: "#E9E9E9", borderWidth: "1px", marginBottom: 16 }} />
+
+        {isPostInterview ? (
+          <>
+            <p style={{ color: "#555", marginBottom: 24, textAlign: "center", lineHeight: 1.6 }}>
+              The interview has been conducted, just need to finalize the approval.
+            </p>
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <Button
+                onClick={() => handleFinalDecision("accepted")}
+                disabled={isFinalStatus}
+                loading={saving}
+                icon={<CheckCircleFilled />}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 12,
+                  backgroundColor: "#52c41a",
+                  borderColor: "#52c41a",
+                  color: "#fff",
+                  fontWeight: 600,
+                }}
+              >
+                Accepted
+              </Button>
+              <Button
+                onClick={() => handleFinalDecision("rejected")}
+                disabled={isFinalStatus}
+                loading={saving}
+                icon={<CloseCircleFilled />}
+                danger
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 12,
+                  fontWeight: 600,
+                }}
+              >
+                Rejected
+              </Button>
+            </div>
+          </>
+        ) : (
+          <Form form={form} layout="vertical" requiredMark={false}>
+            <Form.Item
+              name="status"
+              label="Status Approval"
+              style={{ marginBottom: 10 }}
+              rules={[{ required: true, message: "Please select status approval" }]}
+            >
+              <Select
+                disabled={isFinalStatus}
+                style={{ height: 56 }}
+                placeholder="Select status approval"
+                onChange={(value) => {
+                  setSelectedStatus(value);
+                  form.resetFields(["interview_date", "notes"]);
+                }}
+              >
+                <Select.Option value="waiting_interview">
+                  <span className="text-blue-500">Interview</span>
+                </Select.Option>
+                <Select.Option value="rejected">
+                  <span className="text-red-500">Rejected</span>
+                </Select.Option>
+              </Select>
+            </Form.Item>
+
+            {selectedStatus === "waiting_interview" && (
+              <Form.Item
+                name="interview_date"
+                label="Interview Date & Time"
+                rules={[{ required: true, message: "Please enter interview date" }]}
+              >
+                <DatePicker
+                  showTime
+                  style={{ width: "100%", height: 40 }}
+                  format="YYYY-MM-DD HH:mm"
+                  disabledDate={(current) => current && current < dayjs().startOf("day")}
+                />
+              </Form.Item>
+            )}
+
+
+            <div className="mt-7" style={{ textAlign: "center" }}>
+              <Button
+                onClick={handleCancel}
+                style={{
+                  marginRight: 8,
+                  width: "120px",
+                  height: "40px",
+                  borderRadius: "12px",
+                  borderColor: "#BBBBBB",
+                }}
+              >
+                <span className="font-medium">Cancel</span>
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleSave}
+                loading={saving}
+                style={{ width: "140px", height: "40px", borderRadius: "12px" }}
+              >
+                <span className="font-medium">Save Status</span>
+              </Button>
+            </div>
+          </Form>
+        )}
+
+      </Modal>
+
+      <StatusModal
+        open={openStatusModal}
+        setOpen={setOpenStatusModal}
+        message={modalMessage}
+        status={modalStatus}
+      />
+    </>
+  );
+};
+
+export default Approval;

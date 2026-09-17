@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Checkbox, Form, Input, message } from "antd";
+import { Button, Checkbox, Form, Input, App } from "antd";
 import {
   EnvelopeIcon,
   EyeIcon,
@@ -14,12 +14,15 @@ import logoGoogle from "../../assets/images/google.png";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import sign from "jwt-encode";
+import { useUserContext } from "../../UserContext";
 
 const Register = () => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
+  const { setUserData } = useUserContext();
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -59,9 +62,9 @@ const Register = () => {
 
     localStorage.setItem("token", JSON.stringify(tokenData));
     localStorage.setItem("userData", JSON.stringify(userData));
+    setUserData(userData);
     message.success("Login successful!");
-    // navigateTo("/");
-    window.location.href = "/";
+    navigate("/");
   };
 
   const handleRegister = async (values) => {
@@ -75,18 +78,20 @@ const Register = () => {
       await Api.post(`/auth/register/job-seeker`, data)
         .then((response) => {
           const { data } = response;
-          message.destroy();
-          message.success("OTP send. Please check your email.");
+          message.success("Registration successful! OTP send. Please check your email.");
           navigate("/verification-account", {
             state: { ...data, email: values.email },
           });
         })
         .catch((error) => {
-          message.destroy();
-          message.error(error.data.message);
+          const statusCode = error?.response?.data?.statusCode || error?.data?.statusCode;
+          if (statusCode === 409 || statusCode === 404) {
+            message.error("Registration failed! Account is already registered or invalid input.");
+          } else {
+            message.error(error?.response?.data?.message || error?.data?.message || "Registration failed. Please try again.");
+          }
         });
     } catch (error) {
-      message.destroy();
       message.error(error.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);

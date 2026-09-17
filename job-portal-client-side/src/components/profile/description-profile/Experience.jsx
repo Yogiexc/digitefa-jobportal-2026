@@ -7,7 +7,7 @@ dayjs.extend(customParseFormat);
 import ExperienceIcon from "../../../assets/svg/Experiences.svg"
 
 const Experience = ({ open, setOpen, section, initialValues, resetForm, action }) => {
-  const form = Form.useFormInstance();
+  const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState('');
   const [isCurrentlyWork, setIsCurrentlyWork] = useState(false);
 
@@ -32,7 +32,7 @@ const Experience = ({ open, setOpen, section, initialValues, resetForm, action }
     closed()
   };
 
-  
+
 
   const handleCancel = () => {
     closed();
@@ -63,7 +63,7 @@ const Experience = ({ open, setOpen, section, initialValues, resetForm, action }
             className="menu-icon"
             style={{ marginRight: 10, marginBottom: 10, height: 40, width: 40 }}
           />
-          <span>Experience</span>
+          <span>{initialValues && 'experience_id' in initialValues ? 'Edit Experience' : 'Add Experience'}</span>
         </div>
       }
       centered
@@ -140,7 +140,7 @@ const Experience = ({ open, setOpen, section, initialValues, resetForm, action }
             <Form.Item
               name="start_date"
               label="Start Date"
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               rules={[{ required: true, message: 'Please select start date' }]}
             >
               <DatePicker format={'MMMM YYYY'} picker='month' size='large' className='w-full' style={{ borderRadius: 12, height: 56 }} />
@@ -151,7 +151,7 @@ const Experience = ({ open, setOpen, section, initialValues, resetForm, action }
               name="end_date"
               label="End Date"
               className='mb-auto'
-              getValueProps={(val) => ({ value: val?dayjs(val):null })}
+              getValueProps={(val) => ({ value: val ? dayjs(val) : null })}
               hidden={isCurrentlyWork}
               rules={[{ required: !isCurrentlyWork, message: 'Please select start date' }]}
             >
@@ -170,7 +170,7 @@ const Experience = ({ open, setOpen, section, initialValues, resetForm, action }
           name="description"
           label="Description"
           requiredMark={true}
-          rules={[            
+          rules={[
             { max: characterLimit, message: `Maximum character limit is ${characterLimit}` },
             { required: true, message: 'Please fill description' }
           ]}
@@ -189,7 +189,7 @@ const Experience = ({ open, setOpen, section, initialValues, resetForm, action }
           <Button onClick={handleCancel} style={{ width: 120, height: 40, borderRadius: 12, borderColor: "#BBB", marginRight: 8 }}>
             <span className='font-medium'>Cancel </span>
           </Button>
-          <Button type="primary" htmlType="submit" style={{width: 120, height: 40, borderRadius: 12}}>
+          <Button type="primary" htmlType="submit" style={{ width: 120, height: 40, borderRadius: 12 }}>
             <span className='font-medium'> Save </span>
           </Button>
         </div>
